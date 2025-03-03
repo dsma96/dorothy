@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+
 public enum UserRole {
     CUSTOMER("CUSTOMER","customer"),
     DESIGNER("DESIGNER","Hair Designer"),
@@ -12,4 +12,8 @@ public enum UserRole {
 
     private final String role;
     private final String description;
+    UserRole(String role, String description) {
+        this.role = role;
+        this.description = description;
+    }
 }

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import {useDispatch} from 'react-redux';
+import {setUser} from './redux/actions';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,6 +18,8 @@ import { styled } from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { useTheme } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input'
+import type {Member} from './type';
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -59,45 +63,75 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
+interface LoginResponse {
+    msg: string,
+    code: number,
+    data?: Member
+};
+
 export default function SignIn() {
-    const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+    const [phoneError, setPhoneError] = React.useState(false);
+    const [phoneErrorMessage, setPhoneErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-    const [setOpen] = React.useState(false);
-    const [telNo, setTelNo] = React.useState("4160001234");
+    const [phone, setPhone] = React.useState("");
 
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        if (emailError || passwordError) {
+        console.log("handleSubmit");
+        if (phoneError || passwordError) {
             event.preventDefault();
             return;
         }
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+
+        const data = {
+            phone: phone,
+            password: event.currentTarget.elements.password.value
+        }
+
+
+
+        fetch("/api/login/login", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response =>response.json())
+        .then(
+                data => {
+                    console.log("responseData : "+data);
+                    if( data.code == 200 ){
+                      setUser( data.payload ) ;
+                    }
+                }
+            )
+            .catch(error => console.error("Error:", error));
+        event.preventDefault();
     };
 
     const handleChange = (value:string) => {
-
-        setTelNo(value);
+        if( value.length > 15)
+            return;
+        let phone = value.replaceAll(/(\+1)|[^0-9]+/g,"");
+        console.log( phone +" "+value );
+        setPhone(phone);
     };
 
     const validateInputs = () => {
-        const email = telNo;
+        const phoneNo = phone;
         const password = document.getElementById('password') as HTMLInputElement;
 
         let isValid = true;
-        console.log("email"+ email);
-        if (!email || email.length != 10) {
-            setEmailError(true);
-            setEmailErrorMessage('Please enter a valid phone number');
+
+        if (!phoneNo || phoneNo.length != 10) {
+            setPhoneError(true);
+            setPhoneErrorMessage('Please enter a valid phone number');
             isValid = false;
         } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
+            setPhoneError(false);
+            setPhoneErrorMessage('');
         }
 
         if (!password.value || password.value.length < 6) {
@@ -140,21 +174,21 @@ export default function SignIn() {
                         <FormControl>
                             <FormLabel htmlFor="email">Phone Number</FormLabel>
                             <MuiTelInput
-                                error={emailError}
-                                helperText={emailErrorMessage}
+                                error={phoneError}
+                                helperText={phoneErrorMessage}
                                 defaultCountry="CA"
                                 onlyCountries={['CA']}
                                 disableDropdown={true}
                                 forceCallingCode
-                                id="email"
-                                value={telNo}
+                                id="phone"
+                                value={phone}
                                 onChange={handleChange}
                                 autoFocus
                                 required
                                 fullWidth
                                 autoComplete="current-telno"
                                 variant="outlined"
-                                color={emailError ? 'error' : 'primary'}
+                                color={phoneError ? 'error' : 'primary'}
                             />
                         </FormControl>
                         <FormControl>
@@ -172,6 +206,7 @@ export default function SignIn() {
                                 fullWidth
                                 variant="outlined"
                                 color={passwordError ? 'error' : 'primary'}
+
                             />
                         </FormControl>
                         <FormControlLabel

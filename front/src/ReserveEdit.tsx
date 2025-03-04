@@ -13,7 +13,7 @@ import {CardActions, FormGroup} from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import type {Member} from 'type'
 import { useSelector, useDispatch } from 'react-redux';
-
+import {useNavigate} from "react-router";
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -57,13 +57,14 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
-    const loginUser: Member = useSelector( state => state.loginUser);
+    const loginUser: Member = useSelector( state => state.user);
 
     const validateInputs = () => {
 
         return true;
     };
 
+    const navigate = useNavigate();
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 
@@ -130,10 +131,9 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             Done
                         </Button>
                         <Button
-                            type="submit"
                             size="large"
                             variant="contained"
-                            onClick={validateInputs}
+                            onClick={() => navigate(-1)}
                             color="info"
                         >
                             Cancel

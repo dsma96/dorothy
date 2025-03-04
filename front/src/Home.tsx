@@ -78,7 +78,7 @@ export default function Home() {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            href="/reserve"
+                            href="/time"
                         >
                             예약하기
                         </Button>

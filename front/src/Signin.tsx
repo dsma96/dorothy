@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useDispatch} from 'react-redux';
-import {setUser} from './redux/actions';
+import {setUser} from './redux/store';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -18,8 +18,10 @@ import { styled } from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { useTheme } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input'
-import type {Member} from './type';
 
+import {useNavigate} from "react-router";
+import { useSearchParams } from "react-router-dom";
+import type {Member} from './type';
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -75,7 +77,15 @@ export default function SignIn() {
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
     const [phone, setPhone] = React.useState("");
+    let [searchParams] = useSearchParams();
+    let retUrl= "/";
 
+    if( searchParams.get("ret"))
+        retUrl += searchParams.get("ret")
+
+
+    const navigate = useNavigate();
+    let dispatch = useDispatch();
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         console.log("handleSubmit");
@@ -89,8 +99,6 @@ export default function SignIn() {
             password: event.currentTarget.elements.password.value
         }
 
-
-
         fetch("/api/login/login", {
             method: "POST",
             body: JSON.stringify(data),
@@ -101,9 +109,10 @@ export default function SignIn() {
         .then(response =>response.json())
         .then(
                 data => {
-                    console.log("responseData : "+data);
+                    console.log("responseData : "+ JSON.stringify(data));
                     if( data.code == 200 ){
-                      setUser( data.payload ) ;
+                      dispatch( setUser( data.payload )) ;
+                      navigate(retUrl)
                     }
                 }
             )
@@ -115,7 +124,7 @@ export default function SignIn() {
         if( value.length > 15)
             return;
         let phone = value.replaceAll(/(\+1)|[^0-9]+/g,"");
-        console.log( phone +" "+value );
+
         setPhone(phone);
     };
 

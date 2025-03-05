@@ -29,7 +29,7 @@ createRoot(document.getElementById('root')!).render(
                         <Route path="/login" element={<SignIn/>}></Route>
                         <Route path="/reserve" element={<ReserveEdit/>}></Route>
                         <Route path="/demo" element={<Demo/>}></Route>
-                        <Route path="/signUp" element={<SignUp/>}></Route>
+                        <Route path="/signup" element={<SignUp/>}></Route>
                     </Routes>
                 </StyledEngineProvider>
             </StrictMode>

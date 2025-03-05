@@ -13,13 +13,13 @@ import MuiCard from '@mui/material/Card';
 import {styled, useTheme} from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { MuiTelInput } from 'mui-tel-input'
-
+import {useNavigate} from "react-router";
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
     width: '100%',
-    padding: theme.spacing(4),
+    padding: theme.spacing(1),
     gap: theme.spacing(2),
     margin: 'auto',
     boxShadow:
@@ -110,6 +110,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             event.preventDefault();
             return;
         }
+
+        const navigate = useNavigate();
+
         const data = new FormData(event.currentTarget);
         console.log({
             name: data.get('name'),
@@ -199,6 +202,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             onClick={validateInputs}
                         >
                             Sign up
+                        </Button>
+                        <Button
+                            size="large"
+                            variant="contained"
+                            onClick={() => navigate('/')}
+                            color="info"
+                        >
+                            Cancel
                         </Button>
                     </Box>
 

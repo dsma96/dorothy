@@ -52,10 +52,10 @@ ul {
 * {
     box-sizing: border-box;
 }
+
 #root {
     display: flex;
     flex-direction: column;
-
 }
 
 
@@ -72,4 +72,8 @@ ul {
     flex-shrink: 0;
 
     margin-bottom: 0px;
+}
+
+.rbc-time-content{
+    overflow: scroll;
 }

@@ -15,13 +15,14 @@ import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import * as React from "react";
+import {useNavigate} from "react-router";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
     width: '100%',
-    padding: theme.spacing(4),
+    padding: theme.spacing(1),
     gap: theme.spacing(2),
     margin: 'auto',
     [theme.breakpoints.up('sm')]: {
@@ -40,7 +41,7 @@ const HomeContainer = styled(Stack)(({ theme }) => ({
     minHeight: '100%',
     padding: theme.spacing(2),
     [theme.breakpoints.up('sm')]: {
-        padding: theme.spacing(4),
+        padding: theme.spacing(1),
     },
     '&::before': {
         content: '""',
@@ -58,14 +59,23 @@ const HomeContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
+
+
 export default function Home() {
     const theme = useTheme();
+    const navigate = useNavigate();
+
+    const gotoTimetable  = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        navigate("/time");
+    }
+
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <HomeContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined">
-                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
+                    <img src={'./dorothy.png'} alt={'Dorothy'}/>
 
                     <Typography
                         component="h1"
@@ -75,16 +85,16 @@ export default function Home() {
                         Dorothy 쌤
                     </Typography>
                         <Button
-                            type="submit"
+                            type="button"
                             fullWidth
                             variant="contained"
-                            href="/time"
+                            onClick={gotoTimetable}
                         >
                             예약하기
                         </Button>
                     <Divider></Divider>
                     <Button
-                        type="submit"
+                        type="button"
                         fullWidth
                         variant="contained"
                     >
@@ -92,7 +102,7 @@ export default function Home() {
                     </Button>
                     <Divider></Divider>
                     <Button
-                        type="submit"
+                        type="button"
                         fullWidth
                         variant="contained"
                     >
@@ -104,7 +114,7 @@ export default function Home() {
                         <Typography sx={{textAlign: 'center'}}>
                             Don&apos;t have an account?{' '}
                             <Link
-                                href="/material-ui/getting-started/templates/sign-in/"
+                                href="/signup"
                                 variant="body2"
                                 sx={{alignSelf: 'center'}}
                             >

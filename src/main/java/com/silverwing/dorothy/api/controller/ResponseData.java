@@ -1,7 +1,9 @@
 package com.silverwing.dorothy.api.controller;
 
-import lombok.Builder;
+import com.silverwing.dorothy.domain.reserve.ReservationDto;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class ResponseData <T>{

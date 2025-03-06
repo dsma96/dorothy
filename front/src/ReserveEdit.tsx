@@ -3,17 +3,22 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import {styled, useTheme} from '@mui/material/styles';
-import { AppProvider } from '@toolpad/core/AppProvider';
 import {CardActions, FormGroup} from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
+
+import { AppProvider } from '@toolpad/core/AppProvider';
 import type {Member} from 'type'
 import { useSelector, useDispatch } from 'react-redux';
 import {useNavigate} from "react-router";
+import { useSearchParams } from "react-router-dom";
+import moment from 'moment'
+import {TIME_UNIT} from './TimeTable';
+import TextField from "@mui/material/TextField";
+
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -56,8 +61,15 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
-export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
-    const loginUser: Member = useSelector( state => state.user);
+export default function ReserveEdit(props: { disableCustomTheme?: boolean , startDate : Date, endDate : Date}) {
+    const loginUser: Member = useSelector(state => state.user);
+    let [searchParams] = useSearchParams();
+    let startDate: Date = new Date();
+
+    if (searchParams.get("start")) {
+        console.log(searchParams.get("start"));
+        startDate = moment(searchParams.get("start"),"YYYYMMDD HH:mm");
+    }
 
     const validateInputs = () => {
 
@@ -69,13 +81,17 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 
         const data = new FormData(event.currentTarget);
-        console.log({
-            name: data.get('name'),
-            lastName: data.get('lastName'),
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+
     };
+
+    const formatPhoneNumber = (phoneNumberString: string) => {
+        var cleaned = ('' + phoneNumberString).replace(/\D/g, '');
+        var match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+        if (match) {
+            return '(' + match[1] + ') ' + match[2] + '-' + match[3];
+        }
+        return null;
+    }
 
     const theme = useTheme();
     return (
@@ -96,7 +112,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                         variant="h4"
                         sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.15rem)'}}
                     >
-                        2025/01/24 09:30
+                        { moment( startDate ).format('YYYY/MM/DD ddd HH:mm')}
                     </Typography>
 
                     <Box
@@ -109,7 +125,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             variant="h4"
                             sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.15rem)'}}
                         >
-                            {loginUser.name} {loginUser.phone}
+                            {loginUser.name} { formatPhoneNumber( loginUser.phone)}
                         </Typography>
                         <FormGroup>
                             <FormControlLabel disabled control={<Checkbox defaultChecked />} label="남자헤어컷" />
@@ -117,10 +133,12 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             <FormControlLabel  control={<Checkbox />} label="다운펌" />
                             <FormControlLabel  control={<Checkbox />} label="세치염색" />
                         </FormGroup>
-                        {/*<FormControlLabel*/}
-                        {/*    control={<Checkbox value="allowExtraEmails" color="primary" />}*/}
-                        {/*    label="I want to receive "*/}
-                        {/*/>*/}
+                        <TextField
+                            placeholder="Please leave your extra requirements"
+                            multiline
+                            rows={2}
+                            maxRows={4}
+                        />
                         <CardActions >
                         <Button
                             type="submit"
@@ -128,7 +146,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             variant="contained"
                             onClick={validateInputs}
                         >
-                            Done
+                            Reserve
                         </Button>
                         <Button
                             size="large"

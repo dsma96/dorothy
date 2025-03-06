@@ -24,7 +24,7 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name="user_id")
-    private long user_id;
+    private int userId;
 
     @Column(name="user_name")
     private String username;

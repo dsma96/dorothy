@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import {Card} from "@mui/material";
+import {Card, Snackbar} from "@mui/material";
 import {useNavigate} from "react-router";
 import {Navigate} from 'react-router-dom';
 import Stack from "@mui/material/Stack";
@@ -57,24 +57,13 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
 
 const TimeTable: FC = () => {
     const navigate = useNavigate();
-    moment.tz.setDefault(defaultTZ )
-    moment.tz.setDefault();
-    const today = new Date();
-    const start =  new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate(),
-        11,30
-    );
-    const end = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate(),
-        12
-    );
-    const [events, setEvents] = useState<Event[]>();
 
+    const today = new Date();
+
+    const [events, setEvents] = useState<Event[]>();
+    const [openPopup, setOpenPopup] = useState<boolean>();
     const loginUser: Member = useSelector( state => state.user);
+    const [popupMessage, setPopupMessage] = useState<string>();
 
     if( loginUser.name == 'anonymous'){
        return <Navigate to ="/login?ret=time"/>
@@ -83,17 +72,27 @@ const TimeTable: FC = () => {
     const [value, setValue] = React.useState(0);
     const theme = useTheme();
 
-    const handleSelectSlot = useCallback(({ start , end }) => {
-        console.log(`SelectSlot ${start} ${end}`)
-
+    const handleSelectSlot = useCallback(({ start , end  }) => {
+        if( start > new Date())
+            navigate("/reserve?start="+moment(start).format('YYYYMMDD HH:mm'))
+        else{
+            // setPopupMessage("Please choose a date in the future")
+            // setOpenPopup(true);
+            console.log("invalid time")
+        }
     }, [setEvents])
 
     const handleSelectEvent = (e)=>{
         console.log('selectEvent'+JSON.stringify(e));
     }
 
+    const handleClosePopup = e=>{
+        setOpenPopup(false);
+    }
+
     return (
     <AppProvider theme={theme}>
+
         <TimeTableContainer direction="column" justifyContent="space-between" >
             <Card variant="elevation" style={ {overflowY:'scroll'}}>
                 <Typography
@@ -103,13 +102,13 @@ const TimeTable: FC = () => {
                 >
                     Welcome {loginUser.name}!
                 </Typography>
+
                 <Calendar
                     defaultView='day'
                     events={events}
                     localizer={localizer}
-
                     selectable
-                    step={30}
+                    step={TIME_UNIT}
                     timeslots={1}
 
                     min={
@@ -128,15 +127,16 @@ const TimeTable: FC = () => {
                             18,30
                         )
                     }
-                    views={[ 'day']}
+                    views={['day']}
                     popup={true}
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
+                    onDoubleClickEvent={handleSelectEvent}
                     longPressThreshold={5}
                 />
             </Card>
                 <BottomNavigation
-                    showLabels
+                    showLabels={true}
                     value={value}
                     onChange={(event, newValue) => {
                         setValue(newValue);
@@ -147,8 +147,19 @@ const TimeTable: FC = () => {
                     <BottomNavigationAction label="Points" icon={<SavingsIcon />} />
                     <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
                     <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon />} onClick={() => navigate('/')} />
+                    <Snackbar
+                        open={openPopup}
+                        onClick={()=>setOpenPopup(false)}
+
+                        message={popupMessage}
+                        sx={{
+                            '&.MuiSnackbar-root': { top: '50px' },
+                        }}
+                    />
                 </BottomNavigation>
+
         </TimeTableContainer>
+
     </AppProvider>
     )
 }
@@ -172,3 +183,7 @@ const localizer = momentLocalizer(moment)
 
 
 export default TimeTable
+
+export const TIME_UNIT : number= 30;
+
+

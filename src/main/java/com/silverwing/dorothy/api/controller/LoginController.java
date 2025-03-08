@@ -1,6 +1,4 @@
 package com.silverwing.dorothy.api.controller;
-
-import com.silverwing.dorothy.DorothyApplication;
 import com.silverwing.dorothy.api.service.DorothyUserService;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.member.MemberDto;
@@ -46,7 +44,8 @@ public class LoginController {
                                 .email(loginUser.getEmail())
                                 .name(loginUser.getUsername())
                                 .phone( loginUser.getPhone())
-                    .build();
+                                .id(loginUser.getUserId())
+                                .build();
             return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
 
         }catch (AuthenticationException e) {

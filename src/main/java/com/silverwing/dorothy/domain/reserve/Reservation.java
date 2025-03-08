@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="reg_id")
     int regId;
 
@@ -36,7 +36,11 @@ public class Reservation {
     Date modifyDate;
 
     @Column(name="designer")
-    int designer;
+    int designerId;
+
+    @ManyToOne
+    @JoinColumn( insertable = false, updatable = false, name="designer")
+    Member Designer;
 
     @Column(name="memo")
     String memo;
@@ -45,7 +49,10 @@ public class Reservation {
     @Temporal(TemporalType.TIMESTAMP)
     Date startDate;
 
+    @Column(name="end_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    Date endDate;
+
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;
-
 }

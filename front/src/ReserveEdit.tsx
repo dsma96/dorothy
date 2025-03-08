@@ -7,7 +7,15 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import {styled, useTheme} from '@mui/material/styles';
-import {CardActions, FormGroup} from "@mui/material";
+import {
+    CardActions,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormGroup
+} from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
 import { AppProvider } from '@toolpad/core/AppProvider';
@@ -16,8 +24,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import {useNavigate} from "react-router";
 import { useSearchParams } from "react-router-dom";
 import moment from 'moment'
-import {TIME_UNIT} from './TimeTable';
 import TextField from "@mui/material/TextField";
+import {HairService, Reservation} from "type";
+import {useEffect, useState} from "react";
+import {setUser} from "./redux/store";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -61,27 +71,97 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
-export default function ReserveEdit(props: { disableCustomTheme?: boolean , startDate : Date, endDate : Date}) {
-    const loginUser: Member = useSelector(state => state.user);
+export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
+    const loginUser: Member = useSelector(state => state.user.loginUser);
     let [searchParams] = useSearchParams();
-    let startDate: Date = new Date();
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Dorothy");
+    const [ dialogMessage, setDialogMessage] = useState("");
 
-    if (searchParams.get("start")) {
-        console.log(searchParams.get("start"));
-        startDate = moment(searchParams.get("start"),"YYYYMMDD HH:mm");
+    const  [reservation, setReservation] = React.useState< Reservation> ( {
+        reservationId:-1,
+        userName:'',
+        startDate:'',
+        createDate:'',
+        status:'CREATED',
+        services:[],
+        editable:true,
+        memo:''
+    });
+
+    useEffect(() => {
+        if (searchParams.get("start")) {
+            let startDateString = searchParams.get("start");
+            setReservation(
+                {
+                    ...reservation,
+                    startDate: startDateString
+                }
+            )
+        }
+        else if( searchParams.get("regId")){
+            let regId = searchParams.get("regId");
+            fetch(`/api/reserve/${regId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response =>response.json())
+                .then(
+                    data => {
+                        if( data.code == 200 ){
+                            // dispatch( setUser( data.payload )) ;
+                            // navigate(retUrl)
+                            setReservation( data.payload );
+                        }
+                    }
+                )
+                .catch(error => console.error("Error:", error));
+        }
+    },[]);
+
+    const handleCloseDialog=()=>{
+        setOpenDialog(false);
+        navigate(-1);
     }
+    const saveReserve = (event) => {
+        event.preventDefault();
 
-    const validateInputs = () => {
+        const reqDto = {
+            startTime: reservation.startDate,
+            designer: 1,
+            memo: reservation.memo,
+            serviceIds:[1]
+        };
 
-        return true;
+        fetch("/api/reserve/reservation", {
+            method: "POST",
+            body: JSON.stringify(reqDto),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    console.log("responseData : "+ JSON.stringify(data));
+                    if( data.code == 200 ){
+                        console.log("Registration Success!!");
+                        setDialogTitle("Complete!");
+                        setOpenDialog(true);
+                        setDialogMessage( 'See you at ' + formatDate( data.payload.startDate));
+                    }
+                }
+            )
+            .catch(error => console.error("Error:", error));
+
     };
 
     const navigate = useNavigate();
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-
         const data = new FormData(event.currentTarget);
-
     };
 
     const formatPhoneNumber = (phoneNumberString: string) => {
@@ -93,26 +173,38 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean , star
         return null;
     }
 
+    const formatDate = (dateStr: string) =>{
+        return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
+    }
+
+    const handleMemoInput = e=>{
+        setReservation({
+            ...reservation,
+            memo: e.target.value
+        })
+    }
+
     const theme = useTheme();
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined">
-                    <img src={'../public/dorothy.png'} alt={'Dorothy Hairshop'}/>
+                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
                         component="h1"
                         variant="h4"
                         sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}
                     >
-                        Reservation
+                        {reservation.reservationId > 0 ? 'Edit Reservation' : 'New Reservation'}
                     </Typography>
                     <Typography
                         component="h4"
                         variant="h4"
                         sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.15rem)'}}
                     >
-                        { moment( startDate ).format('YYYY/MM/DD ddd HH:mm')}
+                        {  formatDate( reservation.startDate )}
+
                     </Typography>
 
                     <Box
@@ -127,24 +219,27 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean , star
                         >
                             {loginUser.name} { formatPhoneNumber( loginUser.phone)}
                         </Typography>
-                        <FormGroup>
-                            <FormControlLabel disabled control={<Checkbox defaultChecked />} label="남자헤어컷" />
-                            <FormControlLabel  control={<Checkbox />} label="샴푸+드라이" />
-                            <FormControlLabel  control={<Checkbox />} label="다운펌" />
-                            <FormControlLabel  control={<Checkbox />} label="세치염색" />
-                        </FormGroup>
+                        {/*<FormGroup>*/}
+                        {/*    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="남자헤어컷" />*/}
+                        {/*    <FormControlLabel  control={<Checkbox />} label="샴푸+드라이" />*/}
+                        {/*    <FormControlLabel  control={<Checkbox />} label="다운펌" />*/}
+                        {/*    <FormControlLabel  control={<Checkbox />} label="세치염색" />*/}
+                        {/*</FormGroup>*/}
                         <TextField
                             placeholder="Please leave your extra requirements"
                             multiline
                             rows={2}
                             maxRows={4}
+                            value={reservation.memo}
+                            onChange={handleMemoInput}
                         />
                         <CardActions >
                         <Button
                             type="submit"
                             size="large"
                             variant="contained"
-                            onClick={validateInputs}
+                            onClick={saveReserve}
+                            disabled={!reservation.editable}
                         >
                             Reserve
                         </Button>
@@ -158,8 +253,27 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean , star
                         </Button>
                         </CardActions>
                     </Box>
-
                 </Card>
+                <Dialog
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {dialogTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {dialogMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} autoFocus>
+                            Confirm
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </SignUpContainer>
         </AppProvider>
     );

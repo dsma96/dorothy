@@ -10,4 +10,5 @@ public class MemberDto {
     String password;
     String email;
     String name;
+    int id;
 }

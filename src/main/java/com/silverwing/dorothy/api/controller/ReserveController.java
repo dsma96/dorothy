@@ -5,10 +5,13 @@ import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.member.MemberDto;
 import com.silverwing.dorothy.domain.reserve.Reservation;
 import com.silverwing.dorothy.domain.reserve.ReservationDto;
+import com.silverwing.dorothy.domain.reserve.ReservationRequestDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +34,7 @@ public class ReserveController {
     @GetMapping("/reservations")
     public ResponseEntity< ResponseData<List<ReservationDto>>> getReservations(@AuthenticationPrincipal Member member, @RequestParam("startDate") String startDateStr, @RequestParam("endDate") String endDateStr) {
         if (member == null) {
-            return new ResponseEntity<>(new ResponseData<>("You must login"), HttpStatus.UNAUTHORIZED);
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
         }
 
         Date startDate = null;
@@ -47,6 +50,28 @@ public class ReserveController {
         List<Reservation> reservations = reservationService.getReservations(member.getUserId(), startDate, endDate);
         List<ReservationDto> reservationDtos = reservationService.convertReservations(reservations, member.getUserId());
         return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), reservationDtos), HttpStatus.OK);
+    }
+
+    @GetMapping("/{regId}")
+    public ResponseEntity<ResponseData<ReservationDto>> getReservation(@AuthenticationPrincipal Member member, @PathVariable int regId) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        Reservation reservation = reservationService.getReservation(regId).orElseThrow();
+        ReservationDto reservationDto = reservationService.convertReservation( reservation, member);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), reservationDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/reservation")
+    public ResponseEntity<ResponseData<ReservationDto>> createReservation(@AuthenticationPrincipal Member member, @RequestBody ReservationRequestDTO reservationDto) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        Reservation reservation =  reservationService.createReservation(reservationDto, member);
+        ReservationDto dto = reservationService.convertReservation( reservation, member);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
     }
 }
 

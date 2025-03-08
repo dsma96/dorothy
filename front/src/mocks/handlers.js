@@ -1,5 +1,5 @@
 import { http, HttpResponse    } from 'msw'
-
+import moment from 'moment'
 
 export const handlers = [
     // Intercept "GET https://example.com/user" requests...
@@ -13,10 +13,143 @@ export const handlers = [
                         phone: "6474060362",
                         password: null,
                         email: "silverwing@gmail.com",
-                        name: "Lemmy"
+                        name: "Lemmy",
+                        id:2
                     }
                 }
             )
         }
     ),
+    http.post(
+        '/api/reserve/reservation', ({request})=> {
+            return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    "payload": {
+                        "reservationId": 10,
+                        "userName": "Aiden",
+                        "phone": "2892440503",
+                        "startDate": "20250309T13:30",
+                        "createDate": null,
+                        "status": "CREATED",
+                        "services": [null],
+                        "memo": "reserve1",
+                        "editable": true
+                    }
+                }
+            )
+        }
+    )
+,
+    http.get('/api/reserve/reservations', ({request})=>{
+            const url = new URL(request.url);
+            const startDate = url.searchParams.get('startDate');
+
+            let today = moment(startDate,"YYYYMMDD'T'HH:mm").format("YYYYMMDD");
+
+            return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    payload:[
+                        {
+                            reservationId: 1,
+                            userName: "Aiden",
+                            phone: "2892440503",
+                            startDate: today+"T10:00",
+                            createDate: null,
+                            services: [
+                                {serviceI: 1,
+                                    name: "남자 헤어컷",
+                                    mandatory: true,
+                                    idx: 0,
+                                    use: true
+                                },
+                                {
+                                    serviceId: 3,
+                                    name:"다운펌",
+                                    mandatory: false,
+                                    idx: 2,
+                                    use: true
+                                }
+                            ],
+                            status: 'CREATED',
+                            isEditable:true,
+                            memo:'hello'
+                        },
+                        {
+                            reservationId: 2,
+                            userName: "John Doe",
+                            phone: "416-000-1234",
+                            startDate: today+"T13:00",
+                            createDate: null,
+                            services: [],
+                            status: 'CREATED',
+                            isEditable: false
+                        }
+                    ]
+                }
+            )
+        }
+    ),
+    http.get('/api/reserve/:id', ({params})=>{
+        const{id} = params;
+        let today = moment(new Date()).format("YYYYMMDD");
+
+        if( id == '1'){
+            return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    payload:
+                        {
+                            "reservationId": 1,
+                            "userName": "Aiden",
+                            "phone": "2892440503",
+                            "startDate": today+"T10:00",
+                            "createDate": null,
+                            "status": "CREATED",
+                            "memo":"memo1",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": true,
+                                    "idx": 0,
+                                    "use": true
+                                },
+                                {
+                                    "serviceId": 3,
+                                    "name": "다운펌",
+                                    "mandatory": false,
+                                    "idx": 2,
+                                    "use": true
+                                }
+                            ],
+                            "editable": true
+                        }
+                });
+        }else{
+            return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    payload:
+                        {
+                            "reservationId": parseInt(id),
+                            "userName": "John Doe",
+                            "phone": "416-000-1234",
+                            "startDate": today+"T13:00",
+                            "createDate": null,
+                            "status": "CREATED",
+                            "services": [],
+                            "editable": false
+                        }
+                });
+
+        }
+    }
+
+    )
 ]

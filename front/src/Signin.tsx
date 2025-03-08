@@ -76,7 +76,8 @@ export default function SignIn() {
     const [phoneErrorMessage, setPhoneErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-    const [phone, setPhone] = React.useState("");
+    const [phone, setPhone] = React.useState("6474060362");
+    const [password,setPassword] = React.useState("merong2");
     let [searchParams] = useSearchParams();
     let retUrl= "/";
 
@@ -96,7 +97,7 @@ export default function SignIn() {
 
         const data = {
             phone: phone,
-            password: event.currentTarget.elements.password.value
+            password: password
         }
 
         fetch("/api/login/login", {
@@ -128,9 +129,15 @@ export default function SignIn() {
         setPhone(phone);
     };
 
+    const handlePasswordChange = (event) => {
+        if( event.target.value.length > 5)
+            return;
+
+        setPassword(event.target.value);
+    };
+
     const validateInputs = () => {
         const phoneNo = phone;
-        const password = document.getElementById('password') as HTMLInputElement;
 
         let isValid = true;
 
@@ -143,9 +150,9 @@ export default function SignIn() {
             setPhoneErrorMessage('');
         }
 
-        if (!password.value || password.value.length < 6) {
+        if (!password || password.length < 5) {
             setPasswordError(true);
-            setPasswordErrorMessage('Password must be at least 6 characters long.');
+            setPasswordErrorMessage('Password must be at least 5 characters long.');
             isValid = false;
         } else {
             setPasswordError(false);
@@ -153,14 +160,14 @@ export default function SignIn() {
         }
 
         return isValid;
-    };
+    }
     const theme = useTheme();
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignInContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined">
-                    <img src={'../public/dorothy.png'} alt={'Dorothy Hairshop'}/>
+                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
 
                     <Typography
                         component="h1"
@@ -207,6 +214,7 @@ export default function SignIn() {
                                 helperText={passwordErrorMessage}
                                 name="password"
                                 placeholder="••••••"
+                                defaultValue={password}
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
@@ -215,7 +223,7 @@ export default function SignIn() {
                                 fullWidth
                                 variant="outlined"
                                 color={passwordError ? 'error' : 'primary'}
-
+                                onChange = { handlePasswordChange}
                             />
                         </FormControl>
                         <FormControlLabel

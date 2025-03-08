@@ -12,4 +12,5 @@ public class ReservationRequestDTO {
     List<Integer> serviceIds;
     String startTime;
     int designer;
+    String memo;
 }

@@ -127,7 +127,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined">
-                    <img src={'../public/dorothy.png'} alt={'Dorothy Hairshop'}/>
+                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
                         component="h1"
                         variant="h4"

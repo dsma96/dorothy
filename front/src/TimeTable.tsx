@@ -1,4 +1,4 @@
-import { FC, useState, useCallback } from 'react'
+import { FC, useState, useCallback, useEffect  } from 'react'
 import { Calendar, dateFnsLocalizer, Event,momentLocalizer , BigCalendar} from 'react-big-calendar'
 import {format} from 'date-fns/format'
 import parse from 'date-fns/parse'
@@ -13,12 +13,9 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import SavingsIcon from '@mui/icons-material/Savings';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-
 import   'moment-timezone';
 import type {Member} from 'type'
 import { useSelector, useDispatch } from 'react-redux';
-
-
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import {Card, Snackbar} from "@mui/material";
@@ -28,6 +25,7 @@ import Stack from "@mui/material/Stack";
 import  './App.css'
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
+import {setUser} from "./redux/store";
 const defaultTZ = moment.tz.guess()
 
 const TimeTableContainer = styled(Stack)(({ theme }) => ({
@@ -58,36 +56,98 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
 const TimeTable: FC = () => {
     const navigate = useNavigate();
 
-    const today = new Date();
-
-    const [events, setEvents] = useState<Event[]>();
+    const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();
-    const loginUser: Member = useSelector( state => state.user);
+    const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
+    const [today, setToday] = useState<Date>(new Date());
 
-    if( loginUser.name == 'anonymous'){
+    if( loginUser.name == ''){
        return <Navigate to ="/login?ret=time"/>
     }
+
+    function refreshReservation(){
+        const url = `/api/reserve/reservations?startDate=${moment(today).format("YYYYMMDD")}T00:00&endDate=${moment(today).format("YYYYMMDD")}T23:59`;
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    console.log("responseData : "+ JSON.stringify(data));
+                    if( data.code == 200 ){
+                        // dispatch( setUser( data.payload )) ;
+                        // navigate(retUrl)
+                        let newEvents= [];
+
+                        data.payload.forEach( e=> {
+                            const tableEvent = {
+                                id: e.reservationId,
+                                title: e.userName,
+                                start: moment( e.startDate,"YYYYMMDDTHH:mm").toDate(),
+                                end: moment(e.startDate,"YYYYMMDDTHH:mm").add(30,'m').toDate(),
+                                editable: e.isEditable
+                            }
+                            newEvents.push( tableEvent );
+                        })
+                        setEvents(newEvents)
+                    }
+                }
+            )
+            .catch(error => console.error("Error:", error));
+    }
+
+    useEffect(() => {
+        refreshReservation();
+    },[today]);
 
     const [value, setValue] = React.useState(0);
     const theme = useTheme();
 
-    const handleSelectSlot = useCallback(({ start , end  }) => {
+    const handleSelectSlot = ( {start , end} ) => {
+        var find = false;
+
+        for( const ev of events ){
+            if( ev.start.getTime() == start.getTime()){
+                find = true;
+                break;
+            }
+        }
+
+        if( find ){
+            console.log("skip processing. ")
+            return;
+        }
         if( start > new Date())
-            navigate("/reserve?start="+moment(start).format('YYYYMMDD HH:mm'))
+            navigate("/reserve?start="+moment(start).format("YYYYMMDDTHH:mm"))
         else{
             // setPopupMessage("Please choose a date in the future")
             // setOpenPopup(true);
             console.log("invalid time")
         }
-    }, [setEvents])
+    }
 
-    const handleSelectEvent = (e)=>{
-        console.log('selectEvent'+JSON.stringify(e));
+    const handleSelectEvent = (evt )=>{
+        const now = new Date();
+        console.log("select event!");
+        if( evt.start < now )
+            return;
+        if( evt.editable == false )
+            return;
+        navigate("/reserve?regId="+evt.id);
+
     }
 
     const handleClosePopup = e=>{
         setOpenPopup(false);
+    }
+
+    const handleDayChange = ( newDate: Date ) =>{
+        setToday(newDate);
     }
 
     return (
@@ -128,11 +188,13 @@ const TimeTable: FC = () => {
                         )
                     }
                     views={['day']}
-                    popup={true}
+
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
                     onDoubleClickEvent={handleSelectEvent}
                     longPressThreshold={5}
+                    onNavigate={handleDayChange}
+
                 />
             </Card>
                 <BottomNavigation

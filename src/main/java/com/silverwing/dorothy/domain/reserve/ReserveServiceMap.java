@@ -9,7 +9,7 @@ import lombok.Data;
 @Table(name="reserve_services")
 public class ReserveServiceMap {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="reg_svc_id")
     int regSvcId;
 
@@ -20,6 +20,6 @@ public class ReserveServiceMap {
     int svcId;
 
     @ManyToOne
-    @JoinColumn(name="svc_Id",insertable=false,updatable=false)
+    @JoinColumn(name="svc_id",insertable=false,updatable=false)
     HairServices service;
 }

@@ -29,5 +29,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 !**/node_modules/
+!**/src/resources/static/assets/
 ### VS Code ###
 .vscode/
+docker-entrypoint.sh

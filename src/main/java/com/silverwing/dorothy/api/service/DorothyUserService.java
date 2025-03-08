@@ -22,12 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class DorothyUserService  {
     @Autowired
     private  MemberRepository memberRepository;
-
-
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
-
-
-
     private long expireTimeMs = 1000 * 60 * 60; // 1시간
 
     public Member getMember( String phone, String pwd ) throws AuthenticationException {

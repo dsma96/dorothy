@@ -1,21 +1,25 @@
 import { configureStore, createSlice} from "@reduxjs/toolkit";
-
+import {  Event} from 'react-big-calendar'
+import type {Member} from 'type'
 
 let user = createSlice({
         name:'user',
         initialState: {
-            name:'anonymous',
-            phone: '',
-            email:''
+            loginUser:{
+                name:'',
+                phone: '',
+                email:''
+            },
         },
         reducers:{
             setUser(state, action){
-                state.name = action.payload.name;
-                state.phone = action.payload.phone;
-                state.email = action.payload.email;
+                state.loginUser.name = action.payload.name;
+                state.loginUser.phone = action.payload.phone;
+                state.loginUser.email = action.payload.email;
             }
         }
-    });
+});
+
 export let {setUser} = user.actions;
 
 export default configureStore({

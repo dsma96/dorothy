@@ -78,6 +78,10 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const [dialogTitle, setDialogTitle] = useState("Dorothy");
     const [ dialogMessage, setDialogMessage] = useState("");
 
+    const [openCancelDialog, setOpenCancelDialog] = useState(false);
+    const cancelDialogTitle = "Cancel reservation";
+    const cancelDialogMessage = "Would you like to cancel your reservation?";
+
     const  [reservation, setReservation] = React.useState< Reservation> ( {
         reservationId:-1,
         userName:'',
@@ -125,6 +129,35 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
         setOpenDialog(false);
         navigate(-1);
     }
+
+    const closeCancelDialog=()=>{
+        setOpenCancelDialog(false);
+    }
+
+    const cancelReservation = ()=>{
+        fetch(`/api/reserve/cancel/${reservation.reservationId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        setDialogMessage("Your reservation has been successfully canceled.");
+                        setOpenDialog(true);
+                    }
+                }
+            )
+            .catch(error => {
+                    setDialogMessage(error.msg);
+                    setOpenDialog(true);
+                }
+            );
+
+    }
+
     const saveReserve = (event) => {
         event.preventDefault();
 
@@ -163,6 +196,10 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         const data = new FormData(event.currentTarget);
     };
+
+    const cancelReserve = () =>{
+
+    }
 
     const formatPhoneNumber = (phoneNumberString: string) => {
         var cleaned = ('' + phoneNumberString).replace(/\D/g, '');
@@ -217,8 +254,18 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             variant="h4"
                             sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.15rem)'}}
                         >
-                            {loginUser.name} { formatPhoneNumber( loginUser.phone)}
+                            {reservation.userName} { formatPhoneNumber( reservation.phone)}
+
                         </Typography>
+                        <Typography
+                            component="h4"
+                            variant="h4"
+                            sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.0rem)'}}
+                        >
+                            Created at { formatDate( reservation.createDate)}
+
+                        </Typography>
+
                         {/*<FormGroup>*/}
                         {/*    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="남자헤어컷" />*/}
                         {/*    <FormControlLabel  control={<Checkbox />} label="샴푸+드라이" />*/}
@@ -241,7 +288,16 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             onClick={saveReserve}
                             disabled={!reservation.editable}
                         >
-                            Reserve
+                            Reservation
+                        </Button>
+                        <Button
+                            size="large"
+                            variant="contained"
+                            onClick={()=>setOpenCancelDialog(true)}
+                            color="info"
+                            disabled={!reservation.editable}
+                        >
+                            Cancel
                         </Button>
                         <Button
                             size="large"
@@ -249,7 +305,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             onClick={() => navigate(-1)}
                             color="info"
                         >
-                            Cancel
+                            Close
                         </Button>
                         </CardActions>
                     </Box>
@@ -274,6 +330,31 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                         </Button>
                     </DialogActions>
                 </Dialog>
+
+                <Dialog
+                    open={openCancelDialog}
+
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {cancelDialogTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {cancelDialogMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={cancelReservation} autoFocus>
+                            Yes
+                        </Button>
+                        <Button onClick={closeCancelDialog} autoFocus>
+                            No
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
             </SignUpContainer>
         </AppProvider>
     );

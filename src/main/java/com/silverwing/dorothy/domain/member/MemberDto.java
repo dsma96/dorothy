@@ -11,4 +11,6 @@ public class MemberDto {
     String email;
     String name;
     int id;
+    boolean isRootUser;
+
 }

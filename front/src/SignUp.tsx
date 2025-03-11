@@ -181,7 +181,23 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 required
                                 fullWidth
                                 name="password"
-                                placeholder="••••••"
+                                placeholder="password"
+                                type="password"
+                                id="password"
+                                autoComplete="new-password"
+                                variant="outlined"
+                                error={passwordError}
+                                helperText={passwordErrorMessage}
+                                color={passwordError ? 'error' : 'primary'}
+                            />
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel htmlFor="password">Password</FormLabel>
+                            <TextField
+                                required
+                                fullWidth
+                                name="password"
+                                placeholder="password confirm"
                                 type="password"
                                 id="password"
                                 autoComplete="new-password"

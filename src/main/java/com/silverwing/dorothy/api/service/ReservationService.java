@@ -51,16 +51,17 @@ public class ReservationService {
 
     public ReservationDto convertReservation(Reservation reservation, Member caller){
         int userId = caller.getUserId();
-
+        Date now = new Date();
         List<HairServices> hairServices = reservation.getServices().stream().map( s-> s.getService()).toList();
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUsername() : "Occupied" )
                 .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "416-000-1234" )
-                .startDate(sdf.format(reservation.getStartDate()) )
+                .startDate(sdf.format(reservation.getStartDate()))
+                .createDate( reservation.getModifyDate().after( reservation.getStartDate()) ?  sdf.format(reservation.getModifyDate()) : sdf.format(reservation.getCreateDate()))
                 .services(caller.isRootUser() || userId == reservation.getUserId() ? hairServices : Collections.emptyList())
                 .status( caller.isRootUser() || userId == reservation.getUserId() ? reservation.getStatus() : ReservationStatus.CREATED)
-                .isEditable(caller.isRootUser() || userId == reservation.getUserId())
+                .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
                 .build();
         return dto;
@@ -73,7 +74,10 @@ public class ReservationService {
 
     @Transactional
     public Reservation createReservation( ReservationRequestDTO reqDto, Member customer ) throws ReserveException {
+        Date now = new Date();
+
         Date startDate;
+
         try{
             startDate = sdf.parse( reqDto.getStartTime());
         } catch(ParseException e){
@@ -81,22 +85,29 @@ public class ReservationService {
         }
 
         Date endDate = new Date( startDate.getTime()+ 1800000);
+
+        if( startDate.before( now) ){
+            throw new ReserveException(" reservation should be in the future");
+        }
+
         List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner( reqDto.getDesigner(),startDate,endDate ).orElseGet(()-> Collections.emptyList());
 
         if(!duplicatedReserve.isEmpty()){
-            throw new ReserveException("Duplicated Reservation "+duplicatedReserve.get(0).getRegId());
+            throw new ReserveException("Duplicated time with Reservation: "+duplicatedReserve.get(0).getRegId()+" "+reqDto.getStartTime());
         }
 
         Reservation reservation = new Reservation();
+
 
         reservation.setMemo( reqDto.getMemo());
         reservation.setStatus(ReservationStatus.CREATED);
         reservation.setStartDate( startDate );
         reservation.setEndDate( endDate );
         reservation.setUserId( customer.getUserId());
-        reservation.setCreateDate( new Date());
-        reservation.setModifyDate(new Date());
+        reservation.setCreateDate(now);
+        reservation.setModifyDate(now);
         reservation.setDesignerId(reqDto.getDesigner());
+        reservation.setModifier( customer.getUserId() );
 
         Reservation persistedReservation =  reservationRepository.save( reservation );
         List<ReserveServiceMap> map = getHairServices(reqDto, persistedReservation.getRegId());
@@ -115,5 +126,27 @@ public class ReservationService {
         hairService.setSvcId(MANDATORY_ID);
         hairServices.add( hairService );
         return hairServices;
+    }
+
+    public Reservation cancelReservation( int regId , Member caller){
+        Reservation r = reservationRepository.findById(regId).orElseThrow();
+        Date now = new Date();
+        if( r.getStartDate().before( now )){
+            throw new ReserveException(" You cannot cancel a reservation that has already passed");
+        }
+
+        if( r.getUserId() != caller.getUserId() && !caller.isRootUser() ){
+            throw new ReserveException(caller.getUserId() +" can't cancel the reservation: "+r.getRegId());
+        }
+
+        if( r.getStatus() == ReservationStatus.CREATED) {
+            r.setStatus(ReservationStatus.CANCELED);
+            r.setModifyDate(now);
+            r.setModifier(caller.getUserId());
+        }
+        else
+            throw new ReserveException("can't cancel reservation");
+
+        return reservationRepository.save( r );
     }
 }

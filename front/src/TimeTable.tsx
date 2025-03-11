@@ -67,6 +67,7 @@ const TimeTable: FC = () => {
     }
 
     function refreshReservation(){
+
         const url = `/api/reserve/reservations?startDate=${moment(today).format("YYYYMMDD")}T00:00&endDate=${moment(today).format("YYYYMMDD")}T23:59`;
 
         fetch(url, {
@@ -134,9 +135,9 @@ const TimeTable: FC = () => {
     const handleSelectEvent = (evt )=>{
         const now = new Date();
         console.log("select event!");
-        if( evt.start < now )
+        if( evt.start < now && loginUser.rootUser == false)
             return;
-        if( evt.editable == false )
+        if( evt.editable == false && loginUser.rootUser == false)
             return;
         navigate("/reserve?regId="+evt.id);
 

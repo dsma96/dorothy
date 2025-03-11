@@ -2,7 +2,29 @@ import { http, HttpResponse    } from 'msw'
 import moment from 'moment'
 
 export const handlers = [
-    // Intercept "GET https://example.com/user" requests...
+    http.put('/api/reserve/cancel/:id', ( {params}) => {
+        const{id} = params;
+            // ...and respond to them using this JSON response.
+            return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    "payload": {
+                        "reservationId": id,
+                        "userName": "Aiden",
+                        "phone": "2892440503",
+                        "startDate": "20250309T13:30",
+                        "createDate": "20250309T13:30",
+                        "status": "CANCELED",
+                        "services": [null],
+                        "memo": "reserve1",
+                        "editable": true
+                    }
+                }
+            )
+        }
+    ),
+
     http.post('/api/login/login', () => {
         // ...and respond to them using this JSON response.
         return HttpResponse.json(
@@ -31,7 +53,7 @@ export const handlers = [
                         "userName": "Aiden",
                         "phone": "2892440503",
                         "startDate": "20250309T13:30",
-                        "createDate": null,
+                        "createDate": "20250309T13:30",
                         "status": "CREATED",
                         "services": [null],
                         "memo": "reserve1",
@@ -83,7 +105,7 @@ export const handlers = [
                             userName: "John Doe",
                             phone: "416-000-1234",
                             startDate: today+"T13:00",
-                            createDate: null,
+                            createDate: "20250309T13:30",
                             services: [],
                             status: 'CREATED',
                             isEditable: false
@@ -108,7 +130,7 @@ export const handlers = [
                             "userName": "Aiden",
                             "phone": "2892440503",
                             "startDate": today+"T10:00",
-                            "createDate": null,
+                            "createDate": "20250309T13:30",
                             "status": "CREATED",
                             "memo":"memo1",
                             "services": [
@@ -149,7 +171,5 @@ export const handlers = [
                 });
 
         }
-    }
-
-    )
+    })
 ]

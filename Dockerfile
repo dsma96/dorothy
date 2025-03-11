@@ -13,6 +13,7 @@ ARG JAR_FILE=target/dorothy-0.0.1-SNAPSHOT.jar
 
 # Add the application's jar to the container
 ADD ${JAR_FILE} app.jar
-
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN [ "chmod","+x", "/usr/local/bin/docker-entrypoint.sh"]
 # Run the jar file
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

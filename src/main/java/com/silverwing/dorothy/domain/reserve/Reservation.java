@@ -53,6 +53,9 @@ public class Reservation {
     @Temporal(TemporalType.TIMESTAMP)
     Date endDate;
 
+    @Column(name="modifier")
+    int modifier;
+
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;
 }

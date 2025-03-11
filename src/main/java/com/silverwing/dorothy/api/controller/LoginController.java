@@ -45,6 +45,7 @@ public class LoginController {
                                 .name(loginUser.getUsername())
                                 .phone( loginUser.getPhone())
                                 .id(loginUser.getUserId())
+                                .isRootUser(loginUser.isRootUser())
                                 .build();
             return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
 

@@ -14,6 +14,10 @@ import {styled, useTheme} from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { MuiTelInput } from 'mui-tel-input'
 import {useNavigate} from "react-router";
+import {CardActions, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Member} from "./type";
+import {setUser} from "./redux/store";
+import {useState} from "react";
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -59,19 +63,44 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
     const [emailError, setEmailError] = React.useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+    const [telNoError, setTelNoError] = React.useState(false);
+    const [telNoErrorMessage, setTelNoErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
+
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Welcome");
+    const [ dialogMessage, setDialogMessage] = useState("");
+    const [ createError, setCreateError] = useState(false);
+
     const [nameError, setNameError] = React.useState(false);
     const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+
     const [telNo, setTelNo] = React.useState("");
+
+    const navigate = useNavigate();
+
     const validateInputs = () => {
+
         const email = document.getElementById('email') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
+        const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
         const name = document.getElementById('name') as HTMLInputElement;
 
         let isValid = true;
 
-        if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+        if (!telNo || telNo.length != 10){
+            setTelNoError(true);
+            setTelNoErrorMessage('Please enter a valid phone number');
+        }else {
+            setTelNoError(false);
+            setTelNoErrorMessage('')
+        }
+
+        if (email.value && !/\S+@\S+\.\S+/.test(email.value)) {
             setEmailError(true);
             setEmailErrorMessage('Please enter a valid email address.');
             isValid = false;
@@ -89,9 +118,20 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             setPasswordErrorMessage('');
         }
 
-        if (!name.value || name.value.length < 1) {
+
+        if ( password.value != confirmPassword.value) {
+            setConfirmPasswordError(true);
+            setConfirmPasswordErrorMessage('confirm password should be same as password');
+            isValid = false;
+        } else {
+            setConfirmPasswordError(false);
+            setConfirmPasswordErrorMessage('');
+        }
+
+
+        if (!name.value || name.value.length <= 3) {
             setNameError(true);
-            setNameErrorMessage('Name is required.');
+            setNameErrorMessage(!name.value ? 'Name is required.' : 'name is too short');
             isValid = false;
         } else {
             setNameError(false);
@@ -102,25 +142,73 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     };
 
     const handleChange = (value:string) => {
+        if( value.length > 15)
+            return;
+        let phone = value.replaceAll(/(\+1)|[^0-9]+/g,"");
 
-        setTelNo(value);
+        setTelNo(phone);
     };
+
+    const handleCloseDialog=()=>{
+        setOpenDialog(false);
+        if( !createError )
+            navigate(-1);
+    }
+
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        if (nameError || emailError || passwordError) {
-            event.preventDefault();
+        event.preventDefault();
+
+        if (nameError || emailError || passwordError || confirmPasswordError) {
             return;
         }
 
-        const navigate = useNavigate();
 
-        const data = new FormData(event.currentTarget);
-        console.log({
-            name: data.get('name'),
-            lastName: data.get('lastName'),
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        // console.log({
+        //     name: data.get('name'),
+        //     telNo: telNo,
+        //     email: data.get('email'),
+        //     password: data.get('password'),
+        // });
+
+        const currentEvent = new FormData(event.currentTarget);
+        const data = {} as Member;
+        data.phone = telNo;
+        data.name = currentEvent.get('name');
+        data.email = currentEvent.get('email') ? currentEvent.get('email') : null;
+        data.password= currentEvent.get('password');
+
+
+        fetch("/api/user/signup", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        setDialogTitle('Nice to meet you!');
+                        setDialogMessage(`Welcome ${data.payload.name}. you can login now`);
+                        setCreateError(false);
+                        setOpenDialog(true);
+                    }
+                }
+            )
+            .catch(
+                error => {
+                    console.error("Error:", error);
+                    setDialogTitle('Error');
+                    setDialogMessage(`Can't Create. %{data.msg}`);
+                    setCreateError(true);
+                }
+
+            );
+
     };
+
     const theme = useTheme();
     return (
         <AppProvider theme={theme}>
@@ -131,7 +219,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                     <Typography
                         component="h1"
                         variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}
+                        sx={{width: '100%', fontSize: 'clamp(1.5rem, 7vw, 1.7rem)'}}
                     >
                         Sign up
                     </Typography>
@@ -155,15 +243,15 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="email">Tel No</FormLabel>
+                            <FormLabel htmlFor="telNo">Tel No</FormLabel>
                             <MuiTelInput
-                                error={emailError}
-                                helperText={emailErrorMessage}
+                                error={telNoError}
+                                helperText={telNoErrorMessage}
                                 defaultCountry="CA"
                                 onlyCountries={['CA']}
                                 disableDropdown={true}
                                 forceCallingCode
-                                id="email"
+                                id="telNo"
                                 value={telNo}
                                 onChange={handleChange}
                                 autoFocus
@@ -174,6 +262,22 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 variant="outlined"
                                 color={emailError ? 'error' : 'primary'}
                             />
+                        </FormControl>
+                        <FormControl>
+                            <FormLabel htmlFor="email">Email (optional)</FormLabel>
+                            <TextField
+                                error={emailError}
+                                helperText={emailErrorMessage}
+
+                                fullWidth
+                                name="email"
+                                placeholder="email address"
+                                type="email"
+                                id="email"
+                                variant="outlined"
+                                color={emailError ? 'error' : 'primary'}
+                            />
+
                         </FormControl>
                         <FormControl>
                             <FormLabel htmlFor="password">Password</FormLabel>
@@ -192,44 +296,66 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="password">Password</FormLabel>
+                            <FormLabel htmlFor="password">Password Confirm</FormLabel>
                             <TextField
                                 required
                                 fullWidth
-                                name="password"
+                                name="confirmPassword"
                                 placeholder="password confirm"
                                 type="password"
-                                id="password"
+                                id="confirmPassword"
                                 autoComplete="new-password"
                                 variant="outlined"
-                                error={passwordError}
-                                helperText={passwordErrorMessage}
-                                color={passwordError ? 'error' : 'primary'}
+                                error={confirmPasswordError}
+                                helperText={confirmPasswordErrorMessage}
+                                color={confirmPasswordError ? 'error' : 'primary'}
                             />
                         </FormControl>
                         {/*<FormControlLabel*/}
                         {/*    control={<Checkbox value="allowExtraEmails" color="primary" />}*/}
                         {/*    label="I want to receive "*/}
                         {/*/>*/}
+                        <CardActions >
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
                             onClick={validateInputs}
+                            size="large"
                         >
                             Sign up
                         </Button>
                         <Button
                             size="large"
+                            fullWidth
                             variant="contained"
                             onClick={() => navigate('/')}
                             color="info"
                         >
                             Cancel
                         </Button>
+                        </CardActions>
                     </Box>
-
                 </Card>
+                <Dialog
+                    open={openDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                <DialogTitle id="alert-dialog-title">
+                    {dialogTitle}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {dialogMessage}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
             </SignUpContainer>
         </AppProvider>
     );

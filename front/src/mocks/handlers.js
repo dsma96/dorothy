@@ -24,10 +24,43 @@ export const handlers = [
             )
         }
     ),
-
+    http.post('/api/user/signup',()=> {
+        return HttpResponse.json(
+            {
+                msg: "OK",
+                code: 200,
+                payload: {
+                    phone: "6474060362",
+                    password: null,
+                    email: "silverwing@gmail.com",
+                    name: "Lemmy",
+                    id: 99
+                }
+            }
+        )
+     }
+    )
+    ,
     http.post('/api/login/login', () => {
         // ...and respond to them using this JSON response.
         return HttpResponse.json(
+                {
+                    msg: "OK",
+                    code: 200,
+                    payload: {
+                        phone: "6474060362",
+                        password: null,
+                        email: "silverwing@gmail.com",
+                        name: "Lemmy",
+                        id:2
+                    }
+                }
+            )
+        }
+    ),
+    http.get('/api/login/relogin', () => {
+            // ...and respond to them using this JSON response.
+            return HttpResponse.json(
                 {
                     msg: "OK",
                     code: 200,
@@ -97,7 +130,7 @@ export const handlers = [
                                 }
                             ],
                             status: 'CREATED',
-                            isEditable:true,
+                            editable:true,
                             memo:'hello'
                         },
                         {
@@ -108,7 +141,7 @@ export const handlers = [
                             createDate: "20250309T13:30",
                             services: [],
                             status: 'CREATED',
-                            isEditable: false
+                            editable: false
                         }
                     ]
                 }

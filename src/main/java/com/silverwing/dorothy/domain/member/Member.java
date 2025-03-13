@@ -10,6 +10,7 @@ import java.util.Date;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
 @Table(name= "user")
 public class Member {
 
@@ -22,7 +23,7 @@ public class Member {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="user_id")
     private int userId;
 

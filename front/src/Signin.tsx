@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {setUser} from './redux/store';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -20,8 +20,11 @@ import { useTheme } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input'
 
 import {useNavigate} from "react-router";
-import { useSearchParams } from "react-router-dom";
+import {Navigate, useSearchParams} from "react-router-dom";
 import type {Member} from './type';
+import {useEffect} from "react";
+
+import  Cookies from "js-cookie";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -76,14 +79,48 @@ export default function SignIn() {
     const [phoneErrorMessage, setPhoneErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-    const [phone, setPhone] = React.useState("6474060362");
-    const [password,setPassword] = React.useState("merong2");
+    const [phone, setPhone] = React.useState("");
+    const [password,setPassword] = React.useState("");
     let [searchParams] = useSearchParams();
+    const loginUser: Member = useSelector( state => state.user.loginUser);
     let retUrl= "/";
 
     if( searchParams.get("ret"))
         retUrl += searchParams.get("ret")
 
+
+
+    const getCookie = function(name) {
+        var cookies = document.cookie.split(';');
+        for(var i=0 ; i < cookies.length ; ++i) {
+            var pair = cookies[i].trim().split('=');
+            if(pair[0] == name)
+                return pair[1];
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        if( loginUser.name == "" && loginUser.phone == "" ) {
+            console.log("try to relogin with cookie")
+
+            fetch("/api/login/relogin", {
+                method: "GET"
+
+            })
+                .then(response => response.json())
+                .then(
+                    data => {
+                        if (data.code == 200) {
+                            dispatch(setUser(data.payload));
+                        }
+                    }
+                )
+                .catch(error => console.error("can't login with cookie:", error));
+        }else {
+            navigate(retUrl);
+        }
+    },[loginUser]);
 
     const navigate = useNavigate();
     let dispatch = useDispatch();
@@ -130,7 +167,7 @@ export default function SignIn() {
     };
 
     const handlePasswordChange = (event) => {
-        if( event.target.value.length > 5)
+        if( event.target.value.length > 20)
             return;
 
         setPassword(event.target.value);
@@ -226,10 +263,10 @@ export default function SignIn() {
                                 onChange = { handlePasswordChange}
                             />
                         </FormControl>
-                        <FormControlLabel
-                            control={<Checkbox value="remember" color="primary"/>}
-                            label="Remember me"
-                        />
+                        {/*<FormControlLabel*/}
+                        {/*    control={<Checkbox value="remember" color="primary"/>}*/}
+                        {/*    label="Remember me"*/}
+                        {/*/>*/}
 
                         <Button
                             type="submit"
@@ -239,14 +276,14 @@ export default function SignIn() {
                         >
                             Sign in
                         </Button>
-                        <Link
-                            component="button"
-                            type="button"
-                            variant="body2"
-                            sx={{alignSelf: 'center'}}
-                        >
-                            Forgot your password?
-                        </Link>
+                        {/*<Link*/}
+                        {/*    component="button"*/}
+                        {/*    type="button"*/}
+                        {/*    variant="body2"*/}
+                        {/*    sx={{alignSelf: 'center'}}*/}
+                        {/*>*/}
+                        {/*    Forgot your password?*/}
+                        {/*</Link>*/}
                     </Box>
                     <Divider>or</Divider>
                     <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
@@ -254,7 +291,7 @@ export default function SignIn() {
                         <Typography sx={{textAlign: 'center'}}>
                             Don&apos;t have an account?{' '}
                             <Link
-                                href="/material-ui/getting-started/templates/sign-in/"
+                                href="/signUp"
                                 variant="body2"
                                 sx={{alignSelf: 'center'}}
                             >

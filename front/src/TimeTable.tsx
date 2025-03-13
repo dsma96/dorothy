@@ -5,15 +5,18 @@ import parse from 'date-fns/parse'
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import enUS from 'date-fns/locale/en-US'
+import SavingsIcon from '@mui/icons-material/Savings';
+import HomeIcon from '@mui/icons-material/Home';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+
 import { AppProvider } from '@toolpad/core/AppProvider';
 import {styled, useTheme} from '@mui/material/styles';
 import * as React from 'react';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import SavingsIcon from '@mui/icons-material/Savings';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import   'moment-timezone';
+
 import type {Member} from 'type'
 import { useSelector, useDispatch } from 'react-redux';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
@@ -67,7 +70,6 @@ const TimeTable: FC = () => {
     }
 
     function refreshReservation(){
-
         const url = `/api/reserve/reservations?startDate=${moment(today).format("YYYYMMDD")}T00:00&endDate=${moment(today).format("YYYYMMDD")}T23:59`;
 
         fetch(url, {
@@ -91,7 +93,7 @@ const TimeTable: FC = () => {
                                 title: e.userName,
                                 start: moment( e.startDate,"YYYYMMDDTHH:mm").toDate(),
                                 end: moment(e.startDate,"YYYYMMDDTHH:mm").add(30,'m').toDate(),
-                                editable: e.isEditable
+                                editable: e.editable
                             }
                             newEvents.push( tableEvent );
                         })
@@ -112,10 +114,12 @@ const TimeTable: FC = () => {
     const handleSelectSlot = ( {start , end} ) => {
         var find = false;
 
-        for( const ev of events ){
-            if( ev.start.getTime() == start.getTime()){
-                find = true;
-                break;
+        if( events != null && events.length > 0 ) {
+            for (const ev of events) {
+                if (ev.start.getTime() == start.getTime()) {
+                    find = true;
+                    break;
+                }
             }
         }
 
@@ -135,10 +139,16 @@ const TimeTable: FC = () => {
     const handleSelectEvent = (evt )=>{
         const now = new Date();
         console.log("select event!");
-        if( evt.start < now && loginUser.rootUser == false)
+        if( evt.start < now && loginUser.rootUser == false) {
+            console.log(JSON.stringify(evt));
             return;
-        if( evt.editable == false && loginUser.rootUser == false)
+        }
+        if( (evt.editable !== true ) && loginUser.rootUser !== true) {
+            console.log(JSON.stringify(evt));
             return;
+        }else{
+            console.log(JSON.stringify(evt));
+        }
         navigate("/reserve?regId="+evt.id);
 
     }
@@ -207,9 +217,10 @@ const TimeTable: FC = () => {
                     className='stickToBottom'
                 >
 
-                    <BottomNavigationAction label="Points" icon={<SavingsIcon />} />
-                    <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
+
                     <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon />} onClick={() => navigate('/')} />
+                    <BottomNavigationAction label="Main" icon={<HomeIcon  />} onClick={() => navigate('/')} />
+                    <BottomNavigationAction label="My Info" icon={<AccountBoxIcon />} />
                     <Snackbar
                         open={openPopup}
                         onClick={()=>setOpenPopup(false)}

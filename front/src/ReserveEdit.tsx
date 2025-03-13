@@ -84,13 +84,14 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
 
     const  [reservation, setReservation] = React.useState< Reservation> ( {
         reservationId:-1,
-        userName:'',
+        userName: loginUser.name,
         startDate:'',
-        createDate:'',
+        createDate:moment( new Date()).format('YYYY/MM/DD ddd HH:mm'),
         status:'CREATED',
         services:[],
         editable:true,
-        memo:''
+        memo:'',
+        phone: loginUser.phone
     });
 
     useEffect(() => {
@@ -187,7 +188,9 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                     }
                 }
             )
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                navigate(-1);
+            });
 
     };
 
@@ -229,16 +232,16 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                 <Card variant="outlined">
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
-                        component="h1"
+                        component="h2"
                         variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}
+                        sx={{width: '100%', fontSize: 'clamp(1.5rem, 8vw, 2.0rem)'}}
                     >
                         {reservation.reservationId > 0 ? 'Edit Reservation' : 'New Reservation'}
                     </Typography>
                     <Typography
                         component="h4"
                         variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(1rem, 10vw, 1.15rem)'}}
+                        sx={{width: '100%', fontSize: 'clamp(1.5rem, 8vw, 2.0rem)'}}
                     >
                         {  formatDate( reservation.startDate )}
 
@@ -295,7 +298,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             variant="contained"
                             onClick={()=>setOpenCancelDialog(true)}
                             color="info"
-                            disabled={!reservation.editable}
+                            disabled={!reservation.editable || reservation.reservationId == -1}
                         >
                             Cancel
                         </Button>
@@ -354,7 +357,6 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
             </SignUpContainer>
         </AppProvider>
     );

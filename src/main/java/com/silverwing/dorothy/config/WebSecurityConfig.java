@@ -52,7 +52,7 @@ public class WebSecurityConfig {
                  .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/**","/static/**","/api/login/login").permitAll()
+                        .requestMatchers("/**","/static/**","/api/login/login","/api/user/signup").permitAll()
                         .anyRequest().authenticated()
                 )
                  .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

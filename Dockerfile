@@ -16,4 +16,4 @@ ADD ${JAR_FILE} app.jar
 COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN [ "chmod","+x", "/usr/local/bin/docker-entrypoint.sh"]
 # Run the jar file
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

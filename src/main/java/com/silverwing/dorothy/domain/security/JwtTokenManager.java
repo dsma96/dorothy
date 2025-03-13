@@ -58,7 +58,7 @@ public class JwtTokenManager {
 
     //토큰 만료확인 메서드
     public  boolean isExpired(String token) throws AuthenticationException {
-        // expire timestamp를 return함
+
         Date expiredDate = extractClaims(token).getExpiration();
         if( expiredDate == null)
             throw new AuthenticationCredentialsNotFoundException("invalid token");

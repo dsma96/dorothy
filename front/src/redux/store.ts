@@ -1,7 +1,4 @@
 import { configureStore, createSlice} from "@reduxjs/toolkit";
-import {  Event} from 'react-big-calendar'
-import type {Member} from 'type'
-
 let user = createSlice({
         name:'user',
         initialState: {
@@ -9,7 +6,7 @@ let user = createSlice({
                 name:'',
                 phone: '',
                 email:'',
-                isRootUser:false
+                rootUser:false
             },
         },
         reducers:{

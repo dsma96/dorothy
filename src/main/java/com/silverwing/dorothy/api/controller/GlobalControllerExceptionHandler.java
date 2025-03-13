@@ -1,6 +1,7 @@
 package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.domain.Exception.ReserveException;
+import com.silverwing.dorothy.domain.Exception.UserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -26,4 +27,10 @@ class GlobalControllerExceptionHandler {
     public ResponseEntity< ResponseData> handleReserveException(Exception e) {
         return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity< ResponseData> handleUserException(Exception e) {
+        return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }

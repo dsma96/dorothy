@@ -11,8 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/login")
@@ -24,6 +28,24 @@ public class LoginController {
 
     @Autowired
     private JwtTokenManager tokenManager;
+
+    @GetMapping("/relogin")
+    public ResponseEntity<  ResponseData<MemberDto>> login(@AuthenticationPrincipal Member loginUser) {
+        if( loginUser == null ){
+            throw new CredentialsExpiredException("credentials expired");
+        }
+
+        userService.refreshUserLogin(loginUser);
+
+        MemberDto resp = MemberDto.builder()
+                .email(loginUser.getEmail())
+                .name(loginUser.getUsername())
+                .phone( loginUser.getPhone())
+                .id(loginUser.getUserId())
+                .isRootUser(loginUser.isRootUser())
+                .build();
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<  ResponseData<MemberDto>> login(@RequestBody MemberDto member, HttpServletResponse response) {
@@ -38,6 +60,9 @@ public class LoginController {
             if(!UserStatus.ENABLED.equals( loginUser.getStatus() ) ){
                 return new ResponseEntity<>(  new ResponseData<>("disabled user "), HttpStatus.UNAUTHORIZED);
             }
+
+            loginUser.setLastLogin( new Date());
+            userService.refreshUserLogin(loginUser);
 
             tokenManager.persistToken( tokenManager.generateToken(member.getPhone()) ,response);
             MemberDto resp = MemberDto.builder()

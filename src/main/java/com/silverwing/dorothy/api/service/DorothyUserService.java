@@ -44,6 +44,10 @@ public class DorothyUserService  {
         return getMember(phone, null);
     }
 
+    public Member getMember(int memberId)  {
+        return memberRepository.findById( memberId ).orElseThrow();
+    }
+
     public Member createMember( String name, String telNo, String email, String password ) throws UserException {
         if( memberRepository.findMemberByPhone(telNo).isPresent() )
             throw new UserException("Phone already exists :"+telNo);
@@ -69,5 +73,11 @@ public class DorothyUserService  {
         member.setLastLogin( new Date() );
         return memberRepository.save( member );
     }
+
+    public Member updateUser( Member member) throws UserException{
+        member.setPassword( passwordEncoder.encode( member.getPassword() ));
+        return memberRepository.save( member );
+    }
+
 
 }

@@ -65,7 +65,7 @@ const TimeTable: FC = () => {
     const [popupMessage, setPopupMessage] = useState<string>();
     const [today, setToday] = useState<Date>(new Date());
 
-    if( loginUser.name == ''){
+    if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
 
@@ -111,8 +111,9 @@ const TimeTable: FC = () => {
     const [value, setValue] = React.useState(0);
     const theme = useTheme();
 
-    const handleSelectSlot = ( {start , end} ) => {
+    const handleSelectSlot = ( {start , end, slots} ) => {
         var find = false;
+        if( slots?.length > 2) return;
 
         if( events != null && events.length > 0 ) {
             for (const ev of events) {
@@ -187,7 +188,7 @@ const TimeTable: FC = () => {
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
-                            9,30
+                            10,0
                         )
                     }
                     max={
@@ -195,7 +196,7 @@ const TimeTable: FC = () => {
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
-                            18,30
+                            19,0
                         )
                     }
                     views={['day']}
@@ -220,7 +221,7 @@ const TimeTable: FC = () => {
 
                     <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon />} onClick={() => navigate('/')} />
                     <BottomNavigationAction label="Main" icon={<HomeIcon  />} onClick={() => navigate('/')} />
-                    <BottomNavigationAction label="My Info" icon={<AccountBoxIcon />} />
+                    <BottomNavigationAction label="My Info" icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
                     <Snackbar
                         open={openPopup}
                         onClick={()=>setOpenPopup(false)}

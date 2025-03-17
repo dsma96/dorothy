@@ -1,0 +1,10 @@
+npm run build
+mvn clean install package -DskipTests
+docker build -t lemmyma/dorothy:v1.02 .
+docker push lemmyma/dorothy:v1.02
+docker pull lemmyma/dorothy:v1.02
+
+
+
+docker run -it --rm --name certbot -v ~/ssl:/etc/letsencrypt -v ~/ssl:/var/lib/letsencrypt -v ~/ssl:/var/log/letsencrypt -p 8080:80 certbot/certbot -v certonly --standalone -d dsma96.asuscomm.com
+openssl pkcs12 -export -in fullchain1.pem -inkey privkey1.pem -out keystore.p12 -name dorothy -CAfile chain1.pem -caname root

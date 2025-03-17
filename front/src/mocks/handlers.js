@@ -41,21 +41,46 @@ export const handlers = [
      }
     )
     ,
-    http.post('/api/login/login', () => {
-        // ...and respond to them using this JSON response.
+    http.put('/api/user/:id',()=> {
         return HttpResponse.json(
-                {
-                    msg: "OK",
-                    code: 200,
-                    payload: {
-                        phone: "6474060362",
-                        password: null,
-                        email: "silverwing@gmail.com",
-                        name: "Lemmy",
-                        id:2
-                    }
+            {
+                msg: "OK",
+                code: 200,
+                payload: {
+                    phone: "6474060362",
+                    email: "silverwing@gmail.com",
+                    name: "Lemmy",
+                    id: 99
                 }
+            }
             )
+        }
+    )
+    ,
+
+    http.post('/api/login/login', async ( {request, params, cookies}) => {
+            // ...and respond to them using this JSON response.
+            const data = await request.json();
+            if (data.phone == '6474060362') {
+                return HttpResponse.json(
+                    {
+                        msg: "OK",
+                        code: 200,
+                        payload: {
+                            phone: "6474060362",
+                            password: null,
+                            email: "silverwing@gmail.com",
+                            name: "Lemmy",
+                            id: 2
+                        }
+                    }
+                )
+            }
+            else {
+                return HttpResponse.json(
+                    {"msg":"Invalid password :6474060362 merong2w3","code":500,"payload":null}
+                );
+            }
         }
     ),
     http.get('/api/login/relogin', () => {
@@ -63,7 +88,7 @@ export const handlers = [
             return HttpResponse.json(
                 {
                     msg: "OK",
-                    code: 200,
+                    code: 500,
                     payload: {
                         phone: "6474060362",
                         password: null,

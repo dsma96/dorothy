@@ -13,6 +13,8 @@ import Home from './Home';
 import {Provider} from 'react-redux';
 import store from './redux/store';
 import { worker } from './mocks/browser';
+import EventHome from "./EventHome";
+import MyInfo from "./myInfo";
 
 if (process.env.NODE_ENV === 'development') {
     worker.start()
@@ -24,12 +26,14 @@ createRoot(document.getElementById('root')!).render(
             <StrictMode>
                 <StyledEngineProvider injectFirst>
                     <Routes>
-                        <Route path="/" element={<Home/>}></Route>
+                        <Route path="/home" element={<Home/>}></Route>
+                        <Route path="/" element={<EventHome/>}></Route>
                         <Route path="/time" element={<TimeTable />}></Route>
                         <Route path="/login" element={<SignIn/>}></Route>
                         <Route path="/reserve" element={<ReserveEdit/>}></Route>
                         <Route path="/demo" element={<Demo/>}></Route>
                         <Route path="/signup" element={<SignUp/>}></Route>
+                        <Route path="/my" element={<MyInfo/>}></Route>
                     </Routes>
                 </StyledEngineProvider>
             </StrictMode>

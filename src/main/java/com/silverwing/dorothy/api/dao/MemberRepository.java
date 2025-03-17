@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Integer> {
     @Query("SELECT u from Member u WHERE u.phone = :phone and u.status = 'ENABLED'")
     Optional<Member> findMemberByPhone(@Param("phone") String phone);
 

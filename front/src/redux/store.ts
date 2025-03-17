@@ -6,7 +6,8 @@ let user = createSlice({
                 name:'',
                 phone: '',
                 email:'',
-                rootUser:false
+                rootUser:false,
+                id:-1
             },
         },
         reducers:{
@@ -15,6 +16,7 @@ let user = createSlice({
                 state.loginUser.phone = action.payload.phone;
                 state.loginUser.email = action.payload.email;
                 state.loginUser.rootUser = (true === action.payload.rootUser);
+                state.loginUser.id=action.payload.id;
             }
         }
 });

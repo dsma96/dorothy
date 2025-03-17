@@ -22,9 +22,10 @@ import { MuiTelInput } from 'mui-tel-input'
 import {useNavigate} from "react-router";
 import {Navigate, useSearchParams} from "react-router-dom";
 import type {Member} from './type';
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 import  Cookies from "js-cookie";
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -83,6 +84,9 @@ export default function SignIn() {
     const [password,setPassword] = React.useState("");
     let [searchParams] = useSearchParams();
     const loginUser: Member = useSelector( state => state.user.loginUser);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Error");
+    const [ dialogMessage, setDialogMessage] = useState("");
     let retUrl= "/";
 
     if( searchParams.get("ret"))
@@ -101,7 +105,7 @@ export default function SignIn() {
     };
 
     useEffect(() => {
-        if( loginUser.name == "" && loginUser.phone == "" ) {
+        if( loginUser.id < 0 ) {
             console.log("try to relogin with cookie")
 
             fetch("/api/login/relogin", {
@@ -116,7 +120,11 @@ export default function SignIn() {
                         }
                     }
                 )
-                .catch(error => console.error("can't login with cookie:", error));
+                .catch( error => {
+                        console.error("can't login with cookie:", error)
+                        console.log("error!!!")
+                    }
+                );
         }else {
             navigate(retUrl);
         }
@@ -151,6 +159,9 @@ export default function SignIn() {
                     if( data.code == 200 ){
                       dispatch( setUser( data.payload )) ;
                       navigate(retUrl)
+                    }else{
+                        setDialogMessage( "Invalid Phone number or Password" );
+                        setOpenDialog(true);
                     }
                 }
             )
@@ -299,8 +310,29 @@ export default function SignIn() {
                             </Link>
                         </Typography>
                     </Box>
+
                 </Card>
-            </SignInContainer>
+                <Dialog
+                    open={openDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                <DialogTitle id="alert-dialog-title">
+                    {dialogTitle}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {dialogMessage}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>setOpenDialog(false)} autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+        </SignInContainer>
         </AppProvider>
     );
 }

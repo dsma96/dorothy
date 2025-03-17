@@ -33,3 +33,6 @@ build/
 ### VS Code ###
 .vscode/
 docker-entrypoint.sh
+/ssl/
+/src/main/resources/keystore.p12
+script.txt

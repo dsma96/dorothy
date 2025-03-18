@@ -52,17 +52,10 @@ public class LoginController {
         try {
 
             if(  member.getPhone() == null || member.getPassword() == null){
-                return new ResponseEntity<>(  new ResponseData<>( "invalid user id and pwd"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(  new ResponseData<>( "invalid user id or passwordd"), HttpStatus.UNAUTHORIZED);
             }
 
-            Member loginUser  = userService.getMember(member.getPhone(), member.getPassword());
-
-            if(!UserStatus.ENABLED.equals( loginUser.getStatus() ) ){
-                return new ResponseEntity<>(  new ResponseData<>("disabled user "), HttpStatus.UNAUTHORIZED);
-            }
-
-            loginUser.setLastLogin( new Date());
-            userService.refreshUserLogin(loginUser);
+            Member loginUser  = userService.getMemberFromLogin(member.getPhone(), member.getPassword());
 
             tokenManager.persistToken( tokenManager.generateToken(member.getPhone()) ,response);
             MemberDto resp = MemberDto.builder()

@@ -28,20 +28,50 @@ public class DorothyUserService  {
     @Autowired
     private  MemberRepository memberRepository;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
-    private long expireTimeMs = 1000 * 60 * 60; // 1시간
+    private long expireTimeMs = 1000 * 60 * 10; // 10min
+    private static int MAX_LOGIN_ATTEMPTS = 5;
+    private static int BLOCK_TIME = 10 * 60 * 1000;
 
-    public Member getMember( String phone, String pwd ) throws AuthenticationException {
+    public boolean isMatchedPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public String getEncryptedPassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    public Member getMemberFromLogin( String phone, String pwd ) throws AuthenticationException {
         Member member = memberRepository.findMemberByPhone( phone ).orElseThrow( () -> new UsernameNotFoundException("Can't find "+phone) );
+        Date now = new Date();
+
+        if( member.getLoginFailCnt() >= MAX_LOGIN_ATTEMPTS ) {
+            if( member.getLastLoginTry().getTime() +  BLOCK_TIME > now.getTime() ){
+                throw new UserException("Too many attempts to login. please try again later");
+            }else{
+                member.setLoginFailCnt(0);
+            }
+        }
+        member.setLastLoginTry(now);
+
+
         if( UserStatus.ENABLED.equals( member.getStatus()) ){
-            if( pwd == null || passwordEncoder.matches( pwd, member.getPassword() ) )
+            if( passwordEncoder.matches( pwd, member.getPassword() ) ) {
+                member.setLoginFailCnt(0);
+                member.setLastLogin(now);
+                updateUser(member);
                 return member;
-            throw new UsernameNotFoundException("Invalid password :"+phone+ " "+pwd);
+            }
+            else {
+                member.setLoginFailCnt(member.getLoginFailCnt()+1);
+                updateUser(member);
+                throw new UsernameNotFoundException("Invalid Password or Phone Number");
+            }
         }else
             throw new UsernameNotFoundException("Disabled user "+phone);
     }
 
     public Member getMember( String phone ) throws AuthenticationException {
-        return getMember(phone, null);
+        return memberRepository.findMemberByPhone( phone ).orElseThrow( () -> new UsernameNotFoundException("Can't find "+phone) );
     }
 
     public Member getMember(int memberId)  {
@@ -75,7 +105,6 @@ public class DorothyUserService  {
     }
 
     public Member updateUser( Member member) throws UserException{
-        member.setPassword( passwordEncoder.encode( member.getPassword() ));
         return memberRepository.save( member );
     }
 

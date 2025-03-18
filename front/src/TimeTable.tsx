@@ -65,6 +65,9 @@ const TimeTable: FC = () => {
     const [popupMessage, setPopupMessage] = useState<string>();
     const [today, setToday] = useState<Date>(new Date());
 
+
+    const startDate = new Date(2025,2,26);
+
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
@@ -112,8 +115,10 @@ const TimeTable: FC = () => {
     const theme = useTheme();
 
     const handleSelectSlot = ( {start , end, slots} ) => {
+
         var find = false;
         if( slots?.length > 2) return;
+
 
         if( events != null && events.length > 0 ) {
             for (const ev of events) {
@@ -138,8 +143,9 @@ const TimeTable: FC = () => {
     }
 
     const handleSelectEvent = (evt )=>{
+
         const now = new Date();
-        console.log("select event!");
+
         if( evt.start < now && loginUser.rootUser == false) {
             console.log(JSON.stringify(evt));
             return;
@@ -182,22 +188,39 @@ const TimeTable: FC = () => {
                     selectable
                     step={TIME_UNIT}
                     timeslots={1}
-
+                    date = {today.getTime() > startDate.getTime() ? today : startDate}
                     min={
+                        today.getTime() > startDate.getTime() ?
                         new Date(
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
                             10,0
                         )
+                        :
+                        new Date(
+                            startDate.getFullYear(),
+                            startDate.getMonth(),
+                            startDate.getDate(),
+                            10,0
+                        )
                     }
                     max={
+                        today.getTime() > startDate.getTime() ?
                         new Date(
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
                             19,0
                         )
+                        :
+                        new Date(
+                            startDate.getFullYear(),
+                            startDate.getMonth(),
+                            startDate.getDate(),
+                            19,0
+                        )
+
                     }
                     views={['day']}
 
@@ -218,8 +241,7 @@ const TimeTable: FC = () => {
                     className='stickToBottom'
                 >
 
-
-                    <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon />} onClick={() => navigate('/')} />
+                    <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon /> } onClick={() => navigate('/')} />
                     <BottomNavigationAction label="Main" icon={<HomeIcon  />} onClick={() => navigate('/')} />
                     <BottomNavigationAction label="My Info" icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
                     <Snackbar

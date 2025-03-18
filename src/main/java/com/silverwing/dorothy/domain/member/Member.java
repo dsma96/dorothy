@@ -50,6 +50,11 @@ public class Member {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
 
+    @Column(name="last_login_try")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastLoginTry;
+
+
     @Column(name="last_login")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLogin;

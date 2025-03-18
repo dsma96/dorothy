@@ -160,7 +160,7 @@ export default function SignIn() {
                       dispatch( setUser( data.payload )) ;
                       navigate(retUrl)
                     }else{
-                        setDialogMessage( "Invalid Phone number or Password" );
+                        setDialogMessage( data.msg || 'Invalid UserName or Password' );
                         setOpenDialog(true);
                     }
                 }
@@ -214,7 +214,7 @@ export default function SignIn() {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignInContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined">
+                <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
 
                     <Typography

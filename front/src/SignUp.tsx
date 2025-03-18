@@ -129,7 +129,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         }
 
 
-        if (!name.value || name.value.length <= 3) {
+        if (!name.value || name.value.length < 2) {
             setNameError(true);
             setNameErrorMessage(!name.value ? 'Name is required.' : 'name is too short');
             isValid = false;
@@ -194,6 +194,11 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                         setDialogMessage(`Welcome ${data.payload.name}. you can login now`);
                         setCreateError(false);
                         setOpenDialog(true);
+                    }else{
+                        setDialogTitle('Error');
+                        setDialogMessage(`Can't Create. ${data.msg}`);
+                        setCreateError(true);
+                        setOpenDialog(true);
                     }
                 }
             )
@@ -214,7 +219,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined">
+                <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
                         component="h1"

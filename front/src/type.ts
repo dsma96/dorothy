@@ -3,7 +3,8 @@ export interface Member {
     phone: string,
     name: string,
     email?: string,
-    password?: string
+    password?: string,
+    newPassword?: string
 }
 
 export interface ReserveTimeEvent {

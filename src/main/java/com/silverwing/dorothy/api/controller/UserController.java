@@ -1,6 +1,7 @@
 package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.api.service.DorothyUserService;
+import com.silverwing.dorothy.domain.member.ChangeMemberInfoDto;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.member.MemberDto;
 import com.silverwing.dorothy.domain.type.UserStatus;
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<  ResponseData<MemberDto>> updateUser( @AuthenticationPrincipal Member member, @RequestBody MemberDto memberDto, @PathVariable int userId) {
+    public ResponseEntity<  ResponseData<MemberDto>> updateUser(@AuthenticationPrincipal Member member, @RequestBody ChangeMemberInfoDto memberDto, @PathVariable int userId) {
         if (member == null) {
             throw new AuthenticationCredentialsNotFoundException("you must login first");
         }
@@ -45,6 +46,11 @@ public class UserController {
         if( member.getUserId() != userId ) {
             throw new AuthorizationDeniedException("You can't change this user");
         }
+
+        if( ! userService.isMatchedPassword( memberDto.getPassword(), member.getPassword() ) ) {
+            throw new AuthorizationDeniedException("Please check your password");
+        }
+
 
         Member loginUser  = userService.getMember(userId );
 
@@ -58,11 +64,11 @@ public class UserController {
 
         loginUser.setEmail(memberDto.getEmail());
 
-        if( memberDto.getPassword() != null && memberDto.getPassword().length() > 6 ){
-            loginUser.setPassword( memberDto.getPassword() );
+        if( memberDto.getNewPassword() != null && memberDto.getNewPassword().length() > 5 ){
+            loginUser.setPassword(userService.getEncryptedPassword( memberDto.getNewPassword() ));
         }
 
-        userService.updateUser(loginUser);
+        userService.updateUser(loginUser );
 
         MemberDto resp = MemberDto.builder()
                 .email(loginUser.getEmail())

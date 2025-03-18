@@ -66,19 +66,23 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
     const [emailError, setEmailError] = React.useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
 
+    const [currentPasswordError, setCurrentPasswordError] = React.useState(false);
+    const [currentPasswordErrorMessage, setCurrentPasswordErrorMessage] = React.useState('');
+
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
     const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
-
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("Welcome");
     const [ dialogMessage, setDialogMessage] = useState("");
     const [ updateError, setUpdateError] = useState(false);
 
-    const [nameError, setNameError] = React.useState(false);
-    const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+    const [ nameError, setNameError] = React.useState(false);
+    const [ nameErrorMessage, setNameErrorMessage] = React.useState('');
+    const [ validInput, setValidInput] = React.useState(false);
+    const [ changed, setChanged ] = React.useState(false);
 
     const navigate = useNavigate();
     let dispatch = useDispatch();
@@ -93,6 +97,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
     const validateInputs = () => {
 
         const email = document.getElementById('email') as HTMLInputElement;
+        const currentPassword = document.getElementById('currentPassword') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
         const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
         const name = document.getElementById('name') as HTMLInputElement;
@@ -108,26 +113,42 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
             setEmailErrorMessage('');
         }
 
-        if (!password.value || password.value.length < 6) {
-            setPasswordError(true);
-            setPasswordErrorMessage('Password must be at least 6 characters long.');
+        if( !currentPassword.value || currentPassword.value.length < 6 ){
+            setCurrentPasswordError(true);
+            setCurrentPasswordErrorMessage("Please input your current password")
             isValid = false;
-        } else {
+        }else{
+            setCurrentPasswordError(false);
+            setCurrentPasswordErrorMessage('');
+        }
+
+        if( password.value.length > 0 || confirmPassword.value.length > 0 ) {
+            if ( !password.value || password.value.length < 5) {
+                setPasswordError(true);
+                setPasswordErrorMessage('Password must be at least 6 characters long.');
+                isValid = false;
+            } else {
+                setPasswordError(false);
+                setPasswordErrorMessage('');
+            }
+
+            if ( password.value != confirmPassword.value ) {
+                setConfirmPasswordError(true);
+                setConfirmPasswordErrorMessage('confirm password should be same as password');
+                isValid = false;
+            } else {
+                setConfirmPasswordError(false);
+                setConfirmPasswordErrorMessage('');
+            }
+        }else{
             setPasswordError(false);
             setPasswordErrorMessage('');
-        }
-
-        if ( password.value != confirmPassword.value) {
-            setConfirmPasswordError(true);
-            setConfirmPasswordErrorMessage('confirm password should be same as password');
-            isValid = false;
-        } else {
             setConfirmPasswordError(false);
             setConfirmPasswordErrorMessage('');
+
         }
 
-
-        if (!name.value || name.value.length <= 3) {
+        if (!name.value || name.value.length < 2) {
             setNameError(true);
             setNameErrorMessage(!name.value ? 'Name is required.' : 'name is too short');
             isValid = false;
@@ -135,6 +156,9 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
             setNameError(false);
             setNameErrorMessage('');
         }
+
+
+        setValidInput(isValid);
 
         return isValid;
     };
@@ -158,8 +182,8 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
         const data = {} as Member;
         data.name = currentEvent.get('name');
         data.email = currentEvent.get('email') ? currentEvent.get('email') : null;
-        data.password= currentEvent.get('password');
-
+        data.newPassword= currentEvent.get('password');
+        data.password = currentEvent.get('currentPassword');
 
         fetch(`/api/user/${loginUser.id}`, {
             method: "PUT",
@@ -198,7 +222,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined">
+                <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <Typography
                         component="h3"
                         variant="h3"
@@ -214,14 +238,15 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                         <FormControl>
                             <FormLabel htmlFor="name">Name</FormLabel>
                             <TextField
+                                required
                                 autoComplete="name"
                                 name="name"
-                                required
                                 fullWidth
                                 id="name"
                                 defaultValue={loginUser.name}
                                 error={nameError}
                                 helperText={nameErrorMessage}
+                                onChange={ e=> {setChanged(true); validateInputs()}}
                                 color={nameError ? 'error' : 'primary'}
                             />
                         </FormControl>
@@ -251,7 +276,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 defaultValue={loginUser.email}
                                 fullWidth
                                 name="email"
-
+                                onChange={  e=> {setChanged(true); validateInputs()}}
                                 type="email"
                                 id="email"
                                 variant="outlined"
@@ -260,41 +285,56 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
 
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="password">Password</FormLabel>
+                            <FormLabel htmlFor="password">Current Password</FormLabel>
                             <TextField
                                 required
                                 fullWidth
+                                name="currentPassword"
+                                type="password"
+                                placeholder="Current Password"
+                                id="currentPassword"
+                                autoComplete="new-password"
+                                variant="outlined"
+                                error={currentPasswordError}
+                                helperText={currentPasswordErrorMessage}
+                                onChange={ e=>validateInputs()}
+                                color={passwordError ? 'error' : 'primary'}
+                            />
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel htmlFor="password">New Password</FormLabel>
+                            <TextField
+                                fullWidth
                                 name="password"
-                                placeholder="password"
+                                placeholder="New Password"
                                 type="password"
                                 id="password"
                                 autoComplete="new-password"
                                 variant="outlined"
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
+                                onChange={  e=> {setChanged(true); validateInputs()}}
                                 color={passwordError ? 'error' : 'primary'}
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="password">Password Confirm</FormLabel>
+                            <FormLabel htmlFor="password">New Password Confirm</FormLabel>
                             <TextField
-                                required
                                 fullWidth
                                 name="confirmPassword"
-                                placeholder="password confirm"
+                                placeholder="New Password confirm"
                                 type="password"
                                 id="confirmPassword"
                                 autoComplete="new-password"
                                 variant="outlined"
                                 error={confirmPasswordError}
                                 helperText={confirmPasswordErrorMessage}
+                                onChange={  e=> {setChanged(true); validateInputs()}}
                                 color={confirmPasswordError ? 'error' : 'primary'}
                             />
                         </FormControl>
-                        {/*<FormControlLabel*/}
-                        {/*    control={<Checkbox value="allowExtraEmails" color="primary" />}*/}
-                        {/*    label="I want to receive "*/}
-                        {/*/>*/}
+
                         <CardActions >
                             <Button
                                 type="submit"
@@ -302,6 +342,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 variant="contained"
                                 onClick={validateInputs}
                                 size="large"
+                                disabled={ !changed || !validInput }
                             >
                                 Save
                             </Button>

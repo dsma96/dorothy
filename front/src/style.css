@@ -77,3 +77,14 @@ ul {
 .rbc-time-content{
     overflow: scroll;
 }
+.rbc-timeslot-group:nth-child(even) {background-color: #fcf3cf;}
+.rbc-day-slot .rbc-event{
+    background-color: #1318b;
+    color: #dec85e;
+    border: none;
+    border:none !important;
+}
+.rbc-day-slot .rbc-background-event{
+    border:none !important ;
+}
+

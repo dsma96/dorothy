@@ -1,5 +1,6 @@
 package com.silverwing.dorothy.api.service;
 
+import com.silverwing.dorothy.api.dao.HairServiceRepository;
 import com.silverwing.dorothy.api.dao.MemberRepository;
 import com.silverwing.dorothy.api.dao.ReservationRepository;
 import com.silverwing.dorothy.api.dao.ReserveServiceMapRepository;
@@ -8,6 +9,8 @@ import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.reserve.*;
 
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -20,24 +23,21 @@ public class ReservationService {
     private final MemberRepository memberRepository;
     private final ReserveServiceMapRepository serviceMapRepository;
     private final ReserveServiceMapRepository reserveServiceMapRepository;
+    private final HairServiceRepository hairServiceRepository;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm");
 
-    public ReservationService(ReservationRepository ReservationRepository, MemberRepository MemberRepository, ReserveServiceMapRepository serviceMapRepository, ReserveServiceMapRepository reserveServiceMapRepository) {
+    public ReservationService(ReservationRepository ReservationRepository, MemberRepository MemberRepository, ReserveServiceMapRepository serviceMapRepository, ReserveServiceMapRepository reserveServiceMapRepository, HairServiceRepository hairServiceRepository) {
         this.reservationRepository = ReservationRepository;
         this.memberRepository = MemberRepository;
         this.serviceMapRepository = serviceMapRepository;
         this.reserveServiceMapRepository = reserveServiceMapRepository;
+        this.hairServiceRepository = hairServiceRepository;
     }
 
     public List<Reservation> getReservations(int userId, Date startDate, Date endDate ) {
         List<Reservation> reservations;
-
-//        if( userId > 0){
-//            reservations = reservationRepository.findAllWithStartDate(userId, startDate,endDate).orElseGet(()-> Collections.emptyList());
-//        }else{
             reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
-//        }
         return reservations;
     }
 
@@ -63,6 +63,7 @@ public class ReservationService {
                 .status( caller.isRootUser() || userId == reservation.getUserId() ? reservation.getStatus() : ReservationStatus.CREATED)
                 .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
+                .isRequireSilence((caller.isRootUser() || userId == reservation.getUserId()) && reservation.isRequireSilence())
                 .build();
         return dto;
     }
@@ -70,6 +71,37 @@ public class ReservationService {
     public List<ReservationDto> convertReservations(List<Reservation> reservations, int userId) {
         Member caller = memberRepository.findMemberByUserId( userId ).orElseThrow();
         return reservations.stream().map( s-> convertReservation( s, caller )).toList();
+    }
+
+    @Transactional
+    public Reservation updateReservation( Reservation reservation, ReservationRequestDTO reqDto, Member customer){
+        Date now = new Date();
+
+        reservation.setMemo( reqDto.getMemo());
+        reservation.setStatus(ReservationStatus.CREATED);
+        reservation.setUserId( customer.getUserId());
+        reservation.setModifyDate(now);
+        reservation.setDesignerId(reqDto.getDesigner());
+        reservation.setModifier( customer.getUserId() );
+        reservation.setRequireSilence( reqDto.isRequireSilence());
+        Reservation persistedReservation = reservationRepository.save(reservation);
+        List<ReserveServiceMap> newServiceMap = getHairServices(reqDto, persistedReservation.getRegId());
+        List<ReserveServiceMap> oldServiceMap = reservation.getServices();
+
+
+        if(newServiceMap.isEmpty()){
+            throw new ReserveException("Can't create reservation without service");
+        }
+
+        boolean equal = newServiceMap.size() == oldServiceMap.size();
+
+        if(!equal || !newServiceMap.containsAll(oldServiceMap)){
+            reserveServiceMapRepository.deleteByRegId(reservation.getRegId());
+            reserveServiceMapRepository.saveAll(newServiceMap);
+            persistedReservation.setServices( newServiceMap );
+        }
+
+        return persistedReservation;
     }
 
     @Transactional
@@ -98,7 +130,6 @@ public class ReservationService {
 
         Reservation reservation = new Reservation();
 
-
         reservation.setMemo( reqDto.getMemo());
         reservation.setStatus(ReservationStatus.CREATED);
         reservation.setStartDate( startDate );
@@ -108,24 +139,37 @@ public class ReservationService {
         reservation.setModifyDate(now);
         reservation.setDesignerId(reqDto.getDesigner());
         reservation.setModifier( customer.getUserId() );
+        reservation.setRequireSilence( reqDto.isRequireSilence());
 
         Reservation persistedReservation =  reservationRepository.save( reservation );
         List<ReserveServiceMap> map = getHairServices(reqDto, persistedReservation.getRegId());
+
+        if(map.isEmpty()){
+            throw new ReserveException("Can't create reservation without service");
+        }
+
         reserveServiceMapRepository.saveAll(map);
         persistedReservation.setServices( map );
         persistedReservation.setUser( customer);
         return persistedReservation;
     }
 
+
+
+
     static final int MANDATORY_ID= 1;
 
     private List<ReserveServiceMap> getHairServices(ReservationRequestDTO reservation, int regId) {
-        ArrayList <ReserveServiceMap> hairServices = new ArrayList<>();
-        ReserveServiceMap hairService = new ReserveServiceMap();
-        hairService.setRegId(regId);
-        hairService.setSvcId(MANDATORY_ID);
-        hairServices.add( hairService );
-        return hairServices;
+        ArrayList <ReserveServiceMap> hairServicesMap = new ArrayList<>();
+        List <HairServices> hairServices = hairServiceRepository.findHairServicesByIds( reservation.getServiceIds()).orElseThrow();
+
+        for( HairServices hs : hairServices ){
+            ReserveServiceMap hairService = new ReserveServiceMap();
+            hairService.setRegId(regId);
+            hairService.setSvcId( hs.getServiceId());
+            hairServicesMap.add( hairService );
+        }
+        return hairServicesMap;
     }
 
     public Reservation cancelReservation( int regId , Member caller){
@@ -148,5 +192,10 @@ public class ReservationService {
             throw new ReserveException("can't cancel reservation");
 
         return reservationRepository.save( r );
+    }
+
+    @CacheEvict(value = "myCache")
+    public List<HairServices> getHairServices() {
+        return hairServiceRepository.getAvailableServices().orElseThrow();
     }
 }

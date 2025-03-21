@@ -3,6 +3,7 @@ package com.silverwing.dorothy.domain.reserve;
 import com.silverwing.dorothy.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.type.YesNoConverter;
 
 import java.util.Date;
 import java.util.List;
@@ -55,6 +56,10 @@ public class Reservation {
 
     @Column(name="modifier")
     int modifier;
+
+    @Column(name="req_silence")
+    @Convert(converter = YesNoConverter.class)
+    boolean requireSilence;
 
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;

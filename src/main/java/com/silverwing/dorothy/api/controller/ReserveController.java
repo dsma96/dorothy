@@ -5,6 +5,7 @@ import com.silverwing.dorothy.api.service.ReservationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.member.MemberDto;
+import com.silverwing.dorothy.domain.reserve.HairServices;
 import com.silverwing.dorothy.domain.reserve.Reservation;
 import com.silverwing.dorothy.domain.reserve.ReservationDto;
 import com.silverwing.dorothy.domain.reserve.ReservationRequestDTO;
@@ -93,6 +94,31 @@ public class ReserveController {
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
     }
 
+    @PutMapping("/reservation/{regId}")
+    public ResponseEntity<ResponseData<ReservationDto>> updateReservation(@AuthenticationPrincipal Member member, @RequestBody ReservationRequestDTO reservationDto, @PathVariable int regId) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        Reservation reservation =  reservationService.getReservation(regId).orElseThrow();
+
+        Date now = new Date();
+
+        if( reservation.getStartDate().before(now) && !member.isRootUser()){
+            throw new ReserveException("You can't modify the registration in the past");
+        }
+
+        if( reservation.getUserId() != member.getUserId() && !member.isRootUser() ) {
+            throw new ReserveException("You can't modify this registration");
+        }
+
+        reservation = reservationService.updateReservation( reservation, reservationDto, member);
+
+        ReservationDto dto = reservationService.convertReservation( reservation, member);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
+    }
+
+
     @PutMapping("/cancel/{regId}")
     public ResponseEntity<ResponseData<ReservationDto>> cancelReservation(@AuthenticationPrincipal Member member, @PathVariable int regId) {
         if( member == null ) {
@@ -102,6 +128,12 @@ public class ReserveController {
         Reservation canceledReservation =  reservationService.cancelReservation(regId, member);
         ReservationDto reservationDto = reservationService.convertReservation( canceledReservation, member);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), reservationDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/services")
+    public ResponseEntity<ResponseData<List<HairServices>>> getServices() {
+        List<HairServices> services = reservationService.getHairServices();
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), services), HttpStatus.OK);
     }
 
 }

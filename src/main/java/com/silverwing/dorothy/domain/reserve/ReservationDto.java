@@ -22,4 +22,6 @@ public class ReservationDto {
     private List<HairServices> services;
     private boolean isEditable;
     private String memo;
+    private boolean isRequireSilence;
+
 }

@@ -2,6 +2,37 @@ import { http, HttpResponse    } from 'msw'
 import moment from 'moment'
 
 export const handlers = [
+    http.get('/api/reserve/services', () => {
+            // ...and respond to them using this JSON response.
+            return HttpResponse.json(
+                {
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": [
+                        {
+                            "serviceId": 1,
+                            "name": "남자 헤어컷",
+                            "mandatory": true,
+                            "idx": 0,
+                            "defaultValue": true,
+                            "visible": false,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 6,
+                            "name": "조용히 시술받고 싶어요",
+                            "mandatory": false,
+                            "idx": 999,
+                            "defaultValue": false,
+                            "visible": true,
+                            "use": true
+                        }
+                    ]
+                }
+            )
+        }
+    ),
+
     http.put('/api/reserve/cancel/:id', ( {params}) => {
         const{id} = params;
             // ...and respond to them using this JSON response.
@@ -115,7 +146,8 @@ export const handlers = [
                         "status": "CREATED",
                         "services": [null],
                         "memo": "reserve1",
-                        "editable": true
+                        "editable": true,
+                        "requireSilence":true
                     }
                 }
             )
@@ -147,26 +179,24 @@ export const handlers = [
                                     use: true
                                 },
                                 {
-                                    serviceId: 3,
-                                    name:"다운펌",
-                                    mandatory: false,
-                                    idx: 2,
-                                    use: true
+                                    serviceId: 6,
                                 }
                             ],
                             status: 'CREATED',
                             editable:true,
-                            memo:'hello'
+                            memo:'hello World',
+                            requireSilence:true
                         },
                         {
                             reservationId: 2,
-                            userName: "John Doe",
+                            userName: "Johne Doe",
                             phone: "416-000-1234",
                             startDate: today+"T13:00",
                             createDate: "20250309T13:30",
                             services: [],
                             status: 'CREATED',
-                            editable: false
+                            editable: false,
+                            requireSilence:false
                         }
                     ]
                 }
@@ -176,40 +206,35 @@ export const handlers = [
     http.get('/api/reserve/:id', ({params})=>{
         const{id} = params;
         let today = moment(new Date()).format("YYYYMMDD");
-
         if( id == '1'){
             return HttpResponse.json(
                 {
-                    msg: "OK",
-                    code: 200,
-                    payload:
-                        {
-                            "reservationId": 1,
-                            "userName": "Aiden",
-                            "phone": "2892440503",
-                            "startDate": today+"T10:00",
-                            "createDate": "20250309T13:30",
-                            "status": "CREATED",
-                            "memo":"memo1",
-                            "services": [
-                                {
-                                    "serviceId": 1,
-                                    "name": "남자 헤어컷",
-                                    "mandatory": true,
-                                    "idx": 0,
-                                    "use": true
-                                },
-                                {
-                                    "serviceId": 3,
-                                    "name": "다운펌",
-                                    "mandatory": false,
-                                    "idx": 2,
-                                    "use": true
-                                }
-                            ],
-                            "editable": true
-                        }
-                });
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": {
+                        "reservationId": 28,
+                        "userName": "동석",
+                        "phone": "6474060362",
+                        "startDate": "20250326T14:00",
+                        "createDate": "20250319T01:09",
+                        "status": "CREATED",
+                        "services": [
+                            {
+                                "serviceId": 1,
+                                "name": "남자 헤어컷",
+                                "mandatory": true,
+                                "idx": 0,
+                                "defaultValue": true,
+                                "visible": false,
+                                "use": true
+                            }
+                        ],
+                        "memo": "앞 머리는 빡빡 밀고 \n옆 머리만 남겨주세요.\n저 심각하니까 말걸지 마세요",
+                        "editable": true,
+                        "requireSilence": true
+                    }
+                }
+            )
         }else{
             return HttpResponse.json(
                 {
@@ -224,7 +249,8 @@ export const handlers = [
                             "createDate": null,
                             "status": "CREATED",
                             "services": [],
-                            "editable": false
+                            "editable": false,
+                            "requireSilence": true
                         }
                 });
 

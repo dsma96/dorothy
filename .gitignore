@@ -34,6 +34,7 @@ build/
 .vscode/
 /ssl/
 /src/main/resources/keystore.p12
-script.txt
-/docker-entrypoint.sh
-
+/script.txt
+docker-entrypoint.sh
+Dockerfile
+/Dockerfile

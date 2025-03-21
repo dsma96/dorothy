@@ -124,9 +124,6 @@ const TimeTable: FC = () => {
     const handleSelectSlot = ( {start , end, slots} ) => {
         let now = new Date();
 
-        if( now.getTime() < startDate.getTime() )
-            now = startDate;
-
         var find = false;
         if( slots?.length > 2) return;
 
@@ -143,7 +140,7 @@ const TimeTable: FC = () => {
             console.log("skip processing. ")
             return;
         }
-        if( start > new Date())
+        if( start > new Date() && start > startDate )
             navigate("/reserve?start="+moment(start).format("YYYYMMDDTHH:mm"))
         else{
             // setPopupMessage("Please choose a date in the future")

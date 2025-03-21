@@ -1,9 +1,6 @@
 package com.silverwing.dorothy.api.service;
 
-import com.silverwing.dorothy.api.dao.HairServiceRepository;
-import com.silverwing.dorothy.api.dao.MemberRepository;
-import com.silverwing.dorothy.api.dao.ReservationRepository;
-import com.silverwing.dorothy.api.dao.ReserveServiceMapRepository;
+import com.silverwing.dorothy.api.dao.*;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.reserve.*;
@@ -24,15 +21,23 @@ public class ReservationService {
     private final ReserveServiceMapRepository serviceMapRepository;
     private final ReserveServiceMapRepository reserveServiceMapRepository;
     private final HairServiceRepository hairServiceRepository;
+    private final OffDayRepository offDayRepository;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm");
+    private SimpleDateFormat dayOnly = new SimpleDateFormat("yyyyMMdd");
 
-    public ReservationService(ReservationRepository ReservationRepository, MemberRepository MemberRepository, ReserveServiceMapRepository serviceMapRepository, ReserveServiceMapRepository reserveServiceMapRepository, HairServiceRepository hairServiceRepository) {
+    public ReservationService(ReservationRepository ReservationRepository, MemberRepository MemberRepository,
+                              ReserveServiceMapRepository serviceMapRepository,
+                              ReserveServiceMapRepository reserveServiceMapRepository,
+                              HairServiceRepository hairServiceRepository,
+                              OffDayRepository offdayRepository
+                                ) {
         this.reservationRepository = ReservationRepository;
         this.memberRepository = MemberRepository;
         this.serviceMapRepository = serviceMapRepository;
         this.reserveServiceMapRepository = reserveServiceMapRepository;
         this.hairServiceRepository = hairServiceRepository;
+        this.offDayRepository = offdayRepository;
     }
 
     public List<Reservation> getReservations(int userId, Date startDate, Date endDate ) {
@@ -120,6 +125,17 @@ public class ReservationService {
 
         if( startDate.before( now) ){
             throw new ReserveException(" reservation should be in the future");
+        }
+
+        String startDateDayOnly = dayOnly.format(startDate);
+        try {
+            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), reqDto.getDesigner());
+
+            if (offDayRepository.findById(offId).isPresent()) {
+                throw new ReserveException("Designer is having an off day");
+            }
+        }catch(ParseException e){
+            throw new ReserveException(e.getMessage());
         }
 
         List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner( reqDto.getDesigner(),startDate,endDate ).orElseGet(()-> Collections.emptyList());

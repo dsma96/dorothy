@@ -1,10 +1,9 @@
 # Start with a base image containing Java runtime
 FROM amazoncorretto:17.0.7-alpine
-
-
+ENV TZ="America/Toronto"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Add a volume pointing to /tmp
 VOLUME /tmp
-
 # Make port 8080 available to the world outside this container
 EXPOSE 8080 8443
 

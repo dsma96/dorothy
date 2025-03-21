@@ -28,6 +28,17 @@ import TextField from "@mui/material/TextField";
 import {HairService, Reservation} from "type";
 import {useEffect, useState} from "react";
 import {setUser} from "./redux/store";
+import Divider from "@mui/material/Divider";
+
+
+const MultilineTextField = styled(TextField)({
+
+    '& .MuiInputBase-input::placeholder': {
+        // Style the placeholder to appear multiline
+        whiteSpace: 'pre-line', // Allows line breaks in the placeholder
+    },
+});
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -82,16 +93,18 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const cancelDialogTitle = "Cancel reservation";
     const cancelDialogMessage = "Would you like to cancel your reservation?";
 
+
     const  [reservation, setReservation] = React.useState< Reservation> ( {
         reservationId:-1,
         userName: loginUser.name,
         startDate:'',
-        createDate:moment( new Date()).format('YYYY/MM/DD ddd HH:mm'),
+        createDate:moment( new Date()).format("YYYYMMDDTHH:mm"),
         status:'CREATED',
         services:[],
         editable:true,
         memo:'',
-        phone: loginUser.phone
+        phone: loginUser.phone,
+        requireSilence: false
     });
 
     useEffect(() => {
@@ -116,8 +129,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                 .then(
                     data => {
                         if( data.code == 200 ){
-                            // dispatch( setUser( data.payload )) ;
-                            // navigate(retUrl)
+                            console.log(JSON.stringify(data.payload));
                             setReservation( data.payload );
                         }
                     }
@@ -125,6 +137,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                 .catch(error => console.error("Error:", error));
         }
     },[]);
+
 
     const handleCloseDialog=()=>{
         setOpenDialog(false);
@@ -159,18 +172,26 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
 
     }
 
+
     const saveReserve = (event) => {
         event.preventDefault();
+
+        let serviceIds: number[] = [];
+        serviceIds.push(1);
 
         const reqDto = {
             startTime: reservation.startDate,
             designer: 1,
             memo: reservation.memo,
-            serviceIds:[1]
+            serviceIds:serviceIds,
+            requireSilence: reservation.requireSilence
         };
+        let url = "/api/reserve/reservation";
+        if( reservation.reservationId > 0 )
+            url = url +"/"+reservation.reservationId;
 
-        fetch("/api/reserve/reservation", {
-            method: "POST",
+        fetch(url, {
+            method: reservation.reservationId > 0 ? "PUT" : "POST",
             body: JSON.stringify(reqDto),
             headers: {
                 "Content-Type": "application/json"
@@ -199,10 +220,22 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         const data = new FormData(event.currentTarget);
     };
-
-    const cancelReserve = () =>{
-
+    const handleMemoInput = e=>{
+        setReservation({
+            ...reservation,
+            memo: e.target.value
+        })
     }
+
+    const handleCheckbox = (e)=>{
+        console.log("handleCheckBox:"+reservation.requireSilence)
+        reservation.requireSilence = !reservation.requireSilence;
+        setReservation({
+            ...reservation,
+        });
+    }
+
+
 
     const formatPhoneNumber = (phoneNumberString: string) => {
         var cleaned = ('' + phoneNumberString).replace(/\D/g, '');
@@ -217,19 +250,14 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
         return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
     }
 
-    const handleMemoInput = e=>{
-        setReservation({
-            ...reservation,
-            memo: e.target.value
-        })
-    }
 
     const theme = useTheme();
+
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined">
+                <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
                         component="h2"
@@ -238,13 +266,13 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                     >
                         {reservation.reservationId > 0 ? 'Edit Reservation' : 'New Reservation'}
                     </Typography>
+                    <Divider/>
                     <Typography
                         component="h4"
                         variant="h4"
                         sx={{width: '100%', fontSize: 'clamp(1.5rem, 8vw, 2.0rem)'}}
                     >
                         {  formatDate( reservation.startDate )}
-
                     </Typography>
 
                     <Box
@@ -269,20 +297,41 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
 
                         </Typography>
 
-                        {/*<FormGroup>*/}
-                        {/*    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="남자헤어컷" />*/}
-                        {/*    <FormControlLabel  control={<Checkbox />} label="샴푸+드라이" />*/}
-                        {/*    <FormControlLabel  control={<Checkbox />} label="다운펌" />*/}
-                        {/*    <FormControlLabel  control={<Checkbox />} label="세치염색" />*/}
-                        {/*</FormGroup>*/}
-                        <TextField
-                            placeholder="Please leave your extra requirements"
+
+                        <MultilineTextField
+                            placeholder={"자르고 싶은 스타일을 적어 주세요\n디자이너에게 전달됩니다\n\n예)앞머리는 눈썹 아래로 덮히게 해주시고 구렛나루는 남기지말고 짧게 잘라주세요"}
                             multiline
-                            rows={2}
-                            maxRows={4}
+                            rows={5}
                             value={reservation.memo}
                             onChange={handleMemoInput}
                         />
+
+                        <FormControlLabel
+                              control={
+                                <Checkbox
+                                    id='check_requireSilence'
+                                    checked={reservation.requireSilence}
+                                    disabled={!reservation.editable}
+                                    onChange={handleCheckbox}
+                              />}
+                              label='조용히 시술받고 싶어요'
+                        />
+                        <Divider/>
+                        <Typography
+                            component="h4"
+                            variant="h4"
+                            sx={{width: '100%', fontSize: 'clamp(0.9rem, 9vw, 0.9rem)', lineHeight:1}}
+                        >
+                            390 Steeles Avenue West
+                        </Typography>
+                        <Typography
+                            component="h4"
+                            variant="h4"
+                            sx={{width: '100%', fontSize: 'clamp(1rem, 9vw, 0.9rem)', lineHeight:1}}
+                        >
+                            K-Hair Studio, Designer Jay
+                        </Typography>
+
                         <CardActions >
                         <Button
                             type="submit"
@@ -291,7 +340,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             onClick={saveReserve}
                             disabled={!reservation.editable}
                         >
-                            Reservation
+                            {reservation.reservationId > 0 ? 'Update' :  'Reservation'}
                         </Button>
                         <Button
                             size="large"

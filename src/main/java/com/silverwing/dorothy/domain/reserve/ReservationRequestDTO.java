@@ -13,4 +13,5 @@ public class ReservationRequestDTO {
     String startTime;
     int designer;
     String memo;
+    boolean requireSilence;
 }

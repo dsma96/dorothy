@@ -20,11 +20,10 @@ import { useTheme } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input'
 
 import {useNavigate} from "react-router";
-import {Navigate, useSearchParams} from "react-router-dom";
+import { useSearchParams} from "react-router-dom";
 import type {Member} from './type';
 import {useEffect, useState} from "react";
 
-import  Cookies from "js-cookie";
 import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -85,7 +84,7 @@ export default function SignIn() {
     let [searchParams] = useSearchParams();
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [openDialog, setOpenDialog] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Error");
+    const dialogTitle = "Error";
     const [ dialogMessage, setDialogMessage] = useState("");
     let retUrl= "/";
 

@@ -29,7 +29,15 @@ import  './App.css'
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
 import {setUser} from "./redux/store";
-const defaultTZ = moment.tz.guess()
+const defaultTZ = moment.tz.guess();
+
+const TabBarButton = styled(BottomNavigationAction)({
+    color: '#e67e22',
+    '.Mui-selected, svg':{
+        color: '#e67e22',
+    }
+});
+
 
 const TimeTableContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
@@ -58,15 +66,14 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
 
 const TimeTable: FC = () => {
     const navigate = useNavigate();
+    let now  = new Date();
+    const startDate = new Date(2025,2,26);
 
     const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
-    const [today, setToday] = useState<Date>(new Date());
-
-
-    const startDate = new Date(2025,2,26);
+    const [today, setToday] = useState<Date>( now.getTime() > startDate.getTime() ? now : startDate  );
 
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
@@ -115,10 +122,13 @@ const TimeTable: FC = () => {
     const theme = useTheme();
 
     const handleSelectSlot = ( {start , end, slots} ) => {
+        let now = new Date();
+
+        if( now.getTime() < startDate.getTime() )
+            now = startDate;
 
         var find = false;
         if( slots?.length > 2) return;
-
 
         if( events != null && events.length > 0 ) {
             for (const ev of events) {
@@ -188,39 +198,23 @@ const TimeTable: FC = () => {
                     selectable
                     step={TIME_UNIT}
                     timeslots={1}
-                    date = {today.getTime() > startDate.getTime() ? today : startDate}
+                    date = {today}
                     min={
-                        today.getTime() > startDate.getTime() ?
+
                         new Date(
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
-                            10,0
-                        )
-                        :
-                        new Date(
-                            startDate.getFullYear(),
-                            startDate.getMonth(),
-                            startDate.getDate(),
                             10,0
                         )
                     }
                     max={
-                        today.getTime() > startDate.getTime() ?
                         new Date(
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
                             19,0
                         )
-                        :
-                        new Date(
-                            startDate.getFullYear(),
-                            startDate.getMonth(),
-                            startDate.getDate(),
-                            19,0
-                        )
-
                     }
                     views={['day']}
 
@@ -241,9 +235,9 @@ const TimeTable: FC = () => {
                     className='stickToBottom'
                 >
 
-                    <BottomNavigationAction label="Back" icon={<ArrowBackIosIcon /> } onClick={() => navigate('/')} />
-                    <BottomNavigationAction label="Main" icon={<HomeIcon  />} onClick={() => navigate('/')} />
-                    <BottomNavigationAction label="My Info" icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
+                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate('/')} />
+                    <TabBarButton label="Main" color='primary' icon={<HomeIcon  />} onClick={() => navigate('/')} />
+                    <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
                     <Snackbar
                         open={openPopup}
                         onClick={()=>setOpenPopup(false)}

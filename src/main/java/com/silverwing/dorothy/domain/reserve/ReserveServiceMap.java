@@ -22,4 +22,12 @@ public class ReserveServiceMap {
     @ManyToOne
     @JoinColumn(name="svc_id",insertable=false,updatable=false)
     HairServices service;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ReserveServiceMap r2) {
+             return this.regId == r2.regId && this.svcId == r2.svcId;
+        }
+        return false;
+    }
 }

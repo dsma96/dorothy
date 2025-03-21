@@ -52,7 +52,7 @@ public class LoginController {
         try {
 
             if(  member.getPhone() == null || member.getPassword() == null){
-                return new ResponseEntity<>(  new ResponseData<>( "invalid user id or passwordd"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(  new ResponseData<>( "invalid user id or password"), HttpStatus.UNAUTHORIZED);
             }
 
             Member loginUser  = userService.getMemberFromLogin(member.getPhone(), member.getPassword());

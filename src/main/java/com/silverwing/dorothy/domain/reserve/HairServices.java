@@ -25,4 +25,13 @@ public class HairServices {
 
     @Column(name="idx")
     int idx;
+
+    @Column(name="visible")
+    @Convert(converter = YesNoConverter.class)
+    boolean isVisible;
+
+    @Column(name="default_val")
+    @Convert(converter = YesNoConverter.class)
+    boolean defaultValue;
+
 }

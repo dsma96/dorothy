@@ -19,7 +19,9 @@ export interface HairService{
     name: string,
     mandatory: boolean,
     idx: number,
-    use: boolean
+    use: boolean,
+    visible: boolean
+    defaultValue: boolean
 }
 
 export interface Reservation{
@@ -31,5 +33,7 @@ export interface Reservation{
     createDate?: string,
     services: HairService[],
     status: string,
-    memo: string
+    memo: string,
+    requireSilence: boolean,
+    editable: boolean
 }

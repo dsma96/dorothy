@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.api.dao;
+package com.silverwing.dorothy.domain.dao;
 
 import com.silverwing.dorothy.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

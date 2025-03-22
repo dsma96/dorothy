@@ -1,29 +1,27 @@
 package com.silverwing.dorothy.api.service;
 
-import com.silverwing.dorothy.api.dao.MemberRepository;
+import com.silverwing.dorothy.domain.dao.MemberRepository;
 import com.silverwing.dorothy.domain.Exception.UserException;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.member.UserRole;
-import com.silverwing.dorothy.domain.security.JwtTokenManager;
 import com.silverwing.dorothy.domain.type.UserStatus;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.Date;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "member")
 public class DorothyUserService  {
     @Autowired
     private  MemberRepository memberRepository;
@@ -40,6 +38,7 @@ public class DorothyUserService  {
         return passwordEncoder.encode(password);
     }
 
+
     public Member getMemberFromLogin( String phone, String pwd ) throws AuthenticationException {
         Member member = memberRepository.findMemberByPhone( phone ).orElseThrow( () -> new UsernameNotFoundException("Can't find "+phone) );
         Date now = new Date();
@@ -52,7 +51,6 @@ public class DorothyUserService  {
             }
         }
         member.setLastLoginTry(now);
-
 
         if( UserStatus.ENABLED.equals( member.getStatus()) ){
             if( passwordEncoder.matches( pwd, member.getPassword() ) ) {
@@ -70,13 +68,16 @@ public class DorothyUserService  {
             throw new UsernameNotFoundException("Disabled user "+phone);
     }
 
+    @Cacheable( key = "#phone", unless="#result == null")
     public Member getMember( String phone ) throws AuthenticationException {
         return memberRepository.findMemberByPhone( phone ).orElseThrow( () -> new UsernameNotFoundException("Can't find "+phone) );
     }
 
+    @Cacheable
     public Member getMember(int memberId)  {
         return memberRepository.findById( memberId ).orElseThrow();
     }
+
 
     public Member createMember( String name, String telNo, String email, String password ) throws UserException {
         if( memberRepository.findMemberByPhone(telNo).isPresent() )
@@ -104,9 +105,9 @@ public class DorothyUserService  {
         return memberRepository.save( member );
     }
 
+    @CacheEvict(key="#member.phone")
     public Member updateUser( Member member) throws UserException{
         return memberRepository.save( member );
     }
-
 
 }

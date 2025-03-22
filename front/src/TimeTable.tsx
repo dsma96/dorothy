@@ -67,7 +67,7 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
 const TimeTable: FC = () => {
     const navigate = useNavigate();
     let now  = new Date();
-    const startDate = new Date(2025,2,26);
+    const startDate = new Date(2025,3,5);
 
     const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();

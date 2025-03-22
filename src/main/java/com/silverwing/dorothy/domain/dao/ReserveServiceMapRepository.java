@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.api.dao;
+package com.silverwing.dorothy.domain.dao;
 import com.silverwing.dorothy.domain.reserve.HairServices;
 import com.silverwing.dorothy.domain.reserve.Reservation;
 import com.silverwing.dorothy.domain.reserve.ReserveServiceMap;

@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.api.dao;
+package com.silverwing.dorothy.domain.dao;
 
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.reserve.Reservation;
@@ -17,6 +17,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     @Query("SELECT r From Reservation r WHERE r.startDate between :startDate and :endDate and r.status != 'CANCELED'" )
     Optional<List<Reservation>> findAllWithStartDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
+
     @Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate between :startDate and :endDate and r.status != 'CANCELED'")
     Optional<List<Reservation>> findAllWithDateOnDesigner(@Param("designerId") int designerId, @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 }

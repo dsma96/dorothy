@@ -1,13 +1,14 @@
 package com.silverwing.dorothy.api.service;
 
-import com.silverwing.dorothy.api.dao.*;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
+import com.silverwing.dorothy.domain.dao.*;
 import com.silverwing.dorothy.domain.member.Member;
 import com.silverwing.dorothy.domain.reserve.*;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -15,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
+@CacheConfig(cacheNames="reservation")
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
@@ -22,6 +25,7 @@ public class ReservationService {
     private final ReserveServiceMapRepository reserveServiceMapRepository;
     private final HairServiceRepository hairServiceRepository;
     private final OffDayRepository offDayRepository;
+    private final NotificationService notificationService;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm");
     private SimpleDateFormat dayOnly = new SimpleDateFormat("yyyyMMdd");
@@ -30,7 +34,8 @@ public class ReservationService {
                               ReserveServiceMapRepository serviceMapRepository,
                               ReserveServiceMapRepository reserveServiceMapRepository,
                               HairServiceRepository hairServiceRepository,
-                              OffDayRepository offdayRepository
+                              OffDayRepository offdayRepository,
+                              NotificationService notificationService
                                 ) {
         this.reservationRepository = ReservationRepository;
         this.memberRepository = MemberRepository;
@@ -38,9 +43,10 @@ public class ReservationService {
         this.reserveServiceMapRepository = reserveServiceMapRepository;
         this.hairServiceRepository = hairServiceRepository;
         this.offDayRepository = offdayRepository;
+        this.notificationService = notificationService;
     }
 
-    public List<Reservation> getReservations(int userId, Date startDate, Date endDate ) {
+    public List<Reservation> getReservations( Date startDate, Date endDate ) {
         List<Reservation> reservations;
             reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
         return reservations;
@@ -70,6 +76,7 @@ public class ReservationService {
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
                 .isRequireSilence((caller.isRootUser() || userId == reservation.getUserId()) && reservation.isRequireSilence())
                 .build();
+
         return dto;
     }
 
@@ -167,6 +174,9 @@ public class ReservationService {
         reserveServiceMapRepository.saveAll(map);
         persistedReservation.setServices( map );
         persistedReservation.setUser( customer);
+
+        notificationService.sendReservationMessage(persistedReservation);
+
         return persistedReservation;
     }
 
@@ -206,11 +216,11 @@ public class ReservationService {
         }
         else
             throw new ReserveException("can't cancel reservation");
-
+        notificationService.sendReservationCancelMessage(r);
         return reservationRepository.save( r );
     }
 
-    @CacheEvict(value = "myCache")
+    @CacheEvict(value = "reservation")
     public List<HairServices> getHairServices() {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }

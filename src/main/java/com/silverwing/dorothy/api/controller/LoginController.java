@@ -1,22 +1,17 @@
 package com.silverwing.dorothy.api.controller;
-import com.silverwing.dorothy.api.service.DorothyUserService;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.member.MemberDto;
+import com.silverwing.dorothy.domain.service.user.DorothyUserService;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.security.JwtTokenManager;
-import com.silverwing.dorothy.domain.type.UserStatus;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 @RestController
 @RequestMapping("/api/login")

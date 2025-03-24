@@ -1,6 +1,6 @@
 package com.silverwing.dorothy.domain.security;
 
-import com.silverwing.dorothy.domain.member.Member;
+import com.silverwing.dorothy.domain.entity.Member;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

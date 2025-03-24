@@ -1,6 +1,6 @@
 package com.silverwing.dorothy.domain.dao;
 
-import com.silverwing.dorothy.domain.reserve.HairServices;
+import com.silverwing.dorothy.domain.entity.HairServices;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,13 +1,10 @@
 package com.silverwing.dorothy.domain.external;
-import com.silverwing.dorothy.api.service.NotificationService;
-import com.silverwing.dorothy.domain.type.MessageStatus;
 import com.twilio.type.PhoneNumber;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 

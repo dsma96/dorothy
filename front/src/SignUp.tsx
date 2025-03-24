@@ -5,7 +5,6 @@ import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -14,10 +13,22 @@ import {styled, useTheme} from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { MuiTelInput } from 'mui-tel-input'
 import {useNavigate} from "react-router";
-import {CardActions, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import moment from 'moment'
+
+import {
+    CardActions,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
+} from "@mui/material";
+
 import {Member} from "./type";
 import {setUser} from "./redux/store";
-import {useState} from "react";
+import {useEffect} from "react";
+import useState from 'react-usestateref';
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -60,31 +71,57 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
+let EXPIRE_TIME = 300;
+
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
+
     const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+    const [emailErrorMessage, setEmailErrorMessage] = React.useState<string>('');
     const [telNoError, setTelNoError] = React.useState(false);
-    const [telNoErrorMessage, setTelNoErrorMessage] = React.useState('');
+    const [telNoErrorMessage, setTelNoErrorMessage] = React.useState<string>('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
     const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
-    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
-
-
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState<string>('');
     const [openDialog, setOpenDialog] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Welcome");
-    const [ dialogMessage, setDialogMessage] = useState("");
+    const [dialogTitle, setDialogTitle] = useState<string>("Welcome");
+    const [ dialogMessage, setDialogMessage] = useState<string>("");
     const [ createError, setCreateError] = useState(false);
 
     const [nameError, setNameError] = React.useState(false);
-    const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+    const [nameErrorMessage, setNameErrorMessage] = React.useState<string>('');
+    const [telNo, setTelNo] = React.useState<string>("");
+    const [verified, setVerified] = React.useState(false);
+    const [verifiStatus, setVerifiStatus, verifiStatusRef] = useState<string>('READY');
+    const [verifiTimeout, setVerifiTimeout, verifiTimeoutRef] = useState(EXPIRE_TIME);
+    const [verifiCode, setVerifiCode] = useState<string>('');
+    const [verifyErrorMsg, setVerifyErrorMsg] = useState<string>('')
 
-    const [telNo, setTelNo] = React.useState("");
+    const generateVerifiMessage : string = ()=>{
+        if( verifiStatus == 'INPUT'){
+            if( verifiTimeout > 0)
+                return '인증 유효시간 : '+ verifiTimeout;
+            else
+                return '인증 유효시간이 만료되었습니다.';
+        }
+    }
+
 
     const navigate = useNavigate();
 
-    const validateInputs = () => {
+    useEffect(() => {
+        if (process.env.NODE_ENV === 'development') {
+            setTelNo("6474060362")
+            EXPIRE_TIME = 10;
+            setVerifiTimeout(EXPIRE_TIME);
+        }
 
+    },[]);
+
+
+    const validateInputs = () => {
+        if( !verified )
+            return false;
         const email = document.getElementById('email') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
         const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
@@ -128,7 +165,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             setConfirmPasswordErrorMessage('');
         }
 
-
         if (!name.value || name.value.length < 2) {
             setNameError(true);
             setNameErrorMessage(!name.value ? 'Name is required.' : 'name is too short');
@@ -151,31 +187,28 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
     const handleCloseDialog=()=>{
         setOpenDialog(false);
-        if( !createError )
+
+        if( !createError  )
             navigate(-1);
     }
 
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
         event.preventDefault();
 
-        if (nameError || emailError || passwordError || confirmPasswordError) {
+        if (nameError || emailError || passwordError || confirmPasswordError || !verified) {
             return;
         }
-
-
-        // console.log({
-        //     name: data.get('name'),
-        //     telNo: telNo,
-        //     email: data.get('email'),
-        //     password: data.get('password'),
-        // });
 
         const currentEvent = new FormData(event.currentTarget);
         const data = {} as Member;
         data.phone = telNo;
+        // @ts-ignore
         data.name = currentEvent.get('name');
+        // @ts-ignore
         data.email = currentEvent.get('email') ? currentEvent.get('email') : null;
+        // @ts-ignore
         data.password= currentEvent.get('password');
 
 
@@ -211,8 +244,104 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 }
 
             );
-
     };
+
+    const verifiCountDownTimer = ()=>{
+        if(verifiStatusRef.current == 'INPUT' &&  verifiTimeoutRef.current > 0 ){
+            let i = verifiTimeoutRef.current - 1;
+            setVerifiTimeout(i);
+            setTimeout(()=>verifiCountDownTimer(),1000);
+        }
+
+    }
+
+    const handleVerifyClick = ()=>{
+        let data = {
+            phoneNo: telNo
+        }
+        setVerifiCode('');
+        fetch("/api/verify/request", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        setVerifiStatus ( 'INPUT');
+                        let now = new Date();
+                        let expiredDate = moment( data.payload.expireDate ,'YYYYMMDDTHH:mm:ss').toDate();
+                        let timoutSec = Math.floor( (expiredDate.getTime() - now.getTime() )/ 1000);
+                        setVerifiTimeout( timoutSec );
+                        setTimeout(()=>verifiCountDownTimer(),1000);
+                    }else{
+                        console.error("Error:", data.msg);
+                        setDialogTitle('Error');
+                        setDialogMessage(`Can't Verify. %{data.msg}`);
+                        setCreateError(true);
+                    }
+                }
+            )
+            .catch(
+                error => {
+                    console.error("Error:", error);
+                    setDialogTitle('Error');
+                    setDialogMessage(`Can't Verify. %{data.msg}`);
+                    setCreateError(true);
+                }
+            );
+
+    }
+
+    const handleCancelVerification = ()=>{
+        setVerifiTimeout(EXPIRE_TIME);
+        setVerifiStatus('READY');
+    }
+
+    const handleVerifyStartClick=()=>{
+
+        let data = {
+            phoneNo: telNo,
+            verifyCode: verifiCode
+        }
+
+        fetch("/api/verify/match", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        if(data.payload.state == 'VERIFIED'){
+                            setVerifiStatus('VERIFIED');
+                            setVerified(true);
+                        }else {
+                            setDialogTitle('Error');
+                            setDialogMessage('code mismatch. please try again');
+                            setOpenDialog(true);
+                            setCreateError(true);
+                        }
+                    }else{
+                    }
+                }
+            )
+            .catch(
+                error => {
+                    console.error("Error:", error);
+                    setDialogTitle('Error');
+                    setDialogMessage(`Can't Verify. %{data.msg}`);
+                    setCreateError(true);
+                }
+
+            );
+    }
 
     const theme = useTheme();
     return (
@@ -224,9 +353,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                     <Typography
                         component="h1"
                         variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(1.5rem, 7vw, 1.7rem)'}}
+                        sx={{width: '100%', fontSize: 'clamp(1.6rem, 8vw, 1.8rem)'}}
                     >
-                        Sign up
+                        회원 가입
                     </Typography>
                     <Box
                         component="form"
@@ -241,14 +370,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 required
                                 fullWidth
                                 id="name"
-                                placeholder="Dorothy"
+                                placeholder="Jay M"
                                 error={nameError}
                                 helperText={nameErrorMessage}
                                 color={nameError ? 'error' : 'primary'}
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="telNo">Tel No</FormLabel>
+                            <FormLabel htmlFor="telNo">전화번호 </FormLabel>
                             <MuiTelInput
                                 error={telNoError}
                                 helperText={telNoErrorMessage}
@@ -263,11 +392,74 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 required
                                 fullWidth
                                 autoComplete="current-telno"
-                                placeholder="41600001234"
+                                placeholder="(416)123-4567"
                                 variant="outlined"
-                                color={emailError ? 'error' : 'primary'}
+                                color={telNoError ? 'error' : 'primary'}
                             />
                         </FormControl>
+                        {
+                            verifiStatus == 'INPUT'  &&
+                            // <Typography
+                            //     component="h1"
+                            //     sx={{width: '100%'}}
+                            // >
+                            //     {generateVerifiMessage()}
+                            // </Typography>
+
+                            <FormLabel htmlFor="verifyInput">{generateVerifiMessage()}</FormLabel>
+                        }
+                            {
+                                verifiStatus == 'READY' &&
+                                <Button
+                                    size="large"
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={handleVerifyClick}
+                                    color="info"
+                                    disabled={telNo.length != 10 }
+                                >
+                                    인증코드 요청
+                                </Button>
+                            }
+                            {
+                                verifiStatus == 'INPUT' &&
+
+                                <Stack spacing={1} direction="row">
+                                    <TextField id="verifyInput"
+                                        type="number"
+                                        disabled={ verifiTimeout == 0}
+                                        value={verifiCode}
+                                        onChange={e => setVerifiCode(e.target.value)}
+                                    />
+                                    <Button
+                                        size="small"
+                                        color="info"
+                                        variant="contained"
+                                        disabled={verifiTimeout == 0 || verifiCode.length != 4}
+                                        onClick={handleVerifyStartClick}
+                                    >
+                                        인증
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        color="primary"
+                                        variant="contained"
+                                        onClick={handleCancelVerification}
+                                    >
+                                        취소
+                                    </Button>
+                                </Stack>
+                            }
+                            {
+                                verified &&
+                                <Typography
+                                    component="h1"
+                                    sx={{width: '100%'}}
+                                >
+                                    전화번호 인증완료
+                                </Typography>
+                            }
+
                         <FormControl>
                             <FormLabel htmlFor="email">Email (optional)</FormLabel>
                             <TextField
@@ -316,10 +508,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 color={confirmPasswordError ? 'error' : 'primary'}
                             />
                         </FormControl>
-                        {/*<FormControlLabel*/}
-                        {/*    control={<Checkbox value="allowExtraEmails" color="primary" />}*/}
-                        {/*    label="I want to receive "*/}
-                        {/*/>*/}
+
                         <CardActions >
                         <Button
                             type="submit"
@@ -327,8 +516,9 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             variant="contained"
                             onClick={validateInputs}
                             size="large"
+                            disabled={!verified}
                         >
-                            Sign up
+                            회원 가입
                         </Button>
                         <Button
                             size="large"
@@ -337,7 +527,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             onClick={() => navigate('/')}
                             color="info"
                         >
-                            Cancel
+                            취소
                         </Button>
                         </CardActions>
                     </Box>

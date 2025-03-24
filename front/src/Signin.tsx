@@ -91,8 +91,6 @@ export default function SignIn() {
     if( searchParams.get("ret"))
         retUrl += searchParams.get("ret")
 
-
-
     const getCookie = function(name) {
         var cookies = document.cookie.split(';');
         for(var i=0 ; i < cookies.length ; ++i) {

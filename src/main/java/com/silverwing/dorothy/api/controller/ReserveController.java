@@ -1,13 +1,13 @@
 package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.domain.dao.ReservationRepository;
-import com.silverwing.dorothy.api.service.ReservationService;
+import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.reserve.HairServices;
-import com.silverwing.dorothy.domain.reserve.Reservation;
-import com.silverwing.dorothy.domain.reserve.ReservationDto;
-import com.silverwing.dorothy.domain.reserve.ReservationRequestDTO;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.entity.HairServices;
+import com.silverwing.dorothy.domain.entity.Reservation;
+import com.silverwing.dorothy.api.dto.ReservationDto;
+import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;

@@ -1,7 +1,6 @@
-package com.silverwing.dorothy.domain.reserve;
+package com.silverwing.dorothy.domain.entity;
 
 import jakarta.persistence.*;
-import jdk.jfr.Enabled;
 import lombok.Data;
 
 @Entity

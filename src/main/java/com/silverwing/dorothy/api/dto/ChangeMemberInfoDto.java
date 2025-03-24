@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.domain.member;
+package com.silverwing.dorothy.api.dto;
 
 import lombok.Getter;
 

@@ -228,7 +228,6 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     }
 
     const handleCheckbox = (e)=>{
-        console.log("handleCheckBox:"+reservation.requireSilence)
         reservation.requireSilence = !reservation.requireSilence;
         setReservation({
             ...reservation,

@@ -1,6 +1,6 @@
 package com.silverwing.dorothy.domain.dao;
 
-import com.silverwing.dorothy.domain.member.Member;
+import com.silverwing.dorothy.domain.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

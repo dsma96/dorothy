@@ -2,6 +2,7 @@ package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.Exception.UserException;
+import com.silverwing.dorothy.domain.Exception.VerifyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -33,4 +34,8 @@ class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(VerifyException.class)
+    public ResponseEntity< ResponseData> handleVerifyException(Exception e) {
+        return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
+    }
 }

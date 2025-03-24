@@ -1,17 +1,15 @@
 package com.silverwing.dorothy.domain.task;
-import com.silverwing.dorothy.api.service.NotificationService;
-import com.silverwing.dorothy.api.service.ReservationService;
-import com.silverwing.dorothy.domain.reserve.Reservation;
+import com.silverwing.dorothy.domain.service.notification.NotificationService;
+import com.silverwing.dorothy.domain.service.reserve.ReservationService;
+import com.silverwing.dorothy.domain.entity.Reservation;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -84,10 +82,10 @@ public class ReservationMorningNotiTask {
                 now.getMinutes()+5
         );
 
-        log.info("start sending beforeOneHourNotification {} {} ~ {} ", sdf.format(now), sdf.format(from), sdf.format(to));
 
         List<Reservation> reservations =  reservationService.getReservations( from, to);
-        log.info("total reservation: {}", reservations.size());
+        log.info("start sending beforeOneHourNotification {} {} ~ {} total Reservation:{} ", sdf.format(now), sdf.format(from), sdf.format(to),reservations.size());
+
         for( Reservation reservation : reservations ){
             if( !isLocal) {
                 notificationService.sendReservationNotiBefore1Hour(reservation);
@@ -96,6 +94,5 @@ public class ReservationMorningNotiTask {
                 log.info("It should send Noti Before 1Hour : {}", reservation.getRegId());
             }
         }
-        log.info("end sending beforeOneHourNotification}}");
     }
 }

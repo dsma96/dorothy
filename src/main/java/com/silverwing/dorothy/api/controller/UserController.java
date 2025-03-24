@@ -1,14 +1,12 @@
 package com.silverwing.dorothy.api.controller;
 
-import com.silverwing.dorothy.api.service.DorothyUserService;
-import com.silverwing.dorothy.domain.member.ChangeMemberInfoDto;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.member.MemberDto;
+import com.silverwing.dorothy.domain.service.user.DorothyUserService;
+import com.silverwing.dorothy.api.dto.ChangeMemberInfoDto;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.type.UserStatus;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDeniedException;

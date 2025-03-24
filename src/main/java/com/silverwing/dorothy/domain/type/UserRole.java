@@ -1,6 +1,5 @@
-package com.silverwing.dorothy.domain.member;
+package com.silverwing.dorothy.domain.type;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

@@ -1,9 +1,11 @@
-package com.silverwing.dorothy.api.service;
+package com.silverwing.dorothy.domain.service.notification;
 
 
+import com.silverwing.dorothy.domain.entity.VerifyRequest;
 import com.silverwing.dorothy.domain.external.TwilioMessageSender;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.reserve.Reservation;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.entity.Reservation;
+import com.silverwing.dorothy.domain.service.user.DorothyUserService;
 import com.twilio.rest.api.v2010.account.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,17 +23,26 @@ public class NotificationService {
 
     private final TwilioMessageSender smsSender;
     private final DorothyUserService userService;
-    static final String CUSTOMER_RESERVATON = "[k-hair.ca 예약알림] %s  예약완료되었습니다\n예약시간 5분전에 도착해주시고 디자이너 J를 찾아주세요.\n 주소: 390 Steels Ave W";
-    static final String DESIGNER_RESERVATON = "[예약알림] %s  예약완료되었습니다. 고객명:%s 전화번호:%s";
+    static final String CUSTOMER_RESERVATON = "[k-hair.ca 예약알림]\n %s 남자 헤어컷 프로모션 이벤트 예약이 완료되었습니다. \n"+
+                                                "예약 시 메모란에 원하시는 스타일이나 요구사항을 적어주시면, 디자이너에게 전달되어 참고할 수 있습니다. \n" +
+                                                "주변에 k-hair.ca를 많이 소개해 주시면 감사하겠습니다. 더욱 많은 혜택을 드리기 위해 노력하겠습니다";
+    static final String DESIGNER_RESERVATON = "[예약알림] %s 예약완료되었습니다. 고객명:%s 전화번호:%s";
 
-    static final String CUSTOMER_CANCEL = "[k-hair.ca 예약취소알림]  %s 예약이 성공적으로 취소되었습니다. 감사합니다.";
+    static final String CUSTOMER_CANCEL = "[k-hair.ca 예약취소알림]\n  %s 예약이 성공적으로 취소되었습니다. 감사합니다.";
     static final String DESIGNER_CANCEL = "[예약취소알림]  %s 예약이 취소되었습니다. 고객명:%s 전화번호:%s";
 
-    static final String CUSTOMER_MORNING="[k-hair.ca 예약알림]\n오늘 %s에 헤어컷 서비스가 예약되어있습니다.\n예약시간 5분전까지 도착해주시고 현금 결제만 가능합니다.\n 디자이너J를 찾아주세요.";
-    static final String CUSTOMER_1HOUR="[k-hair.ca 예약알림]\n%s에 헤어컷 서비스가 예약되어있습니다.\n예약시간 5분전까지 도착해주시고 현금 결제만 가능합니다.\n 디자이너J를 찾아주세요.";
+    static final String CUSTOMER_MORNING="[k-hair.ca 예약알림]\n헤어커트 예약 오늘 %s입니다.\n현금으로만 결제가 가능하며, 디자이너에게 직접 결제해 주시면 됩니다.\n예약 시간 5분 전에는 도착해 주시기 바랍니다.";
+    static final String CUSTOMER_1HOUR="[k-hair.ca 예약알림]\n"+
+                                        "한 시간 후 %s에 남자 헤어컷 예약이 되어 있습니다.\n"+
+                                       "방문하시고 왼쪽 출입문 기준으로 세 번째 의자 디자이너 제이(Jay)입니다.\n"+
+                                        "주차공간이 여유롭고 무료로 주차하실 수 있습니다.\n"+
+                                        "주소: 390 Steeles Ave W, K-Hair studio (혜룡반점 맞은편)";
+
+    static final String VERIFY_PHONE=" k-hair.ca verification code: %s";
 
     private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 HH시mm분");
     private SimpleDateFormat shortSdf = new SimpleDateFormat("HH시 mm분");
+
     public void sendReservationMessage(final Reservation reservation) {
         try {
             Member customer = reservation.getUser();
@@ -90,5 +101,10 @@ public class NotificationService {
         }catch(RuntimeException e) { // all runtime message should be ignored
             log.error(e.getMessage());
         }
+    }
+
+    public void sendVerifyCode(VerifyRequest verifyRequest){
+        String msg = String.format(VERIFY_PHONE, verifyRequest.getVerifyCode() );
+        sendSMSAsync( verifyRequest.getPhoneNo(), "", msg );
     }
 }

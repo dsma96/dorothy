@@ -1,8 +1,8 @@
 package com.silverwing.dorothy.domain.security;
 
 import com.silverwing.dorothy.DorothyApplication;
-import com.silverwing.dorothy.api.service.DorothyUserService;
-import com.silverwing.dorothy.domain.member.Member;
+import com.silverwing.dorothy.domain.service.user.DorothyUserService;
+import com.silverwing.dorothy.domain.entity.Member;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

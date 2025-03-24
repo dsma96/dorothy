@@ -1,5 +1,6 @@
-package com.silverwing.dorothy.domain.member;
+package com.silverwing.dorothy.domain.entity;
 
+import com.silverwing.dorothy.domain.type.UserRole;
 import com.silverwing.dorothy.domain.type.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -59,7 +60,7 @@ public class Member {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLogin;
 
-    @Column(name="status")
+    @Column(name="user_status")
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

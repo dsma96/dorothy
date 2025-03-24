@@ -1,6 +1,6 @@
-package com.silverwing.dorothy.domain.reserve;
+package com.silverwing.dorothy.domain.entity;
 
-import com.silverwing.dorothy.domain.member.Member;
+import com.silverwing.dorothy.domain.type.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.type.YesNoConverter;

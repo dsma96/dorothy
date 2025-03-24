@@ -1,15 +1,18 @@
-package com.silverwing.dorothy.api.service;
+package com.silverwing.dorothy.domain.service.user;
 
 import com.silverwing.dorothy.domain.dao.MemberRepository;
 import com.silverwing.dorothy.domain.Exception.UserException;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.member.UserRole;
+import com.silverwing.dorothy.domain.dao.VerifyRequestRepository;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.type.UserRole;
 import com.silverwing.dorothy.domain.type.UserStatus;
+import com.silverwing.dorothy.domain.type.VerifyState;
+import com.silverwing.dorothy.domain.type.VerifyType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,10 +25,14 @@ import java.util.Date;
 @Service
 @Slf4j
 @CacheConfig(cacheNames = "member")
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+
 public class DorothyUserService  {
-    @Autowired
-    private  MemberRepository memberRepository;
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
+
+    private final MemberRepository memberRepository;
+    private final VerifyRequestRepository verifyRequestRepository;
+
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
     private long expireTimeMs = 1000 * 60 * 10; // 10min
     private static int MAX_LOGIN_ATTEMPTS = 5;
     private static int BLOCK_TIME = 10 * 60 * 1000;
@@ -80,8 +87,11 @@ public class DorothyUserService  {
 
 
     public Member createMember( String name, String telNo, String email, String password ) throws UserException {
+
         if( memberRepository.findMemberByPhone(telNo).isPresent() )
             throw new UserException("Phone already exists :"+telNo);
+
+        verifyRequestRepository.findVerify( telNo, VerifyType.SIGN_UP, VerifyState.VERIFIED).orElseThrow( ()->  new UserException("You should verify your phone number first"));
 
         if( (email == null || !email.isEmpty()) && memberRepository.findMemberByEmail( email).isPresent() ){
             throw new UserException("Email already exists : "+email);

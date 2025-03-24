@@ -1,10 +1,13 @@
-package com.silverwing.dorothy.api.service;
+package com.silverwing.dorothy.domain.service.reserve;
 
+import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.dao.*;
-import com.silverwing.dorothy.domain.member.Member;
-import com.silverwing.dorothy.domain.reserve.*;
+import com.silverwing.dorothy.api.dto.ReservationDto;
+import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
+import com.silverwing.dorothy.domain.entity.*;
 
+import com.silverwing.dorothy.domain.type.ReservationStatus;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
@@ -46,7 +49,7 @@ public class ReservationService {
         this.notificationService = notificationService;
     }
 
-    public List<Reservation> getReservations( Date startDate, Date endDate ) {
+    public List<Reservation> getReservations(Date startDate, Date endDate ) {
         List<Reservation> reservations;
             reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
         return reservations;
@@ -63,7 +66,7 @@ public class ReservationService {
     public ReservationDto convertReservation(Reservation reservation, Member caller){
         int userId = caller.getUserId();
         Date now = new Date();
-        List<HairServices> hairServices = reservation.getServices().stream().map( s-> s.getService()).toList();
+        List<HairServices> hairServices = reservation.getServices().stream().map(s-> s.getService()).toList();
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUsername() : "Occupied" )
@@ -86,7 +89,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public Reservation updateReservation( Reservation reservation, ReservationRequestDTO reqDto, Member customer){
+    public Reservation updateReservation(Reservation reservation, ReservationRequestDTO reqDto, Member customer){
         Date now = new Date();
 
         reservation.setMemo( reqDto.getMemo());

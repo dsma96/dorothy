@@ -255,5 +255,65 @@ export const handlers = [
                 });
 
         }
-    })
+    }),
+    http.post('/api/verify/request', async ( {request, params, cookies}) => {
+        // ...and respond to them using this JSON response.
+        const data = await request.json();
+
+        return HttpResponse.json(
+            {
+                "msg": "OK",
+                "code": 200,
+                "payload": {
+                    "phoneNo": data.phoneNo,
+                    "channel": "SMS",
+                    "type": "SIGN_UP",
+                    "maxTry": 15,
+                    "failCnt": 0,
+                    "verifyCode": null,
+                    "state": "CREATED",
+                    "createDate": moment(new Date()).format("YYYYMMDDTHH:mm:ss"),
+                    "expireDate": moment( new Date( new Date().getTime() + 1 * 60 * 1000)).format("YYYYMMDDTHH:mm:ss")
+                }
+            }
+        );
+
+    }),
+    http.post('/api/verify/match', async ( {request, params, cookies}) => {
+        // ...and respond to them using this JSON response.
+        const data = await request.json();
+        if( data.verifyCode == '1234') {
+            return HttpResponse.json(
+                {
+                    "msg": "OK", "code": 200,
+                    "payload": {
+                        "phoneNo": data.phoneNo,
+                        "channel": "SMS",
+                        "type": "SIGN_UP",
+                        "maxTry": 15, "failCnt": 0,
+                        "verifyCode": null, "state": "VERIFIED",
+                        "createDate": moment(new Date()).format("YYYYMMDDTHH:mm:ss"),
+                        "expireDate": moment(new Date(new Date().getTime() + 1 * 60 * 1000)).format("YYYYMMDDTHH:mm:ss")
+                    }
+                }
+            );
+        }else{
+            return HttpResponse.json(
+                {
+                    "msg": "OK", "code": 200,
+                    "payload": {
+                        "phoneNo": data.phoneNo,
+                        "channel": "SMS",
+                        "type": "SIGN_UP",
+                        "maxTry": 15,
+                        "failCnt": 7,
+                        "verifyCode": null,
+                        "state": "CREATED",
+                        "createDate": moment(new Date()).format("YYYYMMDDTHH:mm:ss"),
+                        "expireDate": moment(new Date(new Date().getTime() + 1 * 60 * 1000)).format("YYYYMMDDTHH:mm:ss")
+                    }
+                }
+            );
+        }
+    }),
 ]

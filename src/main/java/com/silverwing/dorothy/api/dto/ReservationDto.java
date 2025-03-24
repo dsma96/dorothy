@@ -1,11 +1,12 @@
-package com.silverwing.dorothy.domain.reserve;
+package com.silverwing.dorothy.api.dto;
 
+import com.silverwing.dorothy.domain.entity.HairServices;
+import com.silverwing.dorothy.domain.type.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 @Builder

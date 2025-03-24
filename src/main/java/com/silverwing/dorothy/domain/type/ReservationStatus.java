@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.domain.reserve;
+package com.silverwing.dorothy.domain.type;
 
 public enum ReservationStatus {
     CREATED,

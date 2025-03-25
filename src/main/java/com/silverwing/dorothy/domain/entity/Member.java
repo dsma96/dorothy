@@ -60,7 +60,7 @@ public class Member {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLogin;
 
-    @Column(name="user_status")
+    @Column(name="status")
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

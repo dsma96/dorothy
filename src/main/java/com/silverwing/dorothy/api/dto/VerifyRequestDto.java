@@ -23,13 +23,13 @@ public class VerifyRequestDto {
     private String verifyCode;
     private VerifyState state;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss", timezone = JsonFormat.DEFAULT_TIMEZONE)
     private Date createDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss", timezone = JsonFormat.DEFAULT_TIMEZONE)
     private Date expireDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HH:mm:ss", timezone = JsonFormat.DEFAULT_TIMEZONE)
     private Date verifyDate;
 
 }

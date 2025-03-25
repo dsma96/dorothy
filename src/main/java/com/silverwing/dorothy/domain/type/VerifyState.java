@@ -4,4 +4,5 @@ public enum VerifyState {
     CREATED,
     VERIFIED,
     EXPIRED,
+    PERSISTED
 }

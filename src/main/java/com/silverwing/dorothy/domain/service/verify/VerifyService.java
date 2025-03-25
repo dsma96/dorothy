@@ -8,8 +8,10 @@ import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.type.VerifyChannel;
 import com.silverwing.dorothy.domain.type.VerifyState;
 import com.silverwing.dorothy.domain.type.VerifyType;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -33,20 +35,39 @@ public class VerifyService {
     public static final String TOO_MANY_REQUEST = "Too many attempts. Please try it later";
     public static final String TOO_MANY_REQUEST_ON_REQ = "Too many attempts. Try it again";
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    private boolean isLocal = false;
+
+    @PostConstruct
+    public void init() {
+        isLocal = activeProfile.equalsIgnoreCase("local");
+    }
+
+    @Transactional
     public VerifyRequest createVerifyRequest(String phoneNo, VerifyType verifyType) throws VerifyException {
 
         if(memberRepository.findMemberByPhone(phoneNo).isPresent()) {
             throw new VerifyException("Phone number already in use ");
         }
 
-        Optional<VerifyRequest> ongoingRequest =  verifyRequestRepository.findLiveVerify(phoneNo, verifyType);
+        Optional<VerifyRequest> ongoingRequest =  verifyRequestRepository.findLiveVerify(phoneNo, verifyType.name());
         if( ongoingRequest.isPresent() ) {
             return ongoingRequest.get();
         }
 
-        if( verifyRequestRepository.countDailyTry( phoneNo, VerifyType.SIGN_UP) > SIGNUP_MAX_ATTEMPT){
+        Optional<VerifyRequest> verifiedRequest =  verifyRequestRepository.findVerify(phoneNo, verifyType.name(), VerifyState.VERIFIED.name());
+        if( verifiedRequest.isPresent() ) {
+            return verifiedRequest.get();
+        }
+
+        if( verifyRequestRepository.countDailyTry( phoneNo, VerifyType.SIGN_UP.name()) > SIGNUP_MAX_ATTEMPT){
             throw new VerifyException( TOO_MANY_REQUEST );
         }
+
+        // erase verifien but not persisted request.
+        verifyRequestRepository.setVerifyState(phoneNo, VerifyState.VERIFIED, VerifyState.EXPIRED);
 
         int low = 1000;
         int max = 9999;
@@ -63,7 +84,10 @@ public class VerifyService {
         verifyRequest.setFailCnt( 0 );
         verifyRequest.setVerifyState( VerifyState.CREATED );
         VerifyRequest result =  verifyRequestRepository.save(verifyRequest);
-        notificationService.sendVerifyCode( verifyRequest );
+
+        if( !isLocal )
+            notificationService.sendVerifyCode( verifyRequest );
+
         return result;
 
     }
@@ -75,7 +99,7 @@ public class VerifyService {
             throw new VerifyException("Phone number already in use ");
         }
 
-        VerifyRequest req =  verifyRequestRepository.findLiveVerify(phoneNo, VerifyType.SIGN_UP).orElseThrow( () -> new VerifyException("Can't find ongoing verification"));
+        VerifyRequest req =  verifyRequestRepository.findLiveVerify(phoneNo, VerifyType.SIGN_UP.name()).orElseThrow( () -> new VerifyException("Can't find ongoing verification"));
 
         if( req.getFailCnt() >= req.getMaxTry() ){
             throw new VerifyException( TOO_MANY_REQUEST_ON_REQ );

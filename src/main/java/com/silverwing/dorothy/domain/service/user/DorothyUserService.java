@@ -4,6 +4,7 @@ import com.silverwing.dorothy.domain.dao.MemberRepository;
 import com.silverwing.dorothy.domain.Exception.UserException;
 import com.silverwing.dorothy.domain.dao.VerifyRequestRepository;
 import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.entity.VerifyRequest;
 import com.silverwing.dorothy.domain.type.UserRole;
 import com.silverwing.dorothy.domain.type.UserStatus;
 import com.silverwing.dorothy.domain.type.VerifyState;
@@ -91,7 +92,8 @@ public class DorothyUserService  {
         if( memberRepository.findMemberByPhone(telNo).isPresent() )
             throw new UserException("Phone already exists :"+telNo);
 
-        verifyRequestRepository.findVerify( telNo, VerifyType.SIGN_UP, VerifyState.VERIFIED).orElseThrow( ()->  new UserException("You should verify your phone number first"));
+        VerifyRequest vr =  verifyRequestRepository.findVerify( telNo, VerifyType.SIGN_UP.name(), VerifyState.VERIFIED.name()).orElseThrow( ()->  new UserException("You should verify your phone number first"));
+        vr.setVerifyState(VerifyState.PERSISTED);
 
         if( (email == null || !email.isEmpty()) && memberRepository.findMemberByEmail( email).isPresent() ){
             throw new UserException("Email already exists : "+email);
@@ -104,6 +106,7 @@ public class DorothyUserService  {
         member.setCreateDate( new Date() );
 
         try {
+            verifyRequestRepository.save(vr);
             return memberRepository.save( member );
         } catch (Exception e) {
             throw new UserException( "Can't create user", e );

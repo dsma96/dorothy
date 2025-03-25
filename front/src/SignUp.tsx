@@ -257,7 +257,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
     const handleVerifyClick = ()=>{
         let data = {
-            phoneNo: telNo
+            phoneNo: telNo,
+            type:'SIGN_UP'
         }
         setVerifiCode('');
         fetch("/api/verify/request", {
@@ -271,12 +272,19 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             .then(
                 data => {
                     if( data.code == 200 ){
-                        setVerifiStatus ( 'INPUT');
-                        let now = new Date();
-                        let expiredDate = moment( data.payload.expireDate ,'YYYYMMDDTHH:mm:ss').toDate();
-                        let timoutSec = Math.floor( (expiredDate.getTime() - now.getTime() )/ 1000);
-                        setVerifiTimeout( timoutSec );
-                        setTimeout(()=>verifiCountDownTimer(),1000);
+                        if( data.payload.state == 'CREATED') {
+                            setVerifiStatus('INPUT');
+                            let now = new Date();
+                            let expiredDate = moment(data.payload.expireDate, 'YYYYMMDDTHH:mm:ss').toDate();
+                            let timoutSec = Math.floor((expiredDate.getTime() - now.getTime()) / 1000);
+                            setVerifiTimeout(timoutSec);
+                            setTimeout(() => verifiCountDownTimer(), 1000);
+                        }else{
+                            if(data.payload.state == 'VERIFIED') {
+                                setVerifiStatus('VERIFIED');
+                                setVerified(true);
+                            }
+                        }
                     }else{
                         console.error("Error:", data.msg);
                         setDialogTitle('Error');

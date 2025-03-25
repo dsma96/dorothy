@@ -35,7 +35,7 @@ public class VerifiController {
         String phoneNo = requestDto.getPhoneNo();
 
         if( telNoPattern.matcher(phoneNo).find() ) {
-            VerifyRequest req =  verifyService.createVerifyRequest(phoneNo, VerifyType.SIGN_UP);
+            VerifyRequest req =  verifyService.createVerifyRequest(phoneNo, requestDto.getType());
             VerifyRequestDto res = VerifyRequestDto.builder()
                     .phoneNo( req.getPhoneNo() )
                     .expireDate( req.getExpireDate() )
@@ -45,6 +45,7 @@ public class VerifiController {
                     .maxTry(req.getMaxTry())
                     .state( req.getVerifyState())
                     .type(req.getVerifyType())
+                    .verifyDate(req.getVerifyDate())
                     .build();
 
             return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),res ),HttpStatus.OK);

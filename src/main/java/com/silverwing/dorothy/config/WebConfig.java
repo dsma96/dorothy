@@ -1,6 +1,8 @@
 package com.silverwing.dorothy.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -10,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.resource.ResourceResolverChain;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static java.util.Objects.nonNull;
 
@@ -41,6 +44,12 @@ public class WebConfig  implements WebMvcConfigurer {
                         return super.resolveResource(request, "/index.html", locations, chain);
                     }
                 });
+    }
+
+
+    @Autowired
+    public void configureJackson(ObjectMapper objectMapper) {
+        objectMapper.setTimeZone(TimeZone.getDefault());
     }
 
     @Override

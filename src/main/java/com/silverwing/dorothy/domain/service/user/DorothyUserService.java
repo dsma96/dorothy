@@ -26,8 +26,7 @@ import java.util.Date;
 @Service
 @Slf4j
 @CacheConfig(cacheNames = "member")
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
-
+@RequiredArgsConstructor
 public class DorothyUserService  {
 
     private final MemberRepository memberRepository;

@@ -74,4 +74,13 @@ public class JwtTokenManager {
         cookie.setPath("/"); // global cookie accessible every where
         response.addCookie(cookie);
     }
+
+    public void eraseToken(HttpServletResponse response){
+        Cookie cookie = new Cookie(DorothyApplication.COOKIE_NAME,  null);
+        cookie.setSecure(true);
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/"); // global cookie accessible every where
+        response.addCookie(cookie);
+    }
 }

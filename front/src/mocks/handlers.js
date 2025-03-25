@@ -88,7 +88,16 @@ export const handlers = [
         }
     )
     ,
-
+    http.post('/api/login/logout', async ( ) => {
+        // ...and respond to them using this JSON response.
+        return HttpResponse.json(
+            {
+                msg: "OK",
+                code: 200,
+            }
+        )
+    }
+    ),
     http.post('/api/login/login', async ( {request, params, cookies}) => {
             // ...and respond to them using this JSON response.
             const data = await request.json();
@@ -259,24 +268,35 @@ export const handlers = [
     http.post('/api/verify/request', async ( {request, params, cookies}) => {
         // ...and respond to them using this JSON response.
         const data = await request.json();
-
-        return HttpResponse.json(
-            {
-                "msg": "OK",
-                "code": 200,
-                "payload": {
-                    "phoneNo": data.phoneNo,
-                    "channel": "SMS",
-                    "type": "SIGN_UP",
-                    "maxTry": 15,
-                    "failCnt": 0,
-                    "verifyCode": null,
-                    "state": "CREATED",
-                    "createDate": moment(new Date()).format("YYYYMMDDTHH:mm:ss"),
-                    "expireDate": moment( new Date( new Date().getTime() + 1 * 60 * 1000)).format("YYYYMMDDTHH:mm:ss")
+        if( data.phoneNo == '6474060362') {
+            return HttpResponse.json(
+                {
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": {
+                        "phoneNo": data.phoneNo,
+                        "channel": "SMS",
+                        "type": "SIGN_UP",
+                        "maxTry": 15,
+                        "failCnt": 0,
+                        "verifyCode": null,
+                        "state": "CREATED",
+                        "createDate": moment(new Date()).format("YYYYMMDDTHH:mm:ss"),
+                        "expireDate": moment(new Date(new Date().getTime() + 1 * 60 * 1000)).format("YYYYMMDDTHH:mm:ss")
+                    }
                 }
-            }
-        );
+            );
+        }else{
+            return HttpResponse.json(
+                {
+                    "msg": "Phone number already in use ",
+                    "code": 500,
+                    "payload": null
+                }
+            );
+        }
+
+
 
     }),
     http.post('/api/verify/match', async ( {request, params, cookies}) => {

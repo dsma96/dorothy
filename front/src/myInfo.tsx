@@ -167,7 +167,14 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
     const handleCloseDialog=()=>{
         setOpenDialog(false);
         if( !updateError )
-            navigate(-1);
+            navigate("/");
+    }
+
+    function showDialog( title: string, msg: string, gohome:boolean){
+        setDialogTitle(title);
+        setDialogMessage(msg);
+        setUpdateError(!gohome);
+        setOpenDialog(true);
     }
 
 
@@ -197,25 +204,43 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                 data => {
                     if( data.code == 200 ){
                         dispatch(setUser(data.payload));
-                        setDialogTitle('Success');
-                        setDialogMessage(`Your changes were updated!`);
-                        setUpdateError(false);
-                        setOpenDialog(true);
+                        showDialog('Success',`Your changes were updated!`,true);
+                    }else{
+                        showDialog('Error',data.msg, false);
                     }
                 }
             )
             .catch(
                 error => {
                     console.error("Error:", error);
-                    setDialogTitle('Error');
-                    setDialogMessage(`Can't Create. %{data.msg}`);
-                    setUpdateError(true);
-                    setOpenDialog(true);
+                    showDialog('Error', JSON.stringify(error), false);
                 }
 
             );
 
     };
+
+    function handleLogout(){
+        fetch(`/api/login/logout`, {
+            method: "POST",
+        })
+        .then(response =>response.json())
+        .then(
+            data => {
+                if( data.code == 200 ){
+                    showDialog("Success","Logout success! See you soon!",true);
+                }
+            }
+        )
+        .catch(
+            error => {
+                showDialog("Error",JSON.stringify(error),false);
+            }
+
+        );
+
+
+    }
 
     const theme = useTheme();
     return (
@@ -248,6 +273,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 helperText={nameErrorMessage}
                                 onChange={ e=> {setChanged(true); validateInputs()}}
                                 color={nameError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
 
@@ -264,6 +290,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 fullWidth
                                 variant="outlined"
                                 color={emailError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
 
@@ -281,6 +308,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 id="email"
                                 variant="outlined"
                                 color={emailError ? 'error' : 'primary'}
+                                size="small"
                             />
 
                         </FormControl>
@@ -299,6 +327,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 helperText={currentPasswordErrorMessage}
                                 onChange={ e=>validateInputs()}
                                 color={passwordError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
 
@@ -316,6 +345,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 helperText={passwordErrorMessage}
                                 onChange={  e=> {setChanged(true); validateInputs()}}
                                 color={passwordError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
                         <FormControl>
@@ -332,6 +362,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 helperText={confirmPasswordErrorMessage}
                                 onChange={  e=> {setChanged(true); validateInputs()}}
                                 color={confirmPasswordError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
 
@@ -341,13 +372,13 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 fullWidth
                                 variant="contained"
                                 onClick={validateInputs}
-                                size="large"
+                                size="small"
                                 disabled={ !changed || !validInput }
                             >
                                 Save
                             </Button>
                             <Button
-                                size="large"
+                                size="small"
                                 fullWidth
                                 variant="contained"
                                 onClick={() => navigate('/')}
@@ -355,6 +386,16 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                             >
                                 Cancel
                             </Button>
+                            <Button
+                                size="small"
+                                fullWidth
+                                variant="contained"
+                                onClick={handleLogout}
+                                color="warning"
+                            >
+                                Logout
+                            </Button>
+
                         </CardActions>
                     </Box>
                 </Card>
@@ -375,7 +416,6 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                         <Button onClick={handleCloseDialog} autoFocus>
                             Confirm
                         </Button>
-
                     </DialogActions>
                 </Dialog>
             </SignUpContainer>

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -65,13 +66,11 @@ public class LoginController {
         }catch (AuthenticationException e) {
             return new ResponseEntity<>( new ResponseData<>(e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
-
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<String> logout(){
-        return new ResponseEntity<>("OK",HttpStatus.OK);
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseData<String>> logout( HttpServletResponse response) {
+        tokenManager.eraseToken(response);
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),"OK" ),HttpStatus.OK);
     }
-
-
 }

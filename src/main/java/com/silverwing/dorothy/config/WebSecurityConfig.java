@@ -1,6 +1,7 @@
 package com.silverwing.dorothy.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.silverwing.dorothy.DorothyApplication;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
 import com.silverwing.dorothy.domain.security.DorothyAuthFilter;
 import com.silverwing.dorothy.domain.security.JwtTokenManager;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.io.PrintWriter;
 
 @Configuration
 @EnableWebSecurity(debug=false)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
     private final DorothyUserService userDetailsService;
@@ -50,8 +53,10 @@ public class WebSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/**","/static/**",
-                                "/api/login/login","/api/user/signup",
-                                "/api/verify/request", "/api/verify/match")
+                                "/api/login/login",
+                                "/api/user/signup",
+                                "/api/verify/request",
+                                "/api/verify/match")
                             .permitAll()
                         .anyRequest().authenticated()
                 )

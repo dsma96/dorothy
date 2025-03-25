@@ -185,6 +185,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         setTelNo(phone);
     };
 
+    function showDialog(title: string, msg: string, goHome: boolean){
+        setDialogTitle(title);
+        setDialogMessage(msg);
+        setCreateError(!goHome);
+        setOpenDialog(true);
+    }
+
+
     const handleCloseDialog=()=>{
         setOpenDialog(false);
 
@@ -223,24 +231,16 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             .then(
                 data => {
                     if( data.code == 200 ){
-                        setDialogTitle('Nice to meet you!');
-                        setDialogMessage(`Welcome ${data.payload.name}. you can login now`);
-                        setCreateError(false);
-                        setOpenDialog(true);
+                        showDialog('Nice to meet you!', `Welcome ${data.payload.name}. you can login now`, true);
+
                     }else{
-                        setDialogTitle('Error');
-                        setDialogMessage(`Can't Create. ${data.msg}`);
-                        setCreateError(true);
-                        setOpenDialog(true);
+                        showDialog('Error',data.msg, true);
                     }
                 }
             )
             .catch(
                 error => {
-                    console.error("Error:", error);
-                    setDialogTitle('Error');
-                    setDialogMessage(`Can't Create. %{data.msg}`);
-                    setCreateError(true);
+                    showDialog('Error',JSON.stringify(error), true);
                 }
 
             );
@@ -286,19 +286,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             }
                         }
                     }else{
-                        console.error("Error:", data.msg);
-                        setDialogTitle('Error');
-                        setDialogMessage(`Can't Verify. %{data.msg}`);
-                        setCreateError(true);
+                        showDialog('Error', data.msg, false);
                     }
                 }
             )
             .catch(
                 error => {
                     console.error("Error:", error);
-                    setDialogTitle('Error');
-                    setDialogMessage(`Can't Verify. %{data.msg}`);
-                    setCreateError(true);
+                    showDialog('Error', JSON.stringify(error), false);
                 }
             );
 
@@ -308,6 +303,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         setVerifiTimeout(EXPIRE_TIME);
         setVerifiStatus('READY');
     }
+
+
 
     const handleVerifyStartClick=()=>{
 
@@ -331,10 +328,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             setVerifiStatus('VERIFIED');
                             setVerified(true);
                         }else {
-                            setDialogTitle('Error');
-                            setDialogMessage('code mismatch. please try again');
-                            setOpenDialog(true);
-                            setCreateError(true);
+                            showDialog('Error', 'code mismatch. please try again', false)
                         }
                     }else{
                     }
@@ -343,11 +337,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             .catch(
                 error => {
                     console.error("Error:", error);
-                    setDialogTitle('Error');
-                    setDialogMessage(`Can't Verify. %{data.msg}`);
-                    setCreateError(true);
+                    showDialog('Error', 'code mismatch. please try again', false)
                 }
-
             );
     }
 
@@ -359,9 +350,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
                     <Typography
-                        component="h1"
-                        variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(1.6rem, 8vw, 1.8rem)'}}
+                        component="h5"
+                        variant="h5"
                     >
                         회원 가입
                     </Typography>
@@ -377,6 +367,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 name="name"
                                 required
                                 fullWidth
+                                size="small"
                                 id="name"
                                 placeholder="Jay M"
                                 error={nameError}
@@ -385,7 +376,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor="telNo">전화번호 </FormLabel>
+                            <FormLabel htmlFor="telNo">Cellphone </FormLabel>
                             <MuiTelInput
                                 error={telNoError}
                                 helperText={telNoErrorMessage}
@@ -403,6 +394,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 placeholder="(416)123-4567"
                                 variant="outlined"
                                 color={telNoError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
                         {
@@ -419,14 +411,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             {
                                 verifiStatus == 'READY' &&
                                 <Button
-                                    size="large"
+                                    size="small"
                                     fullWidth
                                     variant="contained"
                                     onClick={handleVerifyClick}
                                     color="info"
                                     disabled={telNo.length != 10 }
                                 >
-                                    인증코드 요청
+                                   Request Code / 인증요청
                                 </Button>
                             }
                             {
@@ -435,6 +427,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 <Stack spacing={1} direction="row">
                                     <TextField id="verifyInput"
                                         type="number"
+                                       size="small"
                                         disabled={ verifiTimeout == 0}
                                         value={verifiCode}
                                         onChange={e => setVerifiCode(e.target.value)}
@@ -446,7 +439,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                         disabled={verifiTimeout == 0 || verifiCode.length != 4}
                                         onClick={handleVerifyStartClick}
                                     >
-                                        인증
+                                        Verify
                                     </Button>
                                     <Button
                                         size="small"
@@ -454,7 +447,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                         variant="contained"
                                         onClick={handleCancelVerification}
                                     >
-                                        취소
+                                        Cancel
                                     </Button>
                                 </Stack>
                             }
@@ -464,7 +457,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                     component="h1"
                                     sx={{width: '100%'}}
                                 >
-                                    전화번호 인증완료
+                                    Verified
                                 </Typography>
                             }
 
@@ -473,7 +466,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             <TextField
                                 error={emailError}
                                 helperText={emailErrorMessage}
-
+                                size="small"
                                 fullWidth
                                 name="email"
                                 placeholder="email address"
@@ -498,6 +491,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
                                 color={passwordError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
                         <FormControl>
@@ -514,6 +508,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 error={confirmPasswordError}
                                 helperText={confirmPasswordErrorMessage}
                                 color={confirmPasswordError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
 
@@ -523,19 +518,19 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             fullWidth
                             variant="contained"
                             onClick={validateInputs}
-                            size="large"
+                            size="small"
                             disabled={!verified}
                         >
-                            회원 가입
+                            Sign Up
                         </Button>
                         <Button
-                            size="large"
+                            size="small"
                             fullWidth
                             variant="contained"
                             onClick={() => navigate('/')}
                             color="info"
                         >
-                            취소
+                            Cancel
                         </Button>
                         </CardActions>
                     </Box>
@@ -545,19 +540,19 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                <DialogTitle id="alert-dialog-title">
-                    {dialogTitle}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {dialogMessage}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} autoFocus>
-                        Confirm
-                    </Button>
-                </DialogActions>
+                    <DialogTitle id="alert-dialog-title">
+                        {dialogTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {dialogMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} autoFocus>
+                            Confirm
+                        </Button>
+                    </DialogActions>
             </Dialog>
             </SignUpContainer>
         </AppProvider>

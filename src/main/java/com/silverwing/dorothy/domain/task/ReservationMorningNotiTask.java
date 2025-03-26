@@ -33,7 +33,7 @@ public class ReservationMorningNotiTask {
         isLocal = activeProfile.equalsIgnoreCase("local");
     }
 
-    @Scheduled(cron="0 9 * * * *")
+    @Scheduled(cron="0 0 9 * * *")
     public void morningNotification(){
         log.info("start sending morningNotification");
         Date start = new Date();
@@ -63,7 +63,7 @@ public class ReservationMorningNotiTask {
         log.info("end sending morningNotification");
     }
 
-    @Scheduled(cron="0/5 8-18 * * * *")
+    @Scheduled(cron="0 */5 8-18 * * *")
     public void  beforeOneHourNotification(){
         Date now = new Date();
 

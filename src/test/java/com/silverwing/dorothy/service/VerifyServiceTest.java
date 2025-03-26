@@ -66,10 +66,10 @@ public class VerifyServiceTest {
     @Test
     void createVerifyRequest_exceedMaximumTryTest(){
         when(memberRepository.findMemberByPhone(PHONE_NO)).thenReturn( Optional.empty());
-        when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP)).thenReturn(100);
+        when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP.name())).thenReturn(100);
         VerifyException e = assertThrows( VerifyException.class ,
                 ()->{
-                    verifyService.createVerifyRequest(PHONE_NO,VerifyType.SIGN_UP);
+                    verifyService.createVerifyRequest(PHONE_NO, VerifyType.SIGN_UP);
                 }
         );
         assertTrue( e.getMessage().contains( verifyService.TOO_MANY_REQUEST ) );
@@ -80,7 +80,7 @@ public class VerifyServiceTest {
         VerifyRequest request = new VerifyRequest();
 
         when(memberRepository.findMemberByPhone(PHONE_NO)).thenReturn( Optional.empty());
-        when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP)).thenReturn(1);
+        when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP.name())).thenReturn(1);
         when( verifyRequestRepository.save( any(VerifyRequest.class) ) ).thenReturn(request);
 
         VerifyRequest req = verifyService.createVerifyRequest(PHONE_NO,VerifyType.SIGN_UP);
@@ -102,9 +102,9 @@ public class VerifyServiceTest {
     @Test
     void verifyRequest_test(){
         lenient().when(memberRepository.findMemberByPhone(PHONE_NO)).thenReturn( Optional.empty());
-        lenient().when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP)).thenReturn(1);
+        lenient().when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP.name())).thenReturn(1);
         lenient().when( verifyRequestRepository.save( any(VerifyRequest.class) ) ).thenAnswer( i-> i.getArguments()[0]);
-        lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP )).thenReturn( Optional.of(getSavedRequest()));
+        lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP.name() )).thenReturn( Optional.of(getSavedRequest()));
 
         VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "1234" );
         assertEquals(VerifyState.VERIFIED, resp.getVerifyState());
@@ -113,9 +113,9 @@ public class VerifyServiceTest {
     @Test
     void verifyRequest_invalidTest(){
         lenient().when(memberRepository.findMemberByPhone(PHONE_NO)).thenReturn( Optional.empty());
-        lenient().when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP)).thenReturn(1);
+        lenient().when( verifyRequestRepository.countDailyTry( PHONE_NO, VerifyType.SIGN_UP.name())).thenReturn(1);
         lenient().when( verifyRequestRepository.save( any(VerifyRequest.class) ) ).thenAnswer( i-> i.getArguments()[0]);
-        lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP )).thenReturn( Optional.of(getSavedRequest()));
+        lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP.name() )).thenReturn( Optional.of(getSavedRequest()));
 
         VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "4321" );
         assertEquals(VerifyState.CREATED, resp.getVerifyState());

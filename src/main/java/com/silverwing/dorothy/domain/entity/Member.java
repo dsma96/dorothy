@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Setter
 @Table(name= "user")
 public class Member {

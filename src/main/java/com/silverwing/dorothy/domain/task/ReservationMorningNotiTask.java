@@ -18,20 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationMorningNotiTask {
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-
     private final ReservationService reservationService;
     private final NotificationService notificationService;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-
-    private boolean isLocal;
-
-    @PostConstruct
-    public void init() {
-        isLocal = activeProfile.equalsIgnoreCase("local");
-    }
 
     @Scheduled(cron="0 0 9 * * *")
     public void morningNotification(){
@@ -54,16 +44,12 @@ public class ReservationMorningNotiTask {
         );
         log.info("total reservation: {}", reservations.size());
         for( Reservation reservation : reservations ){
-            if( !isLocal) {
-                notificationService.sendReservationNotiInMorning(reservation);
-            }else{
-                log.info("It should send Noti In Morning : {}", reservation.getRegId());
-            }
+            notificationService.sendReservationNotiInMorning(reservation);
         }
         log.info("end sending morningNotification");
     }
 
-    @Scheduled(cron="0 */5 8-18 * * *")
+    @Scheduled(cron="0 * 8-18 * * *")
     public void  beforeOneHourNotification(){
         Date now = new Date();
 
@@ -71,7 +57,8 @@ public class ReservationMorningNotiTask {
                              now.getMonth(),
                              now.getDate(),
                              now.getHours()+1,
-                             now.getMinutes()
+                             now.getMinutes(),
+                             0
                     );
 
         Date to = new Date(
@@ -79,20 +66,15 @@ public class ReservationMorningNotiTask {
                 now.getMonth(),
                 now.getDate(),
                 now.getHours()+1,
-                now.getMinutes()+5
+                now.getMinutes(),
+                59
         );
-
 
         List<Reservation> reservations =  reservationService.getReservations( from, to);
         log.info("start sending beforeOneHourNotification {} {} ~ {} total Reservation:{} ", sdf.format(now), sdf.format(from), sdf.format(to),reservations.size());
 
         for( Reservation reservation : reservations ){
-            if( !isLocal) {
-                notificationService.sendReservationNotiBefore1Hour(reservation);
-            }
-            else{
-                log.info("It should send Noti Before 1Hour : {}", reservation.getRegId());
-            }
+            notificationService.sendReservationNotiBefore1Hour(reservation);
         }
     }
 }

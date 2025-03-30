@@ -139,7 +139,7 @@ public class ReservationServiceTest {
         when(reservationRepository.save(any(Reservation.class))).thenReturn(existingReservation);
         when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(new HairServices(), new HairServices(), new HairServices())));
 
-        Reservation updatedReservation = reservationService.updateReservation(existingReservation, reqDto, customer);
+        Reservation updatedReservation = reservationService.updateReservation(existingReservation, reqDto, customer, null);
 
         assertNotNull(updatedReservation);
         assertEquals(existingReservation.getRegId(), updatedReservation.getRegId());

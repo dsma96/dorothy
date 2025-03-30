@@ -25,7 +25,7 @@ import {
     DialogTitle
 } from "@mui/material";
 
-import {Member} from "./type";
+import {Member} from "./typedef";
 import {setUser} from "./redux/store";
 import {useEffect} from "react";
 import useState from 'react-usestateref';
@@ -75,8 +75,6 @@ let EXPIRE_TIME = 300;
 
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
-    const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState<string>('');
     const [telNoError, setTelNoError] = React.useState(false);
     const [telNoErrorMessage, setTelNoErrorMessage] = React.useState<string>('');
     const [passwordError, setPasswordError] = React.useState(false);
@@ -122,7 +120,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     const validateInputs = () => {
         if( !verified )
             return false;
-        const email = document.getElementById('email') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
         const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
         const name = document.getElementById('name') as HTMLInputElement;
@@ -137,14 +134,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
             setTelNoErrorMessage('')
         }
 
-        if (email.value && !/\S+@\S+\.\S+/.test(email.value)) {
-            setEmailError(true);
-            setEmailErrorMessage('Please enter a valid email address.');
-            isValid = false;
-        } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
-        }
 
         if (!password.value || password.value.length < 6) {
             setPasswordError(true);
@@ -205,7 +194,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
         event.preventDefault();
 
-        if (nameError || emailError || passwordError || confirmPasswordError || !verified) {
+        if (nameError  || passwordError || confirmPasswordError || !verified) {
             return;
         }
 
@@ -214,8 +203,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         data.phone = telNo;
         // @ts-ignore
         data.name = currentEvent.get('name');
-        // @ts-ignore
-        data.email = currentEvent.get('email') ? currentEvent.get('email') : null;
         // @ts-ignore
         data.password= currentEvent.get('password');
 
@@ -369,7 +356,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 fullWidth
                                 size="small"
                                 id="name"
-                                placeholder="Jay M"
+                                placeholder="제이"
                                 error={nameError}
                                 helperText={nameErrorMessage}
                                 color={nameError ? 'error' : 'primary'}
@@ -411,12 +398,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             {
                                 verifiStatus == 'READY' &&
                                 <Button
-                                    size="small"
+                                    size="medium"
                                     fullWidth
                                     variant="contained"
                                     onClick={handleVerifyClick}
                                     color="info"
                                     disabled={telNo.length != 10 }
+
                                 >
                                    Request Code / 인증요청
                                 </Button>
@@ -433,7 +421,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                         onChange={e => setVerifiCode(e.target.value)}
                                     />
                                     <Button
-                                        size="small"
+                                        size="medium"
                                         color="info"
                                         variant="contained"
                                         disabled={verifiTimeout == 0 || verifiCode.length != 4}
@@ -442,7 +430,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                         Verify
                                     </Button>
                                     <Button
-                                        size="small"
+                                        size="medium"
                                         color="primary"
                                         variant="contained"
                                         onClick={handleCancelVerification}
@@ -461,22 +449,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 </Typography>
                             }
 
-                        <FormControl>
-                            <FormLabel htmlFor="email">Email (optional)</FormLabel>
-                            <TextField
-                                error={emailError}
-                                helperText={emailErrorMessage}
-                                size="small"
-                                fullWidth
-                                name="email"
-                                placeholder="email address"
-                                type="email"
-                                id="email"
-                                variant="outlined"
-                                color={emailError ? 'error' : 'primary'}
-                            />
-
-                        </FormControl>
                         <FormControl>
                             <FormLabel htmlFor="password">Password</FormLabel>
                             <TextField
@@ -518,13 +490,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             fullWidth
                             variant="contained"
                             onClick={validateInputs}
-                            size="small"
+                            size="medium"
                             disabled={!verified}
                         >
                             Sign Up
                         </Button>
                         <Button
-                            size="small"
+                            size="medium"
                             fullWidth
                             variant="contained"
                             onClick={() => navigate('/')}

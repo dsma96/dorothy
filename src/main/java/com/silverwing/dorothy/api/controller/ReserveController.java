@@ -1,5 +1,7 @@
 package com.silverwing.dorothy.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silverwing.dorothy.domain.dao.ReservationRepository;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
@@ -8,11 +10,13 @@ import com.silverwing.dorothy.domain.entity.HairServices;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reserve")
+@Slf4j
 public class ReserveController {
 
     private final ReservationService reservationService;
@@ -78,20 +83,38 @@ public class ReserveController {
     }
 
     @PostMapping("/reservation")
-    public ResponseEntity<ResponseData<ReservationDto>> createReservation(@AuthenticationPrincipal Member member, @RequestBody ReservationRequestDTO reservationDto) {
+    public ResponseEntity<ResponseData<ReservationDto>> createReservation(@AuthenticationPrincipal Member member,
+                                                                          @RequestParam(value="files", required = false) MultipartFile[] files,
+                                                                          @RequestParam("reservation") String jsonData) {
+
+        ReservationRequestDTO reservationDto;
         if( member == null ) {
             throw new AuthenticationCredentialsNotFoundException("you must login first");
         }
+        try {
+            reservationDto = new ObjectMapper().readValue(jsonData, ReservationRequestDTO.class);
+        }catch(JsonProcessingException e){
+            throw new ReserveException("Invalid JSON data");
+        }
 
-        Reservation reservation =  reservationService.createReservation(reservationDto, member);
+        Reservation reservation =  reservationService.createReservation(reservationDto, member, files);
         ReservationDto dto = reservationService.convertReservation( reservation, member);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
     }
 
     @PutMapping("/reservation/{regId}")
-    public ResponseEntity<ResponseData<ReservationDto>> updateReservation(@AuthenticationPrincipal Member member, @RequestBody ReservationRequestDTO reservationDto, @PathVariable int regId) {
+    public ResponseEntity<ResponseData<ReservationDto>> updateReservation(@AuthenticationPrincipal Member member,
+                                                                          @RequestParam(value = "files", required = false) MultipartFile[] files,
+                                                                          @RequestParam("reservation") String jsonData,
+                                                                          @PathVariable int regId) {
+        ReservationRequestDTO reservationDto;
         if( member == null ) {
             throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+        try {
+            reservationDto = new ObjectMapper().readValue(jsonData, ReservationRequestDTO.class);
+        }catch(JsonProcessingException e){
+            throw new ReserveException("Invalid JSON data");
         }
 
         Reservation reservation =  reservationService.getReservation(regId).orElseThrow();
@@ -106,7 +129,7 @@ public class ReserveController {
             throw new ReserveException("You can't modify this registration");
         }
 
-        reservation = reservationService.updateReservation( reservation, reservationDto, member);
+        reservation = reservationService.updateReservation( reservation, reservationDto, member,files);
 
         ReservationDto dto = reservationService.convertReservation( reservation, member);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
@@ -129,6 +152,8 @@ public class ReserveController {
         List<HairServices> services = reservationService.getHairServices();
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), services), HttpStatus.OK);
     }
+
+
 
 }
 

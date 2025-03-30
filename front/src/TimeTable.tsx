@@ -17,7 +17,7 @@ import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import   'moment-timezone';
 
-import type {Member} from 'type'
+import type {Member} from 'src/typedef'
 import { useSelector, useDispatch } from 'react-redux';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'

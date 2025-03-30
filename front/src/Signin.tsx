@@ -21,7 +21,7 @@ import { MuiTelInput } from 'mui-tel-input'
 
 import {useNavigate} from "react-router";
 import { useSearchParams} from "react-router-dom";
-import type {Member} from './type';
+import type {Member} from './typedef';
 import {useEffect, useState} from "react";
 
 import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
@@ -214,11 +214,7 @@ export default function SignIn() {
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
 
-                    <Typography
-                        component="h1"
-                        variant="h4"
-                        sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}
-                    >
+                    <Typography component="h4" variant="h4" >
                         Sign in
                     </Typography>
                     <Box
@@ -250,6 +246,7 @@ export default function SignIn() {
                                 autoComplete="current-telno"
                                 variant="outlined"
                                 color={phoneError ? 'error' : 'primary'}
+                                size="small"
                             />
                         </FormControl>
                         <FormControl>
@@ -269,18 +266,18 @@ export default function SignIn() {
                                 variant="outlined"
                                 color={passwordError ? 'error' : 'primary'}
                                 onChange = { handlePasswordChange}
+                                size="small"
                             />
                         </FormControl>
-                        {/*<FormControlLabel*/}
-                        {/*    control={<Checkbox value="remember" color="primary"/>}*/}
-                        {/*    label="Remember me"*/}
-                        {/*/>*/}
+
 
                         <Button
                             type="submit"
-                            fullWidth
+
                             variant="contained"
                             onClick={validateInputs}
+                            size="medium"
+                            disabled={phoneError || passwordError || phone.length < 10 || password.length < 6}
                         >
                             Sign in
                         </Button>
@@ -293,19 +290,19 @@ export default function SignIn() {
                         {/*    Forgot your password?*/}
                         {/*</Link>*/}
                     </Box>
-                    <Divider>or</Divider>
+                    <Divider>Don't you Have a Account?</Divider>
                     <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
 
-                        <Typography sx={{textAlign: 'center'}}>
-                            Don&apos;t have an account?{' '}
-                            <Link
-                                href="/signUp"
-                                variant="body2"
-                                sx={{alignSelf: 'center'}}
-                            >
-                                Sign up
-                            </Link>
-                        </Typography>
+                        <Button
+                            size="medium"
+                            color="info"
+                            variant="contained"
+                            onClick={()=>navigate("/signup")}
+                        >
+                            Sign Up / 회원가입
+                        </Button>
+
+
                     </Box>
 
                 </Card>

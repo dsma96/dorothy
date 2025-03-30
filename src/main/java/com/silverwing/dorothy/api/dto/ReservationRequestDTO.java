@@ -16,4 +16,5 @@ public class ReservationRequestDTO {
     int designer;
     String memo;
     boolean requireSilence;
+    List<Integer> fileIds;
 }

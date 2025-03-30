@@ -194,7 +194,8 @@ export const handlers = [
                             status: 'CREATED',
                             editable:true,
                             memo:'hello World',
-                            requireSilence:true
+                            requireSilence:true,
+                            files:[]
                         },
                         {
                             reservationId: 2,
@@ -205,7 +206,8 @@ export const handlers = [
                             services: [],
                             status: 'CREATED',
                             editable: false,
-                            requireSilence:false
+                            requireSilence:false,
+                            files:[]
                         }
                     ]
                 }
@@ -240,7 +242,19 @@ export const handlers = [
                         ],
                         "memo": "앞 머리는 빡빡 밀고 \n옆 머리만 남겨주세요.\n저 심각하니까 말걸지 마세요",
                         "editable": true,
-                        "requireSilence": true
+                        "requireSilence": true,
+                        "files": [
+                            {
+                                "id": 1,
+                                "userFileName": "deny.jpg",
+                                "url": "/1.jpg"
+                            },
+                            {
+                                "id": 2,
+                                "userFileName": "gaza.png",
+                                "url": "/2.gif"
+                            }
+                        ],
                     }
                 }
             )

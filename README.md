@@ -4,6 +4,7 @@ Lightweight hair shop appointment system.
 
 ## Features
 - create / modify appointment
+- Image files uploading for reservation
 - Configurable off day
 - Daily/Hourly notification for appointment 
 - Cellphone number verification using SMS
@@ -28,8 +29,9 @@ Lightweight hair shop appointment system.
 - TWILIO_SID : Twilio account id
 - TWILIO_AUTH : Twilio auth token
 - TWILIO_FROM : twilio sender number
+- VOLUME_PATH : volume path for image files
 
 #### TODO
-- photo uploading for appointment
 - support multiple instance
 - support multiple designer
+- Mileage deposit & redeem

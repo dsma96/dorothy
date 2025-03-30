@@ -7,8 +7,10 @@ import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
 import com.twilio.rest.api.v2010.account.Message;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -31,7 +33,7 @@ public class NotificationService {
     static final String CUSTOMER_CANCEL = "[k-hair.ca 예약취소알림]\n  %s 예약이 성공적으로 취소되었습니다. 감사합니다.";
     static final String DESIGNER_CANCEL = "[예약취소알림]  %s 예약이 취소되었습니다. 고객명:%s 전화번호:%s";
 
-    static final String CUSTOMER_MORNING="[k-hair.ca 예약알림]\n헤어커트 예약 오늘 %s입니다.\n현금으로만 결제가 가능하며, 디자이너에게 직접 결제해 주시면 됩니다.\n예약 시간 5분 전에는 도착해 주시기 바랍니다.";
+    static final String CUSTOMER_MORNING="[k-hair.ca 예약알림]\n헤어커트 예약 오늘 %s입니다.\n예약 시간 5분 전에는 도착해 주시기 바랍니다.";
     static final String CUSTOMER_1HOUR="[k-hair.ca 예약알림]\n"+
                                         "한 시간 후 %s에 남자 헤어컷 예약이 되어 있습니다.\n"+
                                        "방문하시고 왼쪽 출입문 기준으로 세 번째 의자 디자이너 제이(Jay)입니다.\n"+
@@ -42,6 +44,16 @@ public class NotificationService {
 
     private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 HH시mm분");
     private SimpleDateFormat shortSdf = new SimpleDateFormat("HH시 mm분");
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    private boolean isLocal = false;
+
+    @PostConstruct
+    public void init() {
+        isLocal = activeProfile.equalsIgnoreCase("local");
+    }
 
     public void sendReservationMessage(final Reservation reservation) {
         try {
@@ -92,6 +104,11 @@ public class NotificationService {
 
     public void sendSMSAsync(String to, String from , String message) {
         try {
+            if( isLocal ){
+                log.info("It should send SMS to {} from {} message: {}", to, from, message);
+                return;
+            }
+
             CompletableFuture<Message> result =  smsSender.sendMessageAsync(to, from, message);
             try {
                 Message msg = result.get();

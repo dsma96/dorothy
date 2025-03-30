@@ -15,7 +15,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { MuiTelInput } from 'mui-tel-input'
 import {useNavigate} from "react-router";
 import {CardActions, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
-import {Member} from "./type";
+import {Member} from "./typedef";
 import {setUser} from "./redux/store";
 import {useState} from "react";
 import {useSelector,useDispatch} from "react-redux";
@@ -63,9 +63,6 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function MyInfo(props: { disableCustomTheme?: boolean }) {
-    const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-
     const [currentPasswordError, setCurrentPasswordError] = React.useState(false);
     const [currentPasswordErrorMessage, setCurrentPasswordErrorMessage] = React.useState('');
 
@@ -88,15 +85,12 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
     let dispatch = useDispatch();
     const loginUser: Member = useSelector( state => state.user.loginUser);
 
-
     if( loginUser.id < 0){
         return <Navigate to ="/login?ret=my"/>
     }
 
-
     const validateInputs = () => {
 
-        const email = document.getElementById('email') as HTMLInputElement;
         const currentPassword = document.getElementById('currentPassword') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
         const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
@@ -104,14 +98,6 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
 
         let isValid = true;
 
-        if (email.value && !/\S+@\S+\.\S+/.test(email.value)) {
-            setEmailError(true);
-            setEmailErrorMessage('Please enter a valid email address.');
-            isValid = false;
-        } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
-        }
 
         if( !currentPassword.value || currentPassword.value.length < 6 ){
             setCurrentPasswordError(true);
@@ -181,14 +167,13 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (nameError || emailError || passwordError || confirmPasswordError) {
+        if (nameError || passwordError || confirmPasswordError) {
             return;
         }
 
         const currentEvent = new FormData(event.currentTarget);
         const data = {} as Member;
         data.name = currentEvent.get('name');
-        data.email = currentEvent.get('email') ? currentEvent.get('email') : null;
         data.newPassword= currentEvent.get('password');
         data.password = currentEvent.get('currentPassword');
 
@@ -289,28 +274,9 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 disabled
                                 fullWidth
                                 variant="outlined"
-                                color={emailError ? 'error' : 'primary'}
+                                color={'primary'}
                                 size="small"
                             />
-                        </FormControl>
-
-
-                        <FormControl>
-                            <FormLabel htmlFor="email">Email (optional)</FormLabel>
-                            <TextField
-                                error={emailError}
-                                helperText={emailErrorMessage}
-                                defaultValue={loginUser.email}
-                                fullWidth
-                                name="email"
-                                onChange={  e=> {setChanged(true); validateInputs()}}
-                                type="email"
-                                id="email"
-                                variant="outlined"
-                                color={emailError ? 'error' : 'primary'}
-                                size="small"
-                            />
-
                         </FormControl>
                         <FormControl>
                             <FormLabel htmlFor="password">Current Password</FormLabel>

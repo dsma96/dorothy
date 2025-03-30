@@ -3,6 +3,7 @@ package com.silverwing.dorothy.domain.entity;
 import com.silverwing.dorothy.domain.type.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 import org.hibernate.type.YesNoConverter;
 
 import java.util.Date;
@@ -63,4 +64,8 @@ public class Reservation {
 
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;
+
+    @OneToMany(mappedBy = "regId")
+    @Where(clause = "file_status != 'SHOULD_DELETE' and file_status != 'DELETED'")
+    List<UploadFile> uploadFiles;
 }

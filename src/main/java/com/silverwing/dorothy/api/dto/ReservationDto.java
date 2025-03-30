@@ -24,5 +24,5 @@ public class ReservationDto {
     private boolean isEditable;
     private String memo;
     private boolean isRequireSilence;
-
+    private List<UploadFileDto> files;
 }

@@ -479,7 +479,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                         <CardActions>
                             <Button
                                 type="submit"
-                                size="small"
+                                size="large"
                                 variant="contained"
                                 onClick={saveReserve}
                                 disabled={!reservation.editable}
@@ -487,7 +487,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                                 {reservation.reservationId > 0 ? 'Update' : 'Reservation'}
                             </Button>
                             <Button
-                                size="small"
+                                size="large"
                                 variant="contained"
                                 onClick={() => setOpenCancelDialog(true)}
                                 color="info"
@@ -496,7 +496,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                                 Cancel
                             </Button>
                             <Button
-                                size="small"
+                                size="large"
                                 variant="contained"
                                 onClick={() => navigate(-1)}
                                 color="info"

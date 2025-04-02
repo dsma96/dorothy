@@ -74,12 +74,56 @@ const TimeTable: FC = () => {
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
     const [today, setToday] = useState<Date>( now.getTime() > startDate.getTime() ? now : startDate  );
-
+    const [isOffday, setIsOffday] = useState<boolean>(false);
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
 
+    function refreshAvailableDesigner(dateStr){
+        const url = `/api/user/${dateStr}/designers`;
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        // dispatch( setUser( data.payload )) ;
+                        // navigate(retUrl)
+                        let newEvents = [];
+
+                        if( data.payload && data.payload.length == 0){
+                            console.log("off day / 휴무일");
+                            const tableEvent = {
+                                id: -1,
+                                title: 'Off day',
+                                start: moment( dateStr+'T09:30',`YYYYMMDDTHH:mm`).toDate(),
+                                end: moment( dateStr+'T19:00',`YYYYMMDDTHH:mm`).toDate(),
+                                editable: false
+                            }
+                            newEvents.push(tableEvent);
+                            setEvents(newEvents);
+                            setIsOffday(true);
+                        }
+                        else{
+                            console.log("on day "+ JSON.stringify(data.payload));
+                            setIsOffday(false);
+                            refreshReservation()
+                        }
+                    }
+                }
+            )
+            .catch(error => console.error("Error:", error));
+    }
+
     function refreshReservation(){
+        if( isOffday ){
+            return;
+        }
         const url = `/api/reserve/reservations?startDate=${moment(today).format("YYYYMMDD")}T00:00&endDate=${moment(today).format("YYYYMMDD")}T23:59`;
 
         fetch(url, {
@@ -91,7 +135,7 @@ const TimeTable: FC = () => {
             .then(response =>response.json())
             .then(
                 data => {
-                    console.log("responseData : "+ JSON.stringify(data));
+                    console.log("response Result Data : "+ JSON.stringify(data));
                     if( data.code == 200 ){
                         // dispatch( setUser( data.payload )) ;
                         // navigate(retUrl)
@@ -115,7 +159,8 @@ const TimeTable: FC = () => {
     }
 
     useEffect(() => {
-        refreshReservation();
+//        refreshReservation();
+        refreshAvailableDesigner(moment(today).format("YYYYMMDD"));
     },[today]);
 
     const [value, setValue] = React.useState(0);
@@ -123,6 +168,10 @@ const TimeTable: FC = () => {
 
     const handleSelectSlot = ( {start , end, slots} ) => {
         let now = new Date();
+
+        if( isOffday ){
+            return;
+        }
 
         var find = false;
         if( slots?.length > 2) return;
@@ -152,6 +201,9 @@ const TimeTable: FC = () => {
     const handleSelectEvent = (evt )=>{
 
         const now = new Date();
+        if( isOffday ){
+            return;
+        }
 
         if( evt.start < now && loginUser.rootUser == false) {
             console.log(JSON.stringify(evt));

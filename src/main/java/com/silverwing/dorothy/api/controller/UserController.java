@@ -13,6 +13,9 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
+
 @RestController()
 @RequestMapping("/api/user")
 @AllArgsConstructor
@@ -78,4 +81,26 @@ public class UserController {
         return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
     }
 
+    /**
+     * return available designers on the date.
+     * @param dateStr
+     * @return
+     */
+    @GetMapping("/{dateStr}/designers")
+    public ResponseEntity<ResponseData<List<MemberDto>>> getDesigners(@AuthenticationPrincipal Member member, @PathVariable String dateStr) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        List<Member> designers=  userService.getAvailableDesigners(dateStr);
+        if( designers == null || designers.size() == 0 ) {
+            return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(), Collections.emptyList()),HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),
+                designers.stream().map( m -> MemberDto.builder()
+                        .name(m.getUsername())
+                        .id(m.getUserId())
+                        .build()).toList() ),HttpStatus.OK);
+    }
 }

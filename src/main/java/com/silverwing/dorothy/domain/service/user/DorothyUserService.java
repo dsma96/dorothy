@@ -21,7 +21,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -36,6 +40,8 @@ public class DorothyUserService  {
     private long expireTimeMs = 1000 * 60 * 10; // 10min
     private static int MAX_LOGIN_ATTEMPTS = 5;
     private static int BLOCK_TIME = 10 * 60 * 1000;
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
     public boolean isMatchedPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
@@ -120,6 +126,18 @@ public class DorothyUserService  {
     @CacheEvict(key="#member.phone")
     public Member updateUser( Member member) throws UserException{
         return memberRepository.save( member );
+    }
+
+    public List<Member> getAvailableDesigners( String dateStr ) {
+        Date offDay = null;
+        try {
+            offDay = sdf.parse(dateStr);
+            return memberRepository.findAvailableDesigners( offDay ).orElseGet(Collections::emptyList);
+        }catch (ParseException e) {
+            throw new UserException("Invalid date format "+dateStr);
+        }
+
+
     }
 
 }

@@ -81,10 +81,14 @@ ul {
 .rbc-day-slot .rbc-event{
     background-color: #1318b;
     color: #dec85e;
-    border: none;
-    border:none !important;
+    border: none!important;
 }
 .rbc-day-slot .rbc-background-event{
     border:none !important ;
+}
+
+.rbc-time-gutter.rbc-time-column{
+    min-width:120px!important;
+    text-align: center!important;
 }
 

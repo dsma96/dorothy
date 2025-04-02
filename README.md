@@ -28,8 +28,8 @@ Lightweight hair shop appointment system.
 - JWT_SECRET : JWT token encrypt secret key
 - TWILIO_SID : Twilio account id
 - TWILIO_AUTH : Twilio auth token
-- TWILIO_FROM : twilio sender number
-- VOLUME_PATH : volume path for image files
+- TWILIO_FROM : Twilio sender number
+- VOLUME_PATH : Volume path for image files
 
 #### TODO
 - support multiple instance

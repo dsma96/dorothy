@@ -276,7 +276,7 @@ export default function SignIn() {
 
                             variant="contained"
                             onClick={validateInputs}
-                            size="medium"
+                            size="large"
                             disabled={phoneError || passwordError || phone.length < 10 || password.length < 6}
                         >
                             Sign in

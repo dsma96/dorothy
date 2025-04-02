@@ -32,7 +32,39 @@ export const handlers = [
             )
         }
     ),
+    http.get('/api/user/:dateStr/designers',( {params}) => {
+            const {dateStr} = params;
 
+            if (dateStr == '20250408') {
+                return HttpResponse.json(
+                    {
+                        "msg": "OK",
+                        "code": 200,
+                        "payload": []
+                    }
+                )
+            } else {
+                return HttpResponse.json(
+                    {
+                        "msg": "OK",
+                        "code": 200,
+                        "payload": [
+                            {
+                                "phone": null,
+                                "password": null,
+                                "email": null,
+                                "name": "Jay",
+                                "id": 1,
+                                "rootUser": false
+                            }
+                        ]
+                    }
+                )
+            }
+        }
+    ),
+
+,
     http.put('/api/reserve/cancel/:id', ( {params}) => {
         const{id} = params;
             // ...and respond to them using this JSON response.

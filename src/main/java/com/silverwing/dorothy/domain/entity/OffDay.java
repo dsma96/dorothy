@@ -16,7 +16,7 @@ public class OffDay {
 
     @Id
     @Column(name="off_day")
-    Date offDay;
+    private Date offDay;
 
     @Id
     @Column(name="designer")

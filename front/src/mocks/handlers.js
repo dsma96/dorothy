@@ -208,8 +208,8 @@ export const handlers = [
                         {
                             reservationId: 1,
                             userName: "Aiden",
-                            phone: "2892440503",
-                            startDate: today+"T10:00",
+                            phone: "1892441234",
+                            startDate: today+"T11:00",
                             createDate: null,
                             services: [
                                 {serviceI: 1,
@@ -256,7 +256,7 @@ export const handlers = [
                     "payload": {
                         "reservationId": 28,
                         "userName": "동석",
-                        "phone": "6474060362",
+                        "phone": "6474060364",
                         "startDate": "20250326T14:00",
                         "createDate": "20250319T01:09",
                         "status": "CREATED",

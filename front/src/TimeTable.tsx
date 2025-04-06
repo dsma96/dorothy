@@ -233,9 +233,8 @@ const TimeTable: FC = () => {
         <TimeTableContainer direction="column" justifyContent="space-between" >
             <Card variant="elevation" style={ {overflowY:'scroll'}}>
                 <Typography
-                    component="h3"
-                    variant="h4"
-                    sx={{width: '100%', fontSize: 'clamp(1rem, 6vw, 2rem)'}}
+                    component="h5"
+                    variant="h5"
                 >
                     Welcome {loginUser.name}!
                 </Typography>
@@ -254,7 +253,7 @@ const TimeTable: FC = () => {
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
-                            10,0
+                            10,30
                         )
                     }
                     max={
@@ -272,7 +271,7 @@ const TimeTable: FC = () => {
                     onDoubleClickEvent={handleSelectEvent}
                     longPressThreshold={5}
                     onNavigate={handleDayChange}
-
+                    style={{height: "90vh"}}
                 />
             </Card>
                 <BottomNavigation

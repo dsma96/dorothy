@@ -200,7 +200,7 @@ const DateChoose: FC = () => {
                         startAccessor="start"
                         endAccessor="end"
                         localizer={localizer}
-                        style={{height: "85vh"}}
+                        style={{height: "75vh"}}
                         views={{ month: true, week: false, day: false }}
                         onSelectSlot={handleSelectSlot}
                         onSelectEvent={handleSelectEvent}

@@ -44,3 +44,8 @@ export interface Reservation{
     editable: boolean,
     files?: UploadFile[]
 }
+
+export interface OffDay{
+    offDay: string,
+    designer: number
+}

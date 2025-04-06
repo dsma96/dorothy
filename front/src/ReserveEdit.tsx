@@ -466,14 +466,14 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             variant="h4"
                             sx={{width: '100%', fontSize: 'clamp(0.9rem, 9vw, 0.9rem)', lineHeight: 1}}
                         >
-                            390 Steeles Avenue West
+                            800 Steeles Ave W
                         </Typography>
                         <Typography
                             component="h4"
                             variant="h4"
                             sx={{width: '100%', fontSize: 'clamp(1rem, 9vw, 0.9rem)', lineHeight: 1}}
                         >
-                            K-Hair Studio, Designer Jay
+                            Bing's hair salon, Designer Jay
                         </Typography>
 
                         <CardActions>

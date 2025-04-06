@@ -17,14 +17,28 @@ let user = createSlice({
                 state.loginUser.email = action.payload.email;
                 state.loginUser.rootUser = (true === action.payload.rootUser);
                 state.loginUser.id=action.payload.id;
-            }
+            },
+        }
+});
+
+let date = createSlice({
+        name:'date',
+        initialState: {
+            date: new Date(),
+        },
+        reducers:{
+            setDate(state, action){
+                state.date = action.payload;
+            },
         }
 });
 
 export let {setUser} = user.actions;
+export let{setDate} = date.actions;
 
 export default configureStore({
     reducer: {
-        user: user.reducer
+        user: user.reducer,
+        date: date.reducer
     }
 });

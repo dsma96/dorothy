@@ -19,6 +19,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -270,7 +271,8 @@ public class ReservationService {
         return reservationRepository.save( r );
     }
 
-    @CacheEvict(value = "reservation")
+
+    @Cacheable(cacheNames = "hairservice")
     public List<HairServices> getHairServices() {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }

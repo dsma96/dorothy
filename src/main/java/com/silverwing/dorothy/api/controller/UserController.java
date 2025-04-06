@@ -1,11 +1,16 @@
 package com.silverwing.dorothy.api.controller;
 
+import com.silverwing.dorothy.api.dto.OffDayDto;
+import com.silverwing.dorothy.domain.Exception.UserException;
+import com.silverwing.dorothy.domain.entity.OffDay;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
 import com.silverwing.dorothy.api.dto.ChangeMemberInfoDto;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.type.UserStatus;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -13,16 +18,19 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @RestController()
 @RequestMapping("/api/user")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
 
     private final DorothyUserService userService;
-
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     @PostMapping("/signup")
     public ResponseEntity<  ResponseData<MemberDto>> signup( @RequestBody MemberDto memberDto) {
 
@@ -102,5 +110,31 @@ public class UserController {
                         .name(m.getUsername())
                         .id(m.getUserId())
                         .build()).toList() ),HttpStatus.OK);
+    }
+
+    @GetMapping("/offday/{year}/{month}")
+    public ResponseEntity<ResponseData<List<OffDayDto>>> getDesigners(@AuthenticationPrincipal Member member, @PathVariable String year, @PathVariable String month) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = sdf.parse(year + month+"01");
+            int mm = startDate.getMonth();
+            endDate = new Date( mm < 11 ? startDate.getYear() : startDate.getYear()+1, mm < 11 ?startDate.getMonth()+1 : 0,1);
+        } catch (ParseException e){
+            throw new UserException("Invalid date format "+year+month);
+        }
+
+        List<OffDay> offDays = userService.getOffDays(startDate, endDate);
+
+        List <OffDayDto> dtos =  offDays.stream().map( o ->
+            OffDayDto.builder()
+                    .offDay(o.getOffDay())
+                    .designer(o.getDesigner())
+                    .build()
+        ).toList();
+        return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
     }
 }

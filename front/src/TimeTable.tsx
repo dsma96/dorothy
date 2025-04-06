@@ -68,12 +68,12 @@ const TimeTable: FC = () => {
     const navigate = useNavigate();
     let now  = new Date();
     const startDate = new Date(2025,3,5);
-
+    const selectedDate: Date  = useSelector( state => state.date);
     const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
-    const [today, setToday] = useState<Date>( now.getTime() > startDate.getTime() ? now : startDate  );
+    const [today, setToday] = useState<Date>( selectedDate.date  );
     const [isOffday, setIsOffday] = useState<boolean>(false);
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
@@ -284,7 +284,7 @@ const TimeTable: FC = () => {
                     className='stickToBottom'
                 >
 
-                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate('/')} />
+                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate(-1)} />
                     <TabBarButton label="Main" color='primary' icon={<HomeIcon  />} onClick={() => navigate('/')} />
                     <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
                     <Snackbar

@@ -3,10 +3,12 @@ package com.silverwing.dorothy.domain.dao;
 import com.silverwing.dorothy.domain.entity.HairServices;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface HairServiceRepository extends JpaRepository<HairServices, Integer>{
     @Query("SELECT s from HairServices s WHERE s.isUse = true order by s.idx")
     Optional<List<HairServices>> getAvailableServices();

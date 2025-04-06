@@ -2,8 +2,10 @@ package com.silverwing.dorothy.domain.service.user;
 
 import com.silverwing.dorothy.domain.dao.MemberRepository;
 import com.silverwing.dorothy.domain.Exception.UserException;
+import com.silverwing.dorothy.domain.dao.OffDayRepository;
 import com.silverwing.dorothy.domain.dao.VerifyRequestRepository;
 import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.entity.OffDay;
 import com.silverwing.dorothy.domain.entity.VerifyRequest;
 import com.silverwing.dorothy.domain.type.UserRole;
 import com.silverwing.dorothy.domain.type.UserStatus;
@@ -35,6 +37,7 @@ public class DorothyUserService  {
 
     private final MemberRepository memberRepository;
     private final VerifyRequestRepository verifyRequestRepository;
+    private final OffDayRepository offDayRepository;
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
     private long expireTimeMs = 1000 * 60 * 10; // 10min
@@ -128,6 +131,7 @@ public class DorothyUserService  {
         return memberRepository.save( member );
     }
 
+    @Cacheable(cacheNames = "availableDesigners", key = "#dateStr")
     public List<Member> getAvailableDesigners( String dateStr ) {
         Date offDay = null;
         try {
@@ -136,8 +140,10 @@ public class DorothyUserService  {
         }catch (ParseException e) {
             throw new UserException("Invalid date format "+dateStr);
         }
-
-
     }
 
+    @Cacheable(cacheNames = "offday", key = "#StartDate.toString()+ #endDate.toString()")
+    public List<OffDay> getOffDays( Date StartDate, Date endDate ) {
+        return offDayRepository.getOffDays(StartDate, endDate).orElseGet(Collections::emptyList);
+    }
 }

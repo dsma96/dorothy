@@ -88,8 +88,10 @@ export default function SignIn() {
     const [ dialogMessage, setDialogMessage] = useState("");
     let retUrl= "/";
 
-    if( searchParams.get("ret"))
+    if( searchParams.get("ret")) {
         retUrl += searchParams.get("ret")
+        console.log("retUrl: "+ retUrl);
+    }
 
     const getCookie = function(name) {
         var cookies = document.cookie.split(';');
@@ -109,7 +111,10 @@ export default function SignIn() {
                 method: "GET"
 
             })
-                .then(response => response.json())
+                .then(response => {
+                    console.log(response);
+                    return response.json();
+                })
                 .then(
                     data => {
                         if (data.code == 200) {

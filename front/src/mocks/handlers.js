@@ -155,12 +155,11 @@ export const handlers = [
             }
         }
     ),
-    http.get('/api/login/relogin', () => {
-            // ...and respond to them using this JSON response.
+    http.get('/api/login/relogin', async () => {
             return HttpResponse.json(
                 {
                     msg: "OK",
-                    code: 500,
+                    code: 200,
                     payload: {
                         phone: "6474060362",
                         password: null,
@@ -382,4 +381,76 @@ export const handlers = [
             );
         }
     }),
+    http.get('/api/user/offday/:year/:month', () => {
+            // ...and respond to them using this JSON response.
+            return HttpResponse.json(
+                {
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": [
+                        {
+                            "offDay": "20250407",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250408",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250409",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250410",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250414",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250415",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250416",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250417",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250421",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250422",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250423",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250424",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250428",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250429",
+                            "designer": 1
+                        },
+                        {
+                            "offDay": "20250430",
+                            "designer": 1
+                        }
+                    ]
+                }
+            )
+        }
+    ),
 ]

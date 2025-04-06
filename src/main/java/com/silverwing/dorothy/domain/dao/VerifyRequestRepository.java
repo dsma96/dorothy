@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface VerifyRequestRepository extends JpaRepository<VerifyRequest, Integer> {
     @Query(nativeQuery = true,value= "SELECT * from verify_request v WHERE v.phone_no = :phoneNo and v.verify_type = :verifyType and v.verify_state = 'CREATED' and v.expire_date > now() LIMIT 1 ")
     Optional<VerifyRequest> findLiveVerify(@Param("phoneNo") String phoneNumber, @Param("verifyType")String verifyType);

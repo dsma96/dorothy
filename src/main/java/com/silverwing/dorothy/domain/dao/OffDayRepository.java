@@ -16,4 +16,7 @@ public interface OffDayRepository extends JpaRepository<OffDay, OffDayId> {
 
     @Query("SELECT o FROM com.silverwing.dorothy.domain.entity.OffDay o WHERE o.offDay >= :startDate and  o.offDay  < :endDate")
     Optional<List<OffDay>> getOffDays(@Param("startDate")Date startDate, @Param("endDate")Date endDate);
+
+
+
 }

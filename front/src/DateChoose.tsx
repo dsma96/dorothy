@@ -108,23 +108,43 @@ const DateChoose: FC = () => {
                             let newEvents = [];
 
                             if (data.payload && data.payload.length > 0) {
+                                const today = new Date();
+                                let startDate  = new Date( date.getFullYear(), date.getMonth(), 1);
+                                if( startDate.getTime() < today.getTime()){
+                                    startDate = new Date( today.getFullYear(), today.getMonth(), today.getDate());
+                                }
 
+                                let lastOfMonth = new Date( date.getFullYear(), date.getMonth() + 1, 0);
                                 let offDays: OffDay[] = data.payload;
 
-                                for (const offday of offDays) {
-                                    const dateStr = offday.offDay;
-                                    const tableEvent = {
-                                        title: 'Off day',
-                                        start: moment(dateStr + '00:00', `YYYYMMDDHH:mm`).toDate(),
-                                        end: moment(dateStr + '23:59', `YYYYMMDDHH:mm`).toDate(),
-                                        editable: false,
-                                        allDay: true
+                                for( ;startDate.getTime() < lastOfMonth.getTime(); startDate.setDate(startDate.getDate() + 1)) {
+                                    let isOffday = false;
+
+                                    for (const offday of offDays) {
+                                        const dateStr = offday.offDay;
+                                        if (dateStr == moment(startDate).format("YYYYMMDD")) {
+                                            isOffday = true;
+                                            break;
+                                        }
                                     }
-                                    newEvents.push(tableEvent);
+
+                                    if (!isOffday) {
+                                        let tableEvent = {
+                                            start: new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0),
+                                            end: new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59),
+                                            allDay: true,
+                                            title: "예약",
+                                            desc: "예약가능",
+                                            id: -1,
+                                        }
+                                        newEvents.push(tableEvent);
+
+                                    }
+
+                                    setEvents(
+                                        [...newEvents]
+                                    );
                                 }
-                                setEvents(
-                                    [...newEvents]
-                                );
                             } else {
                                 console.log("on day " + JSON.stringify(data.payload));
                             }
@@ -153,13 +173,18 @@ const DateChoose: FC = () => {
 
         for( const event of events){
             if( event.start.getTime() >= start.getTime() && event.end.getTime() <= end.getTime()){
-                console.log("This date is off day");
-                return;
+                setDate( start );
+                dispatch( setDate( start))
+                navigate('/time');
+
             }
         }
+    }
 
-        setDate( start );
-        dispatch( setDate( start))
+
+    const handleSelectEvent = (evt )=> {
+        setDate( evt.start );
+        dispatch( setDate( evt.start))
         navigate('/time');
     }
 
@@ -177,6 +202,7 @@ const DateChoose: FC = () => {
                         style={{height: 800}}
                         views={{ month: true, week: false, day: false }}
                         onSelectSlot={handleSelectSlot}
+                        onSelectEvent={handleSelectEvent}
                         onNavigate={(date:Date) => {
                             setToday(date);
                             dispatch( setDate( date))

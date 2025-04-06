@@ -142,6 +142,11 @@ const DateChoose: FC = () => {
 
 
     const handleSelectSlot = ( {start , end} ) => {
+
+        if( start.getTime() < new Date().getTime()){ // can't select past date
+            return;
+        }
+
         const startDate = format(start, 'yyyy-MM-dd HH:mm:ss');
         const endDate = format(end, 'yyyy-MM-dd HH:mm:ss');
         const message = `Selected from ${startDate} to ${endDate}`;

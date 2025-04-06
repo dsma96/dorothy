@@ -58,7 +58,6 @@ ul {
     flex-direction: column;
 }
 
-
 .header {
     background-color: #a4c991;
     padding: 10px 20px;
@@ -91,7 +90,6 @@ ul {
     min-width:120px!important;
     text-align: center!important;
 }
-
 
 .rbc-event.rbc-event-allday{
     background-color: #e2c0ab;

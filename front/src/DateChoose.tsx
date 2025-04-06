@@ -41,6 +41,7 @@ const DateChooseContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
     minHeight: '100%',
     padding: theme.spacing(1),
+
     overflow: 'scroll',
     [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(1),
@@ -199,7 +200,7 @@ const DateChoose: FC = () => {
                         startAccessor="start"
                         endAccessor="end"
                         localizer={localizer}
-                        style={{height: 800}}
+                        style={{height: "85vh"}}
                         views={{ month: true, week: false, day: false }}
                         onSelectSlot={handleSelectSlot}
                         onSelectEvent={handleSelectEvent}
@@ -207,6 +208,7 @@ const DateChoose: FC = () => {
                             setToday(date);
                             dispatch( setDate( date))
                         }}
+
 
                         selectable={true}
                         date={today}

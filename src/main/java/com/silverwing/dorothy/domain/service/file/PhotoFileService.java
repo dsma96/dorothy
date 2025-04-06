@@ -40,6 +40,9 @@ public class PhotoFileService {
         int idx = 0;
         List<UploadFile> savedUploadFiles  = new ArrayList<>();
         Date now = new Date();
+        if( files == null || files.length == 0 ) {
+            return savedUploadFiles;
+        }
         for (MultipartFile file : files) {
             idx++;
             String fileName ;

@@ -1,10 +1,13 @@
 package com.silverwing.dorothy.api.controller;
 
+import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.domain.entity.UploadFile;
+import com.silverwing.dorothy.domain.service.MessageResourceService;
 import com.silverwing.dorothy.domain.service.file.PhotoFileService;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
+import com.silverwing.dorothy.domain.type.MessageResourceId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -16,6 +19,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -23,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class UploadFileController {
     private final PhotoFileService photoFileService;
     private final ReservationService reservationService;
-
+    private final MessageResourceService messageResourceService;
 
     @GetMapping("/{reservationId}/{fileId}")
     public ResponseEntity<Resource> getFile(@AuthenticationPrincipal Member member, @PathVariable int reservationId, @PathVariable int fileId) {
@@ -46,5 +52,21 @@ public class UploadFileController {
                 .contentType(MediaType.IMAGE_JPEG) // or other appropriate media type
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + uploadFile.getUserFileName() + "\"")
                 .body(fileResource);
+    }
+
+
+    @GetMapping("/test")
+    public ResponseEntity<ResponseData<List<String>>> getDesigners(@AuthenticationPrincipal Member member){
+        MessageResourceId[] ids = MessageResourceId.values();
+        ArrayList<String> ret= new ArrayList();
+
+
+        for( MessageResourceId id : ids ){
+            String msg = messageResourceService.getMessage(id);
+            ret.add(msg);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ResponseData<>("OK", 200, ret));
     }
 }

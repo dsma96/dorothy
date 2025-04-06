@@ -137,4 +137,30 @@ public class UserController {
         ).toList();
         return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
     }
+
+    @GetMapping("/openday/{year}/{month}")
+    public ResponseEntity<ResponseData<List<OffDayDto>>> getOpenDays(@AuthenticationPrincipal Member member, @PathVariable String year, @PathVariable String month) {
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = sdf.parse(year + month+"01");
+            int mm = startDate.getMonth();
+            endDate = new Date( mm < 11 ? startDate.getYear() : startDate.getYear()+1, mm < 11 ?startDate.getMonth()+1 : 0,1);
+        } catch (ParseException e){
+            throw new UserException("Invalid date format "+year+month);
+        }
+
+        List<OffDay> offDays = userService.getOffDays(startDate, endDate);
+
+        List <OffDayDto> dtos =  offDays.stream().map( o ->
+                OffDayDto.builder()
+                        .offDay(o.getOffDay())
+                        .designer(o.getDesigner())
+                        .build()
+        ).toList();
+        return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
+    }
 }

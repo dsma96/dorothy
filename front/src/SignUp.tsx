@@ -356,7 +356,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                                 fullWidth
                                 size="small"
                                 id="name"
-                                placeholder="제이"
+                                placeholder="이름"
                                 error={nameError}
                                 helperText={nameErrorMessage}
                                 color={nameError ? 'error' : 'primary'}
@@ -393,7 +393,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             //     {generateVerifiMessage()}
                             // </Typography>
 
-                            <FormLabel htmlFor="verifyInput">{generateVerifiMessage()}</FormLabel>
+                            <FormLabel htmlFor="verifyInput">{ generateVerifiMessage()}
+                            </FormLabel>
                         }
                             {
                                 verifiStatus == 'READY' &&
@@ -493,7 +494,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             size="medium"
                             disabled={!verified}
                         >
-                            Sign Up
+                            회원 가입
                         </Button>
                         <Button
                             size="medium"
@@ -502,7 +503,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                             onClick={() => navigate('/')}
                             color="info"
                         >
-                            Cancel
+                            취소
                         </Button>
                         </CardActions>
                     </Box>

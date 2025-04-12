@@ -14,14 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,6 +45,9 @@ public class ReservationServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private ObjectProvider<ReservationService> reservationServiceProvider;
+
     @InjectMocks
     private ReservationService reservationService;
 
@@ -55,7 +56,19 @@ public class ReservationServiceTest {
 
     @BeforeEach
     public void setUp() {
+
+        ArrayList<HairServices> hairServices = new ArrayList<>();
+        HairServices h = new HairServices();
+        h.setServiceId(1);
+        h.setName("Test Service");
+        h.setServiceTime(45);
+        h.setPrice(1000);
+        h.setUse(true);
+        hairServices.add(h);
+
         MockitoAnnotations.openMocks(this);
+        when(reservationServiceProvider.getObject()).thenReturn(reservationService);
+        when( hairServiceRepository.getAvailableServices()).thenReturn(Optional.of(hairServices));
     }
 
     @Test
@@ -91,11 +104,11 @@ public class ReservationServiceTest {
         reservation.setRequireSilence(reqDto.isRequireSilence());
 
         when(offDayRepository.findById(any())).thenReturn(Optional.empty());
-        when(reservationRepository.findAllWithDateOnDesigner(anyInt(), any(), any())).thenReturn(Optional.empty());
+        when(reservationRepository.findAllWithDateOnDesigner(anyInt(), any(), any(), anyInt())).thenReturn(Optional.empty());
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
         when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(new HairServices(), new HairServices(), new HairServices())));
 
-        Reservation createdReservation = reservationService.createReservation(reqDto, customer);
+        Reservation createdReservation = reservationService.createReservation(reqDto, customer,null);
 
         assertNotNull(createdReservation);
         assertEquals(reservation.getRegId(), createdReservation.getRegId());

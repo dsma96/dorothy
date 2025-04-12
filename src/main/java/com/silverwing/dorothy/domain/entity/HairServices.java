@@ -34,4 +34,9 @@ public class HairServices {
     @Convert(converter = YesNoConverter.class)
     boolean defaultValue;
 
+    @Column(name="svc_time")
+    int serviceTime;
+
+    @Column(name="price")
+    float price;
 }

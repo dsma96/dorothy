@@ -75,7 +75,7 @@ export default function EventHome() {
                    useMap="#image-map"
                     />
                     <map name="image-map">
-                        <area shape="circle" coords="541,635,270,907" href="/dateChoose"/>
+                        <area shape="circle" coords="500,635,400,907" href="/dateChoose"/>
                     </map>
                 </Card>
             </HomeContainer>

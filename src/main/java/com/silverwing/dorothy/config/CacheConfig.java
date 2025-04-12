@@ -18,7 +18,7 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .expireAfterWrite(15, TimeUnit.MINUTES)
                 .maximumSize(100));
         cacheManager.setCacheNames(List.of("reservation","member","offday","openday","hairservice","availableDesigners","messages"));
         cacheManager.setAllowNullValues(false);

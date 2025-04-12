@@ -68,15 +68,16 @@ public class ReservationService {
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUsername() : "Occupied" )
-                .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "416-000-1234" )
+                .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "000-000-0000" )
                 .startDate(sdf.format(reservation.getStartDate()))
+                .endDate(sdf.format(reservation.getEndDate()))
                 .createDate( reservation.getModifyDate().after( reservation.getStartDate()) ?  sdf.format(reservation.getModifyDate()) : sdf.format(reservation.getCreateDate()))
                 .services(caller.isRootUser() || userId == reservation.getUserId() ? hairServices : Collections.emptyList())
-                .status( caller.isRootUser() || userId == reservation.getUserId() ? reservation.getStatus() : ReservationStatus.CREATED)
+                .status( reservation.getStatus())
                 .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
                 .isRequireSilence((caller.isRootUser() || userId == reservation.getUserId()) && reservation.isRequireSilence())
-                .files(reservation.getUploadFiles() == null || reservation.getUploadFiles().isEmpty() ? Collections.emptyList() :  reservation.getUploadFiles().stream().map( r -> UploadFileDto.of(r)).toList() )
+                .files( (caller.isRootUser() || userId == reservation.getUserId()) &&  reservation.getUploadFiles() != null ?  reservation.getUploadFiles().stream().map( r -> UploadFileDto.of(r)).toList() : Collections.emptyList() )
                 .build();
         return dto;
     }
@@ -86,151 +87,20 @@ public class ReservationService {
         return reservations.stream().map( s-> convertReservation( s, caller )).toList();
     }
 
-    @Transactional
-    public Reservation updateReservation(Reservation reservation, ReservationRequestDTO reqDto, Member customer,MultipartFile[] files ){
-        Date now = new Date();
 
-        if( files != null && files.length > 0){
-            photoFileService.removeAllFilesByReserve(reservation.getRegId());
-            List<UploadFile> uploadFiles = null;
+    private Date calculateServiceTime(ReservationRequestDTO reqDto, Date startDate) {
+        int totalTime = 0;
+        List<HairServices> services = selfProvider.getObject().getHairServices(); // to use cache
 
-            try {
-                uploadFiles =  photoFileService.saveFiles(reservation, files);
-            }catch (FileUploadException e){
-                log.error( e.getMessage() ); // just ignore
-            }
-
-            if( uploadFiles != null && !uploadFiles.isEmpty()) {
-                reservation.setUploadFiles(uploadFiles);
+        for( HairServices s : services ){
+            if( reqDto.getServiceIds().contains(s.getServiceId())){
+                totalTime += s.getServiceTime();
             }
         }
-        else if( reqDto.getFileIds() != null && !reqDto.getFileIds().isEmpty()){ // partial remove
-            Optional<List<UploadFile>> filesWrapper =  uploadFileRepository.findByRegId(reservation.getRegId() );
-            if( filesWrapper.isPresent() ){
-                List<UploadFile> uploadFiles = filesWrapper.get();
-                for( UploadFile f : uploadFiles ){
-                    if( !reqDto.getFileIds().contains(f.getFileId())){
-                        f.setFileStatus(FileUploadStatus.SHOULD_DELETE);
-                        uploadFileRepository.save(f);
-                    }
-                }
-            }
-        }else if(reservation.getUploadFiles() != null && !reservation.getUploadFiles().isEmpty()){ // remove all
-            List<UploadFile> uploadFiles = reservation.getUploadFiles();
-            for( UploadFile f : uploadFiles ){
-                f.setFileStatus(FileUploadStatus.SHOULD_DELETE);
-            }
-            uploadFileRepository.saveAll(uploadFiles);
-        }
 
-        reservation.setMemo( reqDto.getMemo());
-        reservation.setStatus(ReservationStatus.CREATED);
-        reservation.setUserId( customer.getUserId());
-        reservation.setModifyDate(now);
-        reservation.setDesignerId(reqDto.getDesigner());
-        reservation.setModifier( customer.getUserId() );
-        reservation.setRequireSilence( reqDto.isRequireSilence());
-
-        Reservation persistedReservation = reservationRepository.save(reservation);
-        List<ReserveServiceMap> newServiceMap = getHairServices(reqDto, persistedReservation.getRegId());
-        List<ReserveServiceMap> oldServiceMap = reservation.getServices();
-
-        if(newServiceMap.isEmpty()){
-            throw new ReserveException("Can't create reservation without service");
-        }
-
-        boolean equal = newServiceMap.size() == oldServiceMap.size();
-
-        if(!equal || !newServiceMap.containsAll(oldServiceMap)){
-            reserveServiceMapRepository.deleteByRegId(reservation.getRegId());
-            reserveServiceMapRepository.saveAll(newServiceMap);
-            persistedReservation.setServices( newServiceMap );
-        }
-
-        return persistedReservation;
+        Date endDate = new Date( startDate.getTime()+ totalTime * 60000); // in minutes
+        return endDate;
     }
-
-
-    public Reservation createReservation( ReservationRequestDTO reqDto, Member customer, MultipartFile[] files ) throws ReserveException {
-       Reservation newReservation = selfProvider.getObject().createReservation( reqDto, customer); // for transaction
-
-       List<UploadFile> uploadFiles = null;
-       try {
-           uploadFiles =  photoFileService.saveFiles(newReservation, files);
-       }catch (FileUploadException e){
-           log.error( e.getMessage() ); // just ignore
-       }
-
-         if( uploadFiles != null && !uploadFiles.isEmpty()) {
-             newReservation.setUploadFiles(uploadFiles);
-         }
-        return newReservation;
-    }
-
-    @Transactional
-    public Reservation createReservation( ReservationRequestDTO reqDto, Member customer ) throws ReserveException {
-        Date now = new Date();
-
-        Date startDate;
-
-        try{
-            startDate = sdf.parse( reqDto.getStartTime());
-        } catch(ParseException e){
-            throw new ReserveException(e.getMessage());
-        }
-
-        Date endDate = new Date( startDate.getTime()+ 1800000);
-
-        if( startDate.before( now) ){
-            throw new ReserveException(" reservation should be in the future");
-        }
-
-        String startDateDayOnly = dayOnly.format(startDate);
-        try {
-            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), reqDto.getDesigner());
-
-            if (offDayRepository.findById(offId).isPresent()) {
-                throw new ReserveException("Designer is having an off day");
-            }
-        }catch(ParseException e){
-            throw new ReserveException(e.getMessage());
-        }
-
-        List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner( reqDto.getDesigner(),startDate,endDate ).orElseGet(()-> Collections.emptyList());
-
-        if(!duplicatedReserve.isEmpty()){
-            throw new ReserveException("Duplicated time with Reservation: "+duplicatedReserve.get(0).getRegId()+" "+reqDto.getStartTime());
-        }
-
-        Reservation reservation = new Reservation();
-
-        reservation.setMemo( reqDto.getMemo());
-        reservation.setStatus(ReservationStatus.CREATED);
-        reservation.setStartDate( startDate );
-        reservation.setEndDate( endDate );
-        reservation.setUserId( customer.getUserId());
-        reservation.setCreateDate(now);
-        reservation.setModifyDate(now);
-        reservation.setDesignerId(reqDto.getDesigner());
-        reservation.setModifier( customer.getUserId() );
-        reservation.setRequireSilence( reqDto.isRequireSilence());
-
-        Reservation persistedReservation =  reservationRepository.save( reservation );
-        List<ReserveServiceMap> map = getHairServices(reqDto, persistedReservation.getRegId());
-
-        if(map.isEmpty()){
-            throw new ReserveException("Can't create reservation without service");
-        }
-
-        reserveServiceMapRepository.saveAll(map);
-        persistedReservation.setServices( map );
-        persistedReservation.setUser( customer);
-
-        notificationService.sendReservationMessage(persistedReservation);
-
-        return persistedReservation;
-    }
-
 
 
 
@@ -271,9 +141,156 @@ public class ReservationService {
         return reservationRepository.save( r );
     }
 
-
     @Cacheable(cacheNames = "hairservice")
     public List<HairServices> getHairServices() {
         return hairServiceRepository.getAvailableServices().orElseThrow();
+    }
+
+    @Transactional
+    public Reservation updateReservation(Reservation reservation, ReservationRequestDTO reqDto, Member customer, MultipartFile[] files) {
+        if (reqDto.getServiceIds() == null || reqDto.getServiceIds().isEmpty()) {
+            throw new ReserveException("Reservation should have at least one service");
+        }
+
+        Date now = new Date();
+        Date startDate = parseStartDate(reqDto.getStartTime());
+        Date endDate = calculateServiceTime(reqDto, startDate);
+
+        validateReservationTime(reqDto, startDate, endDate, reservation.getRegId());
+        handleFileUploads(reservation, reqDto, files);
+
+        reservation.setMemo(reqDto.getMemo());
+        reservation.setStatus(ReservationStatus.CREATED);
+        reservation.setUserId(customer.getUserId());
+        reservation.setModifyDate(now);
+        reservation.setDesignerId(reqDto.getDesigner());
+        reservation.setModifier(customer.getUserId());
+        reservation.setRequireSilence(reqDto.isRequireSilence());
+        reservation.setEndDate(endDate);
+
+        Reservation persistedReservation = reservationRepository.save(reservation);
+        updateServiceMappings(reqDto, persistedReservation);
+        notificationService.sendReservationChangedMessage(persistedReservation);
+        return persistedReservation;
+    }
+
+    @Transactional
+    public Reservation createReservation(ReservationRequestDTO reqDto, Member customer, MultipartFile[] files) {
+        if (reqDto.getServiceIds() == null || reqDto.getServiceIds().isEmpty()) {
+            throw new ReserveException("Reservation should have at least one service");
+        }
+
+        Date now = new Date();
+        Date startDate = parseStartDate(reqDto.getStartTime());
+
+        if (startDate.before(now)) {
+            throw new ReserveException("Reservation should be in the future");
+        }
+
+        Date endDate = calculateServiceTime(reqDto, startDate);
+        validateReservationTime(reqDto, startDate, endDate, -1);
+
+        Reservation reservation = new Reservation();
+        reservation.setMemo(reqDto.getMemo());
+        reservation.setStatus(ReservationStatus.CREATED);
+        reservation.setStartDate(startDate);
+        reservation.setEndDate(endDate);
+        reservation.setUserId(customer.getUserId());
+        reservation.setCreateDate(now);
+        reservation.setModifyDate(now);
+        reservation.setDesignerId(reqDto.getDesigner());
+        reservation.setModifier(customer.getUserId());
+        reservation.setRequireSilence(reqDto.isRequireSilence());
+        reservation.setUser(customer);
+        Reservation persistedReservation = reservationRepository.save(reservation);
+
+        updateServiceMappings(reqDto, persistedReservation);
+        handleFileUploads(persistedReservation, reqDto, files);
+
+        notificationService.sendReservationMessage(persistedReservation);
+
+        return persistedReservation;
+    }
+
+    private Date parseStartDate(String startTime) {
+        try {
+            return sdf.parse(startTime);
+        } catch (ParseException e) {
+            throw new ReserveException(e.getMessage());
+        }
+    }
+
+    private void validateReservationTime(ReservationRequestDTO reqDto, Date startDate, Date endDate, int excludeId) {
+        String startDateDayOnly = dayOnly.format(startDate);
+        try {
+            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), reqDto.getDesigner());
+            if (offDayRepository.findById(offId).isPresent()) {
+                throw new ReserveException("Designer is having an off day");
+            }
+        } catch (ParseException e) {
+            throw new ReserveException(e.getMessage());
+        }
+
+        List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner(reqDto.getDesigner(), startDate, endDate, excludeId)
+                .orElseGet(Collections::emptyList);
+
+        if (!duplicatedReserve.isEmpty()) {
+            throw new ReserveException("예약시간이 겹칩니다. \n You should select another time");
+        }
+    }
+
+    private void handleFileUploads(Reservation reservation, ReservationRequestDTO reqDto, MultipartFile[] files) {
+        if (files != null && files.length > 0) {
+            photoFileService.removeAllFilesByReserve(reservation.getRegId());
+            try {
+                List<UploadFile> uploadFiles = photoFileService.saveFiles(reservation, files);
+                if (uploadFiles != null && !uploadFiles.isEmpty()) {
+                    reservation.setUploadFiles(uploadFiles);
+                }
+            } catch (FileUploadException e) {
+                log.error(e.getMessage());
+            }
+        } else if (reqDto.getFileIds() != null && !reqDto.getFileIds().isEmpty()) {  // partial remove
+            Optional<List<UploadFile>> filesWrapper = uploadFileRepository.findByRegId(reservation.getRegId());
+            if (filesWrapper.isPresent()) {
+                List<UploadFile> uploadFiles = filesWrapper.get();
+                for (UploadFile f : uploadFiles) {
+                    if (!reqDto.getFileIds().contains(f.getFileId())) {
+                        f.setFileStatus(FileUploadStatus.SHOULD_DELETE);
+                        uploadFileRepository.save(f);
+                    }
+                }
+            }
+        } else  { // remove all
+            List<UploadFile> uploadFiles = reservation.getUploadFiles();
+            if (uploadFiles == null || uploadFiles.isEmpty()) {
+                return;
+            }
+            for (UploadFile f : uploadFiles) {
+                f.setFileStatus(FileUploadStatus.SHOULD_DELETE);
+            }
+            uploadFileRepository.saveAll(uploadFiles);
+        }
+    }
+
+
+    private void updateServiceMappings(ReservationRequestDTO reqDto, Reservation reservation) {
+        List<ReserveServiceMap> newServiceMap = getHairServices(reqDto, reservation.getRegId());
+        List<ReserveServiceMap> oldServiceMap = reservation.getServices();
+
+        if (newServiceMap.isEmpty()) {
+            throw new ReserveException("Can't create reservation without service");
+        }
+        if( oldServiceMap ==null ){
+            oldServiceMap = Collections.emptyList();
+        }
+
+        boolean equal = newServiceMap.size() == oldServiceMap.size() && newServiceMap.containsAll(oldServiceMap);
+
+        if (!equal) {
+            reserveServiceMapRepository.deleteByRegId(reservation.getRegId());
+            reserveServiceMapRepository.saveAll(newServiceMap);
+            reservation.setServices(newServiceMap);
+        }
     }
 }

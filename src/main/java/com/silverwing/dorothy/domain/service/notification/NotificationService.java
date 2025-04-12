@@ -45,6 +45,18 @@ public class NotificationService {
         isLocal = activeProfile.equalsIgnoreCase("local");
     }
 
+    public void sendReservationChangedMessage( final Reservation reservation){
+        try {
+            Member customer = reservation.getUser();
+            Member designer = userService.getMember(reservation.getDesignerId());
+            String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_changed_designer),
+                    fullSdf.format(reservation.getStartDate()), customer.getUsername(), customer.getPhone());
+            sendSMSAsync(designer.getPhone(), "", designerMsg);
+        }catch(RuntimeException e){
+            log.error(e.getMessage());
+        }
+    }
+
     public void sendReservationMessage(final Reservation reservation) {
         try {
             Member customer = reservation.getUser();

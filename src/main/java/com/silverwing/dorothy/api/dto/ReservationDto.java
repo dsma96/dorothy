@@ -18,6 +18,7 @@ public class ReservationDto {
     private String userName;
     private String phone;
     private String startDate;
+    private String endDate;
     private String createDate;
     private ReservationStatus status;
     private List<HairServices> services;

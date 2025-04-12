@@ -5,6 +5,7 @@ public enum MessageResourceId {
     reservation_cancel_designer,
     reservation_create_customer,
     reservation_create_designer,
+    reservation_changed_designer,
     reservation_notification_1hour,
     reservation_notification_morning
 }

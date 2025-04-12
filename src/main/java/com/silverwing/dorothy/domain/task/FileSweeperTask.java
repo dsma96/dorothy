@@ -50,14 +50,12 @@ public class FileSweeperTask {
             uploadFileRepository.deleteAll(files);
         }
     }
-    @Scheduled(cron="0 * * * * *")
+    @Scheduled(cron="0 */3 * * * *")
     public void resizeFile() throws IOException {
         Optional<List<UploadFile>> filesWrapper = uploadFileRepository.findByStatus(FileUploadStatus.CREATED);
         if (filesWrapper.isPresent()) {
             List<UploadFile> files = filesWrapper.get();
             for (UploadFile file : files) {
-
-
                 try {
                     File fsFile = photoFileService.getPhysicalFile(file);
                     String previousFullPath = fsFile.getAbsolutePath();

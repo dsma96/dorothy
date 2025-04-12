@@ -14,14 +14,17 @@ export interface ReserveTimeEvent {
     end: Date
 }
 
-export interface HairService{
+export interface HairService {
     serviceId: number,
     name: string,
     mandatory: boolean,
     idx: number,
     use: boolean,
     visible: boolean
-    defaultValue: boolean
+    defaultValue: boolean,
+    serviceTime: number,
+    price: number,
+    selected?:boolean
 }
 
 export interface UploadFile{

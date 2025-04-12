@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +50,33 @@ public class UploadFileController {
         UploadFile uploadFile = photoFileService.getFileUpload( fileId).orElseThrow();
         Resource fileResource = photoFileService.getFileResource(reservation, uploadFile).orElseThrow();
 
+
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG) // or other appropriate media type
+                .contentType(  MediaType.parseMediaType(getContentType( uploadFile) ))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + uploadFile.getUserFileName() + "\"")
                 .body(fileResource);
     }
 
+    private String getContentType(UploadFile uploadFile ){
+        String contentType = null;
+        String ext = uploadFile.getUserFileName().substring(uploadFile.getUserFileName().lastIndexOf("."));
+        ext = ext.toLowerCase();
+        switch (ext) {
+            case ".jpg":
+            case ".jpeg":
+                contentType = "image/jpeg";
+                break;
+            case ".png":
+                contentType = "image/png";
+                break;
+            case ".gif":
+                contentType = "image/gif";
+                break;
+            default:
+                contentType = "application/octet-stream";
+        }
+        return contentType;
+    }
 
     @GetMapping("/test")
     public ResponseEntity<ResponseData<List<String>>> getDesigners(@AuthenticationPrincipal Member member){

@@ -1,4 +1,6 @@
 import { configureStore, createSlice} from "@reduxjs/toolkit";
+import {HairService} from  "../types/Types";
+
 let user = createSlice({
         name:'user',
         initialState: {
@@ -33,12 +35,28 @@ let date = createSlice({
         }
 });
 
+let availableServices: any = createSlice(
+    {
+        name: 'availableServices',
+        initialState: {
+            services:[]
+        },
+        reducers:{
+            setAvailableServices(state, action){
+                state.services = action.payload;
+            },
+        }
+    }
+);
+
 export let {setUser} = user.actions;
-export let{setDate} = date.actions;
+export let {setDate} = date.actions;
+export let {setAvailableServices} = availableServices.actions;
 
 export default configureStore({
     reducer: {
         user: user.reducer,
-        date: date.reducer
+        date: date.reducer,
+        config: availableServices.reducer
     }
 });

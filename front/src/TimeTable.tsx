@@ -74,7 +74,7 @@ const TimeTable: FC = () => {
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
     const [today, setToday] = useState<Date>( selectedDate.date  );
-    const [isOffday, setIsOffday] = useState<boolean>(false);
+    const [isOffday, setIsOffday] = useState(false);
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
@@ -92,8 +92,7 @@ const TimeTable: FC = () => {
             .then(
                 data => {
                     if( data.code == 200 ){
-                        // dispatch( setUser( data.payload )) ;
-                        // navigate(retUrl)
+                        console.log("available designer : "+ JSON.stringify(data));
                         let newEvents = [];
 
                         if( data.payload && data.payload.length == 0){
@@ -146,7 +145,7 @@ const TimeTable: FC = () => {
                                 id: e.reservationId,
                                 title: e.userName,
                                 start: moment( e.startDate,"YYYYMMDDTHH:mm").toDate(),
-                                end: moment(e.startDate,"YYYYMMDDTHH:mm").add(30,'m').toDate(),
+                                end:   moment(  e.endDate,"YYYYMMDDTHH:mm").toDate(),
                                 editable: e.editable
                             }
                             newEvents.push( tableEvent );
@@ -160,8 +159,13 @@ const TimeTable: FC = () => {
 
     useEffect(() => {
 //        refreshReservation();
+
         refreshAvailableDesigner(moment(today).format("YYYYMMDD"));
     },[today]);
+
+    useEffect(() => {
+        refreshReservation()
+    }, [isOffday]);
 
     const [value, setValue] = React.useState(0);
     const theme = useTheme();
@@ -227,7 +231,15 @@ const TimeTable: FC = () => {
         setToday(newDate);
     }
 
+    const customMessages = {
+        today: '오늘', // Custom label for 'Today'
+        previous: '< 전 날', // Custom label for 'Back'
+        next: '다음 날 >', // Custom label for 'Next'
+    };
+
     return (
+
+
     <AppProvider theme={theme}>
 
         <TimeTableContainer direction="column" justifyContent="space-between" >
@@ -246,6 +258,7 @@ const TimeTable: FC = () => {
                     selectable
                     step={TIME_UNIT}
                     timeslots={1}
+
                     date = {today}
                     min={
 
@@ -269,9 +282,14 @@ const TimeTable: FC = () => {
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
                     onDoubleClickEvent={handleSelectEvent}
+                    onDragStart={(e)=>{console.log('drag');e.preventDefault(); e.stopPropagation()}}
+                    onDragOver={(e)=>{e.preventDefault(); e.stopPropagation()}}
+                    onDragEnd={(e)=>{e.preventDefault(); e.stopPropagation()}}
                     longPressThreshold={5}
                     onNavigate={handleDayChange}
                     style={{height: "90vh"}}
+                    messages={customMessages}
+                    draggableAccessor={event => false}
                 />
             </Card>
                 <BottomNavigation
@@ -283,7 +301,7 @@ const TimeTable: FC = () => {
                     className='stickToBottom'
                 >
 
-                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate(-1)} />
+                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate('/dateChoose')} />
                     <TabBarButton label="Main" color='primary' icon={<HomeIcon  />} onClick={() => navigate('/')} />
                     <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
                     <Snackbar
@@ -320,9 +338,7 @@ const locales = {
 // })
 const localizer = momentLocalizer(moment)
 
-
 export default TimeTable
-
 export const TIME_UNIT : number= 30;
 
 

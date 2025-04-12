@@ -8,28 +8,31 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import {styled, useTheme} from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close'
+import {useDropzone} from 'react-dropzone';
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router-dom";
+import moment from 'moment'
+import TextField from "@mui/material/TextField";
+import { useEffect, useState } from "react";
+import {getServices} from './StoreHelper';
+
 import {
     CardActions,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle,
+    DialogTitle, FormGroup,
     IconButton
 } from "@mui/material";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { AppProvider } from '@toolpad/core/AppProvider';
-import type {Member} from 'src/typedef'
-import { useSelector, useDispatch } from 'react-redux';
-import {useNavigate} from "react-router";
-import { useSearchParams } from "react-router-dom";
-import moment from 'moment'
-import TextField from "@mui/material/TextField";
-import {HairService, Reservation, UploadFile} from "./typedef";
-import {useEffect, useState} from "react";
-import Divider from "@mui/material/Divider";
 
-import {useDropzone} from 'react-dropzone';
+import { AppProvider } from '@toolpad/core/AppProvider';
+import type { Member } from 'src/typedef'
+import { HairService, Reservation, UploadFile } from "./typedef";
+import {setAvailableServices} from "./redux/store";
 
 const thumbsContainer = {
     display: 'flex',
@@ -81,8 +84,8 @@ const Card = styled(MuiCard)(({ theme }) => ({
     flexDirection: 'column',
     alignSelf: 'center',
     width: '100%',
-    padding: theme.spacing(4),
-    gap: theme.spacing(2),
+    padding: theme.spacing(1),
+    gap: theme.spacing(1),
     margin: 'auto',
     boxShadow:
         'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
@@ -95,7 +98,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
     }),
 }));
 
-const SignUpContainer = styled(Stack)(({ theme }) => ({
+const ReserveEditContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
     minHeight: '100%',
     padding: theme.spacing(2),
@@ -120,6 +123,8 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 
 export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const loginUser: Member = useSelector(state => state.user.loginUser);
+    const availableServices: HairService[] = useSelector(state => state.config.services);
+
     let [searchParams] = useSearchParams();
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("Dorothy");
@@ -129,9 +134,12 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const cancelDialogMessage = "Would you like to cancel your reservation?";
     const [hasError, setHasError] = useState(false);
     const [localFiles, setLocalFiles] = useState([]);
-    const [fromServer, setFromServer] = useState(false);
+    const [fromServer, setFromServer] = useState(searchParams.get("regId") != null);
     const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
     const [previewFile,setPreviewFile] = useState<UploadFile>();
+    const [services, setServices] = useState <HairService[]>([]);
+
+    let dispatch = useDispatch();
 
     const {getRootProps, getInputProps} = useDropzone({
         accept: {
@@ -160,7 +168,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     });
 
     const localThumbs = localFiles.map(file => (
-        <Box style={{position: 'relative'}}>
+        <Box style={{position: 'relative'}} key={file.name}>
             <div style={thumb} key={file.name}>
                 <div style={thumbInner}>
                         <img
@@ -194,8 +202,32 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
         </Box>
     ));
 
+    const serviceCheckBoxes = services.map( (service: HairService, index) => {
+        return (
+            <FormControlLabel
+                key={service.serviceId}
+                control={
+                    <Checkbox
+                        id={`check_service_${service.serviceId}`}
+                        checked={ service.selected }
+                        disabled={!reservation.editable}
+                        onChange={e=>{
+                                service.selected = e.target.checked;
+                                let newServices = [
+                                    ...services
+                                ];
+                                setServices(newServices);
+                            }
+                        }
+                        style={{marginTop: 0, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                    />}
+                label={service.name+" $"+service.price}
+            />
+        )
+    });
+
     const serverThumbs = reservation.files ? reservation.files.map(file => (
-        <Box style={{position: 'relative'}}>
+        <Box style={{position: 'relative'}} key={file.id}>
             <div style={thumb} key={file.id}>
                 <div style={thumbInner}>
                     <img
@@ -235,14 +267,49 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
 
 
     useEffect(() => {
+        if( fromServer ){ // EDIT mode
+            if(reservation.reservationId > 0 && availableServices.length > 0 && services. length == 0) {
+                let newServices: HairService[] = [];
+                availableServices.forEach( (service: HairService) => {
+                    let newService = { ...service};
+                    newService.selected = reservation.services.some( s => s.serviceId == service.serviceId);
+                    newServices.push(newService);
+                });
+                setServices(newServices);
+            }
+        }else{
+            if( availableServices.length > 0 && services. length == 0) {
+                let newServices: HairService[] = [];
+                availableServices.forEach( (service: HairService) => {
+                    let newService = { ...service};
+                    newService.selected = false;
+                    newServices.push(newService);
+                });
+                setServices( newServices);
+            }
+        }
+    }, [services, reservation]);
+
+    useEffect(() => {
+        if( availableServices.length ==0 ) { // need to load available service
+            fetch('/api/reserve/services')
+                .then((response) => response.json())
+                .then((data) => {
+                    dispatch( setAvailableServices(data.payload));
+                    setServices(availableServices);
+                    })
+                .catch((error) => {
+                    console.error('Error fetching services:', error);
+                });
+        }
+
         if (searchParams.get("start")) {
             let startDateString = searchParams.get("start");
-            setReservation(
-                {
-                    ...reservation,
-                    startDate: startDateString
-                }
-            )
+            const newReservation = {
+                ...reservation,
+                startDate: startDateString
+            }
+            setReservation( newReservation);
         }
         else if( searchParams.get("regId")){
             let regId = searchParams.get("regId");
@@ -260,12 +327,12 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             if( data.payload.files == null )
                                 data.payload.files = [];
                             setReservation( data.payload );
-                            setFromServer(true);
                         }
                     }
                 )
                 .catch(error => console.error("Error:", error));
         }
+
         return () => localFiles.forEach(file => URL.revokeObjectURL(file.preview));
     },[]);
 
@@ -291,8 +358,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
             .then(
                 data => {
                     if( data.code == 200 ){
-                        setDialogMessage("Your reservation has been successfully canceled.");
-                        setOpenDialog(true);
+                        showDialog("Complete!", "Your reservation has been successfully canceled.", true);
                     }
                 }
             )
@@ -303,12 +369,42 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
             );
     }
 
+    function showDialog(title: string, msg: string, goHome: boolean){
+        setDialogTitle(title);
+        setDialogMessage( msg);
+        setHasError(!goHome);
+        setOpenDialog(true);
+    }
+
+    function validateInput () : string{
+        let serviceSelected = false;
+        services.forEach( (service: HairService) => {
+            if( service.selected ){
+                serviceSelected = true;
+            }
+        });
+
+        if( serviceSelected == false ){
+            return "예약할 서비스를 선택해주세요";
+        }
+        return "SUCCESS";
+    }
+
 
     const saveReserve = (event) => {
         event.preventDefault();
-
+        let msg = validateInput();
+        if( msg != "SUCCESS"){
+            showDialog('Error',msg, false);
+            return;
+        }
         let serviceIds: number[] = [];
-        serviceIds.push(1);
+        services.forEach( (service: HairService) => {
+            if( service.selected ){
+                serviceIds.push( service.serviceId);
+            }
+        });
+
 
         const reqDto = {
             startTime: reservation.startDate,
@@ -400,15 +496,9 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
-            <SignUpContainer direction="column" justifyContent="space-between">
+            <ReserveEditContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
-                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'}/>
-                    <Typography
-                        component="h5"
-                        variant="h5"
-                    >
-                        {reservation.reservationId > 0 ? 'Edit Reservation' : 'New Reservation'}
-                    </Typography>
+                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'} style={{width:'100%'}}/>
                     <Divider/>
                     <Typography
                         component="h6"
@@ -425,17 +515,19 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                         <Typography>
                             {reservation.userName} {formatPhoneNumber(reservation.phone)}
                         </Typography>
-                        <Typography>
-                            Created at {formatDate(reservation.createDate)}
-                        </Typography>
 
+                        <Divider/>
+                        <FormGroup>
+                            {serviceCheckBoxes}
+                        </FormGroup>
                         <TextField
-                            placeholder={"가일컷, 댄디컷 등 원하시는 스타일을 적어 주세요. 디자이너에게 전달됩니다\n\n예)앞머리는 눈썹 위로 해주시고 구렛나루는 남기지말고 짧게 잘라주세요"}
+                            placeholder={"가일컷, 댄디컷 등 원하시는 스타일을 적어 주세요. 디자이너에게 전달됩니다"}
                             multiline
-                            rows={5}
+                            rows={3}
                             value={reservation.memo}
                             onChange={handleMemoInput}
                         />
+
 
                         <FormControlLabel
                             control={
@@ -476,15 +568,18 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                             Bing's hair salon, Designer Jay
                         </Typography>
 
-                        <CardActions>
+                        <CardActions  sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}>
                             <Button
                                 type="submit"
                                 size="large"
                                 variant="contained"
                                 onClick={saveReserve}
-                                disabled={!reservation.editable}
+                                disabled={!reservation.editable }
                             >
-                                {reservation.reservationId > 0 ? 'Update' : 'Reservation'}
+                                {reservation.reservationId > 0 ? '수정' : '예약'}
                             </Button>
                             <Button
                                 size="large"
@@ -493,7 +588,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                                 color="info"
                                 disabled={!reservation.editable || reservation.reservationId == -1}
                             >
-                                Cancel
+                                예약취소
                             </Button>
                             <Button
                                 size="large"
@@ -501,7 +596,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                                 onClick={() => navigate(-1)}
                                 color="info"
                             >
-                                Close
+                                닫기
                             </Button>
                         </CardActions>
                     </Box>
@@ -574,7 +669,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                     <></>
                 }
 
-            </SignUpContainer>
+            </ReserveEditContainer>
         </AppProvider>
     );
 }

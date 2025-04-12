@@ -1,35 +1,36 @@
-import { FC, useState, useCallback, useEffect, useMemo  } from 'react'
-import { Calendar, dateFnsLocalizer, Event,momentLocalizer , BigCalendar, Views, DateLocalizer} from 'react-big-calendar'
+import * as React from 'react';
+import {FC, useEffect, useMemo, useState} from 'react';
+import {Calendar, DateLocalizer, momentLocalizer, Views} from 'react-big-calendar'
 import {format} from 'date-fns/format'
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import {styled, useTheme} from '@mui/material/styles';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import * as React from 'react';
+import {AppProvider} from '@toolpad/core/AppProvider';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import   'moment-timezone';
+import 'moment-timezone';
 import {setDate} from './redux/store';
-import { useSelector, useDispatch } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import {Card, Snackbar} from "@mui/material";
+import {Card} from "@mui/material";
 import {useNavigate} from "react-router";
 import Stack from "@mui/material/Stack";
-import  './App.css'
+import './App.css'
 import moment from 'moment'
 import CssBaseline from "@mui/material/CssBaseline";
 import PropTypes from 'prop-types'
-import * as dates from "./utils/dates";
 import {Navigate} from "react-router-dom";
 import type {Member, OffDay} from 'src/typedef'
+
 const TabBarButton = styled(BottomNavigationAction)({
     color: '#e67e22',
     '.Mui-selected, svg':{
         color: '#e67e22',
     }
 });
+
 const ColoredDateCellWrapper = ({ children }) =>
     React.cloneElement(React.Children.only(children), {
         style: {
@@ -62,22 +63,26 @@ const DateChooseContainer = styled(Stack)(({ theme }) => ({
         overflow:'scroll'
     },
 }));
+
+const customMessages = {
+    today: '이번 달', // Custom label for 'Today'
+    previous: '< 전 달', // Custom label for 'Back'
+    next: '다음 달 >', // Custom label for 'Next'
+};
+
 const DateChoose: FC = () => {
     let dispatch = useDispatch();
 
     const selectedDate: Date  = useSelector( state => state.date);
     const loginUser: Member = useSelector( state => state.user.loginUser);
-
     const theme = useTheme();
     const navigate = useNavigate();
     const [today, setToday] = useState<Date>(new Date());
     const [events, setEvents] = useState<[]>([]);
 
-
     if( loginUser.id < 0){
         return <Navigate to ="/login?ret=dateChoose"/>
     }
-
 
     const { components, defaultDate,  views } = useMemo(
         () => ({
@@ -161,7 +166,6 @@ const DateChoose: FC = () => {
 
     },[today]);
 
-
     const handleSelectSlot = ( {start , end} ) => {
 
         if( start.getTime() < new Date().getTime()){ // can't select past date
@@ -181,7 +185,6 @@ const DateChoose: FC = () => {
             }
         }
     }
-
 
     const handleSelectEvent = (evt )=> {
         setDate( evt.start );
@@ -209,11 +212,11 @@ const DateChoose: FC = () => {
                             dispatch( setDate( date))
                         }}
 
-
                         selectable={true}
                         date={today}
                         longPressThreshold={5}
                         events={events}
+                        messages={customMessages}
                     />
                 </Card>
                 <BottomNavigation

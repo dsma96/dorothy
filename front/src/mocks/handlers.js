@@ -12,18 +12,77 @@ export const handlers = [
                         {
                             "serviceId": 1,
                             "name": "남자 헤어컷",
-                            "mandatory": true,
-                            "idx": 0,
-                            "defaultValue": true,
-                            "visible": false,
+                            "mandatory": false,
+                            "idx": 10,
+                            "defaultValue": false,
+                            "serviceTime": 30,
+                            "price": 16.0,
+                            "visible": true,
                             "use": true
                         },
                         {
-                            "serviceId": 6,
-                            "name": "조용히 시술받고 싶어요",
+                            "serviceId": 2,
+                            "name": "남자 Root Colour (커트포함)",
+                            "mandatory": false,
+                            "idx": 20,
+                            "defaultValue": false,
+                            "serviceTime": 60,
+                            "price": 65.0,
+                            "visible": true,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 3,
+                            "name": "남자 다운펌 (커트포함)",
+                            "mandatory": false,
+                            "idx": 30,
+                            "defaultValue": false,
+                            "serviceTime": 60,
+                            "price": 40.0,
+                            "visible": true,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 4,
+                            "name": "남자 Perm (커트포함)",
+                            "mandatory": false,
+                            "idx": 40,
+                            "defaultValue": false,
+                            "serviceTime": 90,
+                            "price": 65.0,
+                            "visible": true,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 7,
+                            "name": "여자 헤어컷",
+                            "mandatory": false,
+                            "idx": 50,
+                            "defaultValue": false,
+                            "serviceTime": 60,
+                            "price": 25.0,
+                            "visible": true,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 8,
+                            "name": "여자 Root Colour (커트포함)",
+                            "mandatory": false,
+                            "idx": 60,
+                            "defaultValue": false,
+                            "serviceTime": 90,
+                            "price": 65.0,
+                            "visible": true,
+                            "use": true
+                        },
+                        {
+                            "serviceId": 9,
+                            "name": "칼 갈이",
                             "mandatory": false,
                             "idx": 999,
                             "defaultValue": false,
+                            "serviceTime": 30,
+                            "price": 5.0,
                             "visible": true,
                             "use": true
                         }
@@ -34,8 +93,11 @@ export const handlers = [
     ),
     http.get('/api/user/:dateStr/designers',( {params}) => {
             const {dateStr} = params;
+            const today = new Date();
+            let targetDate = moment(dateStr,"YYYYMMDD").toDate();
 
-            if (dateStr == '20250408') {
+
+        if( targetDate.getTime() > today.getTime()+ 86400000*4 ){
                 return HttpResponse.json(
                     {
                         "msg": "OK",
@@ -43,7 +105,7 @@ export const handlers = [
                         "payload": []
                     }
                 )
-            } else {
+            }else {
                 return HttpResponse.json(
                     {
                         "msg": "OK",
@@ -202,43 +264,62 @@ export const handlers = [
 
             return HttpResponse.json(
                 {
-                    msg: "OK",
-                    code: 200,
-                    payload:[
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": [
                         {
-                            reservationId: 1,
-                            userName: "Aiden",
-                            phone: "1892441234",
-                            startDate: today+"T11:00",
-                            createDate: null,
-                            services: [
-                                {serviceI: 1,
-                                    name: "남자 헤어컷",
-                                    mandatory: true,
-                                    idx: 0,
-                                    use: true
-                                },
-                                {
-                                    serviceId: 6,
-                                }
-                            ],
-                            status: 'CREATED',
-                            editable:true,
-                            memo:'hello World',
-                            requireSilence:true,
-                            files:[]
+                            "reservationId": 72,
+                            "userName": "Occupied",
+                            "phone": "000-000-0000",
+                            "startDate": today+"T11:00",
+                            "endDate": today+"T11:30",
+                            "createDate": "20250409T20:10",
+                            "status": "CREATED",
+                            "services": [],
+                            "memo": "",
+                            "files": [],
+                            "editable": false,
+                            "requireSilence": false
                         },
                         {
-                            reservationId: 2,
-                            userName: "Johne Doe",
-                            phone: "416-000-1234",
-                            startDate: today+"T13:00",
-                            createDate: "20250309T13:30",
-                            services: [],
-                            status: 'CREATED',
-                            editable: false,
-                            requireSilence:false,
-                            files:[]
+                            "reservationId": 86,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": today+"T13:00",
+                            "endDate": today+"T14:00",
+                            "createDate": "20250411T15:44",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 2,
+                                    "name": "남자 Root Colour (커트포함)",
+                                    "mandatory": false,
+                                    "idx": 20,
+                                    "defaultValue": false,
+                                    "serviceTime": 60,
+                                    "price": 65.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "",
+                            "files": [],
+                            "editable": true,
+                            "requireSilence": false
+                        },
+                        {
+                            "reservationId": 78,
+                            "userName": "Occupied",
+                            "phone": "000-000-0000",
+                            "startDate": today+"T14:00",
+                            "endDate": today+"T14:30",
+                            "createDate": "20250411T02:03",
+                            "status": "CREATED",
+                            "services": [],
+                            "memo": "",
+                            "files": [],
+                            "editable": false,
+                            "requireSilence": false
                         }
                     ]
                 }
@@ -248,7 +329,7 @@ export const handlers = [
     http.get('/api/reserve/:id', ({params})=>{
         const{id} = params;
         let today = moment(new Date()).format("YYYYMMDD");
-        if( id == '1'){
+        if( id == '86'){
             return HttpResponse.json(
                 {
                     "msg": "OK",
@@ -262,7 +343,7 @@ export const handlers = [
                         "status": "CREATED",
                         "services": [
                             {
-                                "serviceId": 1,
+                                "serviceId": 2,
                                 "name": "남자 헤어컷",
                                 "mandatory": true,
                                 "idx": 0,

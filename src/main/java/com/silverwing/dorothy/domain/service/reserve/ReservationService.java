@@ -21,6 +21,8 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -292,5 +294,9 @@ public class ReservationService {
             reserveServiceMapRepository.saveAll(newServiceMap);
             reservation.setServices(newServiceMap);
         }
+    }
+
+    public Page<Reservation> getHistory(int userId, Pageable pageable) {
+        return reservationRepository.findByUserIdAndStatusCreated(userId, pageable);
     }
 }

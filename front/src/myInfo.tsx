@@ -347,7 +347,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 size="small"
                                 fullWidth
                                 variant="contained"
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate(-1)}
                                 color="info"
                             >
                                 Cancel

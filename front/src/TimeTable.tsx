@@ -15,7 +15,6 @@ import {styled, useTheme} from '@mui/material/styles';
 import * as React from 'react';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import   'moment-timezone';
 
 import type {Member} from 'src/typedef'
 import { useSelector, useDispatch } from 'react-redux';
@@ -28,7 +27,9 @@ import Stack from "@mui/material/Stack";
 import  './App.css'
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
+import   'moment-timezone';
 import {setUser} from "./redux/store";
+import Footer from './components/Footer';
 const defaultTZ = moment.tz.guess();
 
 const TabBarButton = styled(BottomNavigationAction)({
@@ -244,13 +245,6 @@ const TimeTable: FC = () => {
 
         <TimeTableContainer direction="column" justifyContent="space-between" >
             <Card variant="elevation" style={ {overflowY:'scroll'}}>
-                <Typography
-                    component="h5"
-                    variant="h5"
-                >
-                    Welcome {loginUser.name}!
-                </Typography>
-
                 <Calendar
                     defaultView='day'
                     events={events}
@@ -292,35 +286,11 @@ const TimeTable: FC = () => {
                     draggableAccessor={event => false}
                 />
             </Card>
-                <BottomNavigation
-                    showLabels={true}
-                    value={value}
-                    onChange={(event, newValue) => {
-                        setValue(newValue);
-                    }}
-                    className='stickToBottom'
-                >
-
-                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate('/dateChoose')} />
-                    <TabBarButton label="Main" color='primary' icon={<HomeIcon  />} onClick={() => navigate('/')} />
-                    <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
-                    <Snackbar
-                        open={openPopup}
-                        onClick={()=>setOpenPopup(false)}
-
-                        message={popupMessage}
-                        sx={{
-                            '&.MuiSnackbar-root': { top: '50px' },
-                        }}
-                    />
-                </BottomNavigation>
-
+            <Footer backUrl={"/dateChoose"}></Footer>
         </TimeTableContainer>
-
     </AppProvider>
     )
 }
-
 const locales = {
     'en-US':'enUS',
 }

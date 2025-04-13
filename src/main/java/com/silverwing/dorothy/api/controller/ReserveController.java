@@ -11,6 +11,7 @@ import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -153,7 +154,27 @@ public class ReserveController {
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), services), HttpStatus.OK);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<ResponseData<Page<ReservationDto>>> getHistory(
+            @AuthenticationPrincipal Member member,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        if (member == null) {
+            throw new AuthenticationCredentialsNotFoundException("You must login first");
+        }
 
+        // Fetch paginated and sorted reservations
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        Page<Reservation> reservationsPage = reservationService.getHistory(member.getUserId(), pageable);
+        // Convert reservations to DTOs
+        List<ReservationDto> reservationDtos = reservationService.convertReservations(reservationsPage.getContent(), member.getUserId());
+        Page<ReservationDto> reservationDtosPage = new PageImpl<>(reservationDtos, pageable, reservationsPage.getTotalElements());
+
+        return new ResponseEntity<>(
+                new ResponseData<>("OK", HttpStatus.OK.value(), reservationDtosPage),
+                HttpStatus.OK
+        );
+    }
 
 }
 

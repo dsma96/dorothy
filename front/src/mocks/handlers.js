@@ -233,6 +233,261 @@ export const handlers = [
             )
         }
     ),
+    http.get('api/reserve/history', async () => {
+        return HttpResponse.json(
+            {
+                "msg": "OK",
+                "code": 200,
+                "payload": {
+                    "content": [
+                        {
+                            "reservationId": 86,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250412T14:30",
+                            "endDate": "20250412T16:00",
+                            "createDate": "20250411T15:44",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 8,
+                                    "name": "여자 Root Colour (커트포함)",
+                                    "mandatory": false,
+                                    "idx": 60,
+                                    "defaultValue": false,
+                                    "serviceTime": 90,
+                                    "price": 65.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 2,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250411T16:00",
+                            "endDate": "20250411T16:30",
+                            "createDate": "20250306T00:00",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "첫예약",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 20,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250313T10:30",
+                            "endDate": "20250313T11:00",
+                            "createDate": "20250312T22:46",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "lemmy's",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 17,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250312T10:30",
+                            "endDate": "20250312T11:00",
+                            "createDate": "20250312T00:30",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "남자 커트 예약합니다!",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 14,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250308T14:00",
+                            "endDate": "20250308T14:30",
+                            "createDate": "20250308T03:46",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "안녕하세요? 잘 부탁드려요",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 13,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250308T13:00",
+                            "endDate": "20250308T13:30",
+                            "createDate": "20250308T03:42",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "3번째 예약",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 12,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250308T11:30",
+                            "endDate": "20250308T12:00",
+                            "createDate": "20250308T03:40",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "두번째 예약입니다.",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        },
+                        {
+                            "reservationId": 11,
+                            "userName": "Lemmy Ma",
+                            "phone": "6474060362",
+                            "startDate": "20250308T10:00",
+                            "endDate": "20250308T10:30",
+                            "createDate": "20250308T02:20",
+                            "status": "CREATED",
+                            "services": [
+                                {
+                                    "serviceId": 1,
+                                    "name": "남자 헤어컷",
+                                    "mandatory": false,
+                                    "idx": 10,
+                                    "defaultValue": false,
+                                    "serviceTime": 30,
+                                    "price": 16.0,
+                                    "visible": true,
+                                    "use": true
+                                }
+                            ],
+                            "memo": "처음 예약입니다. 잘 부탁드려요",
+                            "files": [],
+                            "requireSilence": false,
+                            "editable": false
+                        }
+                    ],
+                    "pageable": {
+                        "pageNumber": 0,
+                        "pageSize": 100,
+                        "sort": [
+                            {
+                                "direction": "DESC",
+                                "property": "startDate",
+                                "ignoreCase": false,
+                                "nullHandling": "NATIVE",
+                                "ascending": false,
+                                "descending": true
+                            }
+                        ],
+                        "offset": 0,
+                        "paged": true,
+                        "unpaged": false
+                    },
+                    "last": true,
+                    "totalElements": 8,
+                    "totalPages": 1,
+                    "first": true,
+                    "size": 100,
+                    "number": 0,
+                    "sort": [
+                        {
+                            "direction": "DESC",
+                            "property": "startDate",
+                            "ignoreCase": false,
+                            "nullHandling": "NATIVE",
+                            "ascending": false,
+                            "descending": true
+                        }
+                    ],
+                    "numberOfElements": 8,
+                    "empty": false
+                }
+            }
+        )
+    }),
     http.post(
         '/api/reserve/reservation', ({request})=> {
             return HttpResponse.json(

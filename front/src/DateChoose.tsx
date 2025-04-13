@@ -23,6 +23,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import PropTypes from 'prop-types'
 import {Navigate} from "react-router-dom";
 import type {Member, OffDay} from 'src/typedef'
+import Footer from "./components/Footer";
 
 const TabBarButton = styled(BottomNavigationAction)({
     color: '#e67e22',
@@ -219,16 +220,7 @@ const DateChoose: FC = () => {
                         messages={customMessages}
                     />
                 </Card>
-                <BottomNavigation
-                    showLabels={true}
-                    className='stickToBottom'
-                >
-
-                    <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon /> } onClick={() => navigate('/')} />
-                    <TabBarButton label="Main" color='primary' icon={<HomeIcon  />} onClick={() => navigate('/')} />
-                    <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon />} onClick={() => navigate('/my')}/>
-
-                </BottomNavigation>
+                <Footer backUrl={"/"}></Footer>
             </DateChooseContainer>
         </AppProvider>
     )

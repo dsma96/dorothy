@@ -7,13 +7,14 @@ import TimeTable from './TimeTable.tsx'
 import ReserveEdit from './ReserveEdit.tsx'
 import SignIn from "./Signin.tsx";
 import SignUp from "./SignUp";
-import Home from './Home';
+import Home from './ReserveHistory';
 import DateChoose from './DateChoose.tsx';
 import {Provider} from 'react-redux';
 import store from './redux/store';
 import { worker } from './mocks/browser';
 import EventHome from "./EventHome";
 import MyInfo from "./myInfo";
+import ReserveHistory from "./ReserveHistory";
 
 if (process.env.NODE_ENV === 'development') {
     worker.start()
@@ -36,7 +37,6 @@ createRoot(document.getElementById('root')!).render(
             <StrictMode>
                 <ThemeProvider theme={theme}>
                 <Routes>
-                    <Route path="/home" element={<Home/>}></Route>
                     <Route path="/" element={<EventHome/>}></Route>
                     <Route path="/time" element={<TimeTable/>}></Route>
                     <Route path="/login" element={<SignIn/>}></Route>
@@ -44,6 +44,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/signup" element={<SignUp/>}></Route>
                     <Route path="/my" element={<MyInfo/>}></Route>
                     <Route path="/dateChoose" element={<><DateChoose/></>}></Route>
+                    <Route path="/reserveHistory" element={<><ReserveHistory/></>}></Route>
                 </Routes>
                 </ThemeProvider>
             </StrictMode>

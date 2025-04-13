@@ -90,7 +90,21 @@ ul {
     min-width:180px!important;
     text-align: center!important;
 }
+.rbc-event-content{
+    font-size: 0.8em;
+}
 
+.rbc-event-label{
+    font-size: 0.8em!important;
+}
+.rbc-time-column .rbc-timeslot-group{
+    min-height:36px!important;
+}
+
+.rbc-time-slots{
+    line-height: 1.0;
+    padding:0px;
+}
 .rbc-event.rbc-event-allday{
     background-color: #e2c0ab;
     color: black;

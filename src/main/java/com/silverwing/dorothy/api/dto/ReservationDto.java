@@ -26,4 +26,5 @@ public class ReservationDto {
     private String memo;
     private boolean isRequireSilence;
     private List<UploadFileDto> files;
+    private int userId;
 }

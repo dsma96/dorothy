@@ -78,6 +78,7 @@ public class ReservationService {
                 .status( reservation.getStatus())
                 .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
+                .userId(reservation.getUserId())
                 .isRequireSilence((caller.isRootUser() || userId == reservation.getUserId()) && reservation.isRequireSilence())
                 .files( (caller.isRootUser() || userId == reservation.getUserId()) &&  reservation.getUploadFiles() != null ?  reservation.getUploadFiles().stream().map( r -> UploadFileDto.of(r)).toList() : Collections.emptyList() )
                 .build();

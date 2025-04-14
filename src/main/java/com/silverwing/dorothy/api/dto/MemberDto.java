@@ -11,16 +11,18 @@ public class MemberDto {
     String password;
     String email;
     String name;
+    String memo;
     int id;
     boolean isRootUser;
 
-    static MemberDto of(Member m){
+    public static MemberDto of(Member m){
         return MemberDto.builder()
                 .email(m.getEmail())
                 .name(m.getUsername())
                 .phone( m.getPhone())
                 .id(m.getUserId())
                 .isRootUser(m.isRootUser())
+                .memo( m.getMemo())
                 .build();
     }
 }

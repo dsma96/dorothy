@@ -123,15 +123,16 @@ export default function ReserveHistory() {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <ReserveHistoryContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined" style={ {overflowY:'scroll'}}>
-                    <img src={'./dorothy.png'} alt={'Dorothy'}/>
+                <img src={'./dorothy.png'} alt={'Dorothy'}/>
 
-                    <Typography
-                        component="h6"
-                        variant="h6"
-                    >
-                        Reservation History
-                    </Typography>
+                <Typography
+                    component="h6"
+                    variant="h6"
+                >
+                    Reservation History
+                </Typography>
+
+                <Card variant="outlined" style={{overflowY: 'scroll'}}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
@@ -139,7 +140,7 @@ export default function ReserveHistory() {
                                     <TableCell
                                         key={column.id}
                                         align={column.align}
-                                        style={{ minWidth: column.minWidth }}
+                                        style={{minWidth: column.minWidth}}
                                     >
                                         {column.label}
                                     </TableCell>
@@ -151,7 +152,7 @@ export default function ReserveHistory() {
                                 .slice(page * PAGE_PER_SIZE, page * PAGE_PER_SIZE + PAGE_PER_SIZE)
                                 .map((row, index) => {
                                     return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.startDate}            sx={{
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.startDate} sx={{
                                             backgroundColor: index % 2 === 0 ? '#ffffff' : '#fcf3cf', // White for even, light gray for odd
                                         }}>
                                             {columns.map((column) => {

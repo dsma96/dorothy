@@ -1,6 +1,7 @@
 package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.api.dto.OffDayDto;
+import com.silverwing.dorothy.api.dto.UpdateMemberInfoDto;
 import com.silverwing.dorothy.domain.Exception.UserException;
 import com.silverwing.dorothy.domain.entity.OffDay;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
@@ -44,6 +45,51 @@ public class UserController {
                 .isRootUser(newMember.isRootUser())
                 .build();
         return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseData<MemberDto>> getUser(@AuthenticationPrincipal Member member, @PathVariable int userId) {
+        if (member == null) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        if( !member.isRootUser() ) {
+            throw new AuthorizationDeniedException("Not enough permission");
+        }
+
+        Member loginUser  = userService.getMember(userId );
+        MemberDto memberDto = MemberDto.of(loginUser);
+
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),memberDto ),HttpStatus.OK);
+    }
+
+    /**
+     * Update userInfo by Root user. only root user can update other user info.
+     * @param member
+     * @param memberDto
+     * @param userId
+     * @return
+     */
+    @PutMapping("/{userId}/memo")
+    public ResponseEntity<ResponseData> updateUserMemo(@AuthenticationPrincipal Member member, @RequestBody UpdateMemberInfoDto memberDto, @PathVariable int userId) {
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Not enough permission");
+        }
+
+        Member loginUser  = userService.getMember(member.getUserId() );
+        if( memberDto.getMemo() == null || memberDto.getMemo().length() == 0 ) {
+            throw new UserException("Please check your memo");
+        }
+
+        if ( userId != memberDto.getId()) {
+            throw new UserException("Invalid parameter. ");
+        }
+
+        if( memberDto.getMemo().length() > 1024 ) {
+            throw new UserException("Memo is too long");
+        }
+        userService.updateUserMemo(userId, memberDto.getMemo());
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),memberDto ),HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
@@ -163,4 +209,6 @@ public class UserController {
         ).toList();
         return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
     }
+
+
 }

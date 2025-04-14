@@ -139,6 +139,14 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const [previewFile,setPreviewFile] = useState<UploadFile>();
     const [services, setServices] = useState <HairService[]>([]);
 
+    const [ customerInfo, setCustomerInfo] = useState<Member>({
+        phone: '',
+        name: '',
+        id: -1,
+        rootUser: false,
+        memo: ''
+    });
+
     let dispatch = useDispatch();
 
     const {getRootProps, getInputProps} = useDropzone({
@@ -219,7 +227,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                                 setServices(newServices);
                             }
                         }
-                        style={{marginTop: 0, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                        style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
                     />}
                 label={service.name+" $"+service.price}
             />
@@ -290,6 +298,19 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
         }
     }, [services, reservation]);
 
+    useEffect(()=>{
+        if( loginUser.rootUser && reservation.reservationId > 0) { // need to load available service
+            fetch('/api/user/'+reservation.userId)
+                .then((response) => response.json())
+                .then((data) => {
+                    setCustomerInfo(data.payload);
+                })
+                .catch((error) => {
+                    console.error('Error fetching services:', error);
+                });
+        }
+    },[reservation]);
+
     useEffect(() => {
         if( availableServices.length ==0 ) { // need to load available service
             fetch('/api/reserve/services')
@@ -335,6 +356,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
 
         return () => localFiles.forEach(file => URL.revokeObjectURL(file.preview));
     },[]);
+
 
 
     const handleCloseDialog=()=>{
@@ -390,6 +412,32 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
         return "SUCCESS";
     }
 
+    const saveUserMemo = (event) => {
+        event.preventDefault();
+
+        fetch(`/api/user/${customerInfo.id}/memo`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: customerInfo.id,
+                memo: customerInfo.memo
+            })
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        showDialog("Complete!", "고객 메모 저장 완료.", false);
+                    }
+                }
+            )
+            .catch(error => {
+                setDialogMessage(error.msg);
+                showDialog('Error',error.msg, false);
+            });
+    }
 
     const saveReserve = (event) => {
         event.preventDefault();
@@ -464,11 +512,20 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         const data = new FormData(event.currentTarget);
     };
+
     const handleMemoInput = e=>{
         setReservation({
             ...reservation,
             memo: e.target.value
         })
+    }
+
+    const handleUserMemoInput = e=>{
+        setCustomerInfo({
+            ...customerInfo,
+            memo: e.target.value
+        })
+
     }
 
     const handleCheckbox = (e)=>{
@@ -669,6 +726,24 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
                     <></>
                 }
 
+                {loginUser.rootUser &&
+                    <TextField
+                    placeholder="memo"
+                    multiline
+                    rows={2}
+                    value={customerInfo.memo}
+                    onChange={handleUserMemoInput}
+                />}
+                {loginUser.rootUser &&
+                    <Button
+                        type="submit"
+                        size="large"
+                        variant="contained"
+                        onClick={saveUserMemo}
+                     >
+                        메모저장
+                    </Button>
+                }
             </ReserveEditContainer>
         </AppProvider>
     );

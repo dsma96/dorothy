@@ -146,4 +146,10 @@ public class DorothyUserService  {
     public List<OffDay> getOffDays( Date StartDate, Date endDate ) {
         return offDayRepository.getOffDays(StartDate, endDate).orElseGet(Collections::emptyList);
     }
+
+    public void updateUserMemo( int userId, String memo) {
+        Member member = memberRepository.findById(userId).orElseThrow();
+        member.setMemo(memo);
+        memberRepository.save(member);
+    }
 }

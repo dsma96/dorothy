@@ -5,6 +5,9 @@ export interface Member {
     email?: string,
     password?: string,
     newPassword?: string
+    id: number,
+    rootUser: boolean,
+    memo?: string
 }
 
 export interface ReserveTimeEvent {
@@ -46,6 +49,7 @@ export interface Reservation{
     requireSilence: boolean,
     editable: boolean,
     files?: UploadFile[]
+    userId: number
 }
 
 export interface OffDay{

@@ -166,7 +166,7 @@ export const handlers = [
      }
     )
     ,
-    http.put('/api/user/:id',()=> {
+    http.put('/api/user/:id/memo',()=> {
         return HttpResponse.json(
             {
                 msg: "OK",
@@ -205,6 +205,7 @@ export const handlers = [
                             password: null,
                             email: "silverwing@gmail.com",
                             name: "Lemmy",
+                            "rootUser":true,
                             id: 2
                         }
                     }
@@ -227,7 +228,26 @@ export const handlers = [
                         password: null,
                         email: "silverwing@gmail.com",
                         name: "Lemmy",
-                        id:2
+                        id:2,
+                        rootUser:true
+                    }
+                }
+            )
+        }
+    ),
+    http.get('/api/user/:userId', async () => {
+            return HttpResponse.json(
+                {
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": {
+                        "phone": "6474060362",
+                        "password": null,
+                        "email": null,
+                        "name": "Lemmy Ma",
+                        "memo": "머리 잘못 파마했음",
+                        "id": 2,
+                        "rootUser": false
                     }
                 }
             )
@@ -264,7 +284,8 @@ export const handlers = [
                             "memo": "",
                             "files": [],
                             "requireSilence": false,
-                            "editable": false
+                            "editable": false,
+                            "userId":2
                         },
                         {
                             "reservationId": 2,
@@ -504,7 +525,8 @@ export const handlers = [
                         "services": [null],
                         "memo": "reserve1",
                         "editable": true,
-                        "requireSilence":true
+                        "requireSilence":true,
+                        "userId":2
                     }
                 }
             )
@@ -544,6 +566,7 @@ export const handlers = [
                             "endDate": today+"T14:00",
                             "createDate": "20250411T15:44",
                             "status": "CREATED",
+                            "userId":2,
                             "services": [
                                 {
                                     "serviceId": 2,
@@ -596,6 +619,7 @@ export const handlers = [
                         "startDate": "20250326T14:00",
                         "createDate": "20250319T01:09",
                         "status": "CREATED",
+                        "userId":2,
                         "services": [
                             {
                                 "serviceId": 2,
@@ -640,7 +664,8 @@ export const handlers = [
                             "status": "CREATED",
                             "services": [],
                             "editable": false,
-                            "requireSilence": true
+                            "requireSilence": true,
+                            "userId":3,
                         }
                 });
 

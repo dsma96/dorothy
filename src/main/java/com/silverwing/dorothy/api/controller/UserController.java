@@ -31,7 +31,9 @@ import java.util.List;
 public class UserController {
 
     private final DorothyUserService userService;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
     @PostMapping("/signup")
     public ResponseEntity<  ResponseData<MemberDto>> signup( @RequestBody MemberDto memberDto) {
 

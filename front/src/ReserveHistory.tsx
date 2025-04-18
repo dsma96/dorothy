@@ -15,19 +15,20 @@ import {Table, TableBody, TableCell, TableHead, TablePagination, TableRow} from 
 import {useEffect} from "react";
 
 interface Column {
-    id: 'startDate' | 'services' | 'status';
+    id: 'startDate' | 'services' ;
     label: string;
     minWidth?: number;
     align?: 'right';
     format?: (value: string) => string;
 }
 
-
 const columns: readonly Column[] = [
-    { id: 'startDate', label: 'Date', minWidth: 120,
-      format: (value: string) =>  moment(value,'YYYYMMDDTHH:mm').format('YYYY/MM/DD') ,
+    { id: 'startDate', label: 'Date', minWidth: 50,
+      format: (value: string) =>  moment(value,'YYYYMMDDTHH:mm').format('YY/MM/DD') ,
     },
-    { id: 'services', label: 'Services', minWidth: 140}
+    { id: 'services', label: 'Services', minWidth: 120
+    }
+
 ];
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -52,7 +53,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 const ReserveHistoryContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
     minHeight: '100%',
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(1),
     },

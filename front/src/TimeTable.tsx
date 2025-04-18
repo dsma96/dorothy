@@ -39,6 +39,28 @@ const TabBarButton = styled(BottomNavigationAction)({
     }
 });
 
+// Custom Toolbar Component
+const CustomToolbar = (toolbarProps) => {
+    const goToToday = () => {
+        toolbarProps.onNavigate('TODAY');
+    };
+    const navigate = useNavigate();
+    return (
+        <div className="rbc-toolbar">
+            <span className="rbc-btn-group">
+            <button onClick={() => navigate("/dateChoose")} style={{marginRight:'10px'}}>달력</button>
+                <button onClick={() => toolbarProps.onNavigate('PREV')}> &lt; 전날</button>
+                <button onClick={goToToday}>오늘</button>
+                <button onClick={() => toolbarProps.onNavigate('NEXT')}>다음 날 &gt;</button>
+            </span>
+            <span className="rbc-toolbar-label">{toolbarProps.label}</span>
+            <span className="rbc-btn-group">
+
+          </span>
+        </div>
+    );
+};
+
 
 const TimeTableContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
@@ -68,7 +90,7 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
 const TimeTable: FC = () => {
     const navigate = useNavigate();
     let now  = new Date();
-    const startDate = new Date(2025,3,5);
+
     const selectedDate: Date  = useSelector( state => state.date);
     const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();
@@ -183,7 +205,7 @@ const TimeTable: FC = () => {
 
         if( events != null && events.length > 0 ) {
             for (const ev of events) {
-                if (ev.start.getTime() == start.getTime()) {
+                if (ev.start.getTime() < end.getTime() && ev.end.getTime()  > start.getTime() ) {
                     find = true;
                     break;
                 }
@@ -194,7 +216,7 @@ const TimeTable: FC = () => {
             console.log("skip processing. ")
             return;
         }
-        if( start > new Date() && start > startDate )
+        if( start > new Date() )
             navigate("/reserve?start="+moment(start).format("YYYYMMDDTHH:mm"))
         else{
             // setPopupMessage("Please choose a date in the future")
@@ -284,6 +306,9 @@ const TimeTable: FC = () => {
                     style={{height: "90vh"}}
                     messages={customMessages}
                     draggableAccessor={event => false}
+                    components={{
+                        toolbar: CustomToolbar, // Use the custom toolbar
+                    }}
                 />
             </Card>
             <Footer backUrl={"/dateChoose"}></Footer>

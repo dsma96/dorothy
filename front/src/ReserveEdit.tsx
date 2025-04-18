@@ -17,7 +17,7 @@ import { useSearchParams } from "react-router-dom";
 import moment from 'moment'
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
-import {getServices} from './StoreHelper';
+
 
 import {
     CardActions,
@@ -30,8 +30,7 @@ import {
 } from "@mui/material";
 
 import { AppProvider } from '@toolpad/core/AppProvider';
-import type { Member } from 'src/typedef'
-import { HairService, Reservation, UploadFile } from "./typedef";
+import { HairService, Reservation, UploadFile, Member } from "./typedef";
 import {setAvailableServices} from "./redux/store";
 
 const thumbsContainer = {
@@ -121,7 +120,7 @@ const ReserveEditContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
-export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
+export default function ReserveEdit() {
     const loginUser: Member = useSelector(state => state.user.loginUser);
     const availableServices: HairService[] = useSelector(state => state.config.services);
 
@@ -329,7 +328,7 @@ export default function ReserveEdit(props: { disableCustomTheme?: boolean }) {
             const newReservation = {
                 ...reservation,
                 startDate: startDateString
-            }
+            } as Reservation;
             setReservation( newReservation);
         }
         else if( searchParams.get("regId")){

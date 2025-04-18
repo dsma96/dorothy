@@ -205,7 +205,7 @@ export const handlers = [
                             password: null,
                             email: "silverwing@gmail.com",
                             name: "Lemmy",
-                            "rootUser":true,
+                            "rootUser":false,
                             id: 2
                         }
                     }
@@ -229,7 +229,7 @@ export const handlers = [
                         email: "silverwing@gmail.com",
                         name: "Lemmy",
                         id:2,
-                        rootUser:true
+                        rootUser:false
                     }
                 }
             )

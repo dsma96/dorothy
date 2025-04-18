@@ -30,7 +30,7 @@ public class NotificationService {
     private final MessageResourceService messageResourceService;
 
 
-    static final String VERIFY_PHONE=" k-hair.ca verification code: %s";
+    static final String VERIFY_PHONE=" ktime.ca verification code: %s";
 
     private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 HH시mm분");
     private SimpleDateFormat shortSdf = new SimpleDateFormat("HH시 mm분");

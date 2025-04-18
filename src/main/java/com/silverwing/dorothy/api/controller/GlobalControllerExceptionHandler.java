@@ -1,5 +1,6 @@
 package com.silverwing.dorothy.api.controller;
 
+import com.silverwing.dorothy.domain.Exception.CouponException;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.Exception.UserException;
 import com.silverwing.dorothy.domain.Exception.VerifyException;
@@ -24,15 +25,11 @@ class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ReserveException.class)
+    @ExceptionHandler({ReserveException.class, CouponException.class, UserException.class})
     public ResponseEntity< ResponseData> handleReserveException(Exception e) {
         return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity< ResponseData> handleUserException(Exception e) {
-        return new ResponseEntity<>(new ResponseData<>(e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(VerifyException.class)
     public ResponseEntity< ResponseData> handleVerifyException(Exception e) {

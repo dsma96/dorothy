@@ -25,6 +25,28 @@ import {Navigate} from "react-router-dom";
 import type {Member, OffDay} from 'src/typedef'
 import Footer from "./components/Footer";
 
+
+// Custom Toolbar Component
+const CustomToolbar = (toolbarProps) => {
+    const goToToday = () => {
+        toolbarProps.onNavigate('TODAY');
+    };
+    const navigate = useNavigate();
+    return (
+        <div className="rbc-toolbar">
+            <span className="rbc-btn-group">
+                <button onClick={() => toolbarProps.onNavigate('PREV')}> &lt; 이전 달</button>
+                <button onClick={goToToday}>이번 달</button>
+                <button onClick={() => toolbarProps.onNavigate('NEXT')}>다음 달 &gt;</button>
+            </span>
+            <span className="rbc-toolbar-label">{toolbarProps.label}</span>
+            <span className="rbc-btn-group">
+
+          </span>
+        </div>
+    );
+};
+
 const TabBarButton = styled(BottomNavigationAction)({
     color: '#e67e22',
     '.Mui-selected, svg':{
@@ -89,6 +111,7 @@ const DateChoose: FC = () => {
         () => ({
             components: {
                 timeSlotWrapper: ColoredDateCellWrapper,
+                toolbar: CustomToolbar
             },
             defaultDate:today,
             views: Object.keys(Views).map((k) => Views[k]),

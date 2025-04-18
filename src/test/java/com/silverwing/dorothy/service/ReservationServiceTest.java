@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,7 +23,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
@@ -69,6 +67,10 @@ public class ReservationServiceTest {
         MockitoAnnotations.openMocks(this);
         when(reservationServiceProvider.getObject()).thenReturn(reservationService);
         when( hairServiceRepository.getAvailableServices()).thenReturn(Optional.of(hairServices));
+
+
+        when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn( Optional.of(hairServices));
+
     }
 
     @Test
@@ -159,4 +161,7 @@ public class ReservationServiceTest {
         assertEquals(reqDto.getMemo(), updatedReservation.getMemo());
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
+
+
+
 }

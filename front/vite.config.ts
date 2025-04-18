@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     watch: {
       usePolling: true
-    }
+    },
+
   },
   plugins: [react({
         include: "**/*.tsx"

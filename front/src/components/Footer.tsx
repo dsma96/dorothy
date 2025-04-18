@@ -3,10 +3,8 @@ import BottomNavigation from "@mui/material/BottomNavigation";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import HomeIcon from "@mui/icons-material/Home";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import {FC} from "react";
 import {styled} from "@mui/material/styles";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
-import {Navigate} from "react-router-dom";
 import {useNavigate} from "react-router";
 import { Menu, MenuItem } from '@mui/material';
 
@@ -21,7 +19,6 @@ const TabBarButton = styled(BottomNavigationAction)({
         color: '#e67e22',
     }
 });
-
 
 
 export default function  Footer({backUrl, showMyInfo}: FooterProps) {
@@ -40,30 +37,30 @@ export default function  Footer({backUrl, showMyInfo}: FooterProps) {
             showLabels={true}
             className='stickToBottom'
         >
-            <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon/>} onClick={() => navigate("BACK" == backUrl ? -1 : backUrl)}/>
+            <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon/>} onClick={ handleClick} />
+            <Menu
+                id="demo-positioned-menu"
+                aria-labelledby="demo-positioned-button"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+            >
+                {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/reserveHistory")}>My Reserv</MenuItem>}
+                <MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>
+            </Menu>
             <TabBarButton label="Main" color='primary' icon={<HomeIcon/>} onClick={() => navigate('/')}/>
 
 
-                <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon/>} onClick={ handleClick} />
-                <Menu
-                    id="demo-positioned-menu"
-                    aria-labelledby="demo-positioned-button"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                    }}
-                >
-                    {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/reserveHistory")}>My Reserv</MenuItem>}
-                          <MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>
-                </Menu>
 
+            <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon/>} onClick={() => navigate("BACK" == backUrl ? -1 : backUrl)}/>
         </BottomNavigation>
     )
 }

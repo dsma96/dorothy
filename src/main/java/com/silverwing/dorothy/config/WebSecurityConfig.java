@@ -56,7 +56,9 @@ public class WebSecurityConfig {
                                 "/api/login/login",
                                 "/api/user/signup",
                                 "/api/verify/request",
-                                "/api/verify/match")
+                                "/api/verify/match",
+                                "/actuator/**"
+                        )
                             .permitAll()
                         .anyRequest().authenticated()
                 )

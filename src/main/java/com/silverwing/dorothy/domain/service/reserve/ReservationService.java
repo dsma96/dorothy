@@ -159,7 +159,7 @@ public class ReservationService {
         Date startDate = parseStartDate(reqDto.getStartTime());
         Date endDate = calculateServiceTime(reqDto, startDate);
 
-        validateReservationTime(reqDto, startDate, endDate, reservation.getRegId());
+        validateReservationTime(reqDto.getDesigner(), startDate, endDate, reservation.getRegId());
         handleFileUploads(reservation, reqDto, files);
 
         reservation.setMemo(reqDto.getMemo());
@@ -191,7 +191,7 @@ public class ReservationService {
         }
 
         Date endDate = calculateServiceTime(reqDto, startDate);
-        validateReservationTime(reqDto, startDate, endDate, -1);
+        validateReservationTime(reqDto.getDesigner(), startDate, endDate, -1);
 
         Reservation reservation = new Reservation();
         reservation.setMemo(reqDto.getMemo());
@@ -223,10 +223,10 @@ public class ReservationService {
         }
     }
 
-    private void validateReservationTime(ReservationRequestDTO reqDto, Date startDate, Date endDate, int excludeId) {
+    private void validateReservationTime(int designerId, Date startDate, Date endDate, int excludeId) {
         String startDateDayOnly = dayOnly.format(startDate);
         try {
-            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), reqDto.getDesigner());
+            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), designerId);
             if (offDayRepository.findById(offId).isPresent()) {
                 throw new ReserveException("Designer is having an off day");
             }
@@ -234,7 +234,7 @@ public class ReservationService {
             throw new ReserveException(e.getMessage());
         }
 
-        List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner(reqDto.getDesigner(), startDate, endDate, excludeId)
+        List<Reservation> duplicatedReserve = reservationRepository.findAllWithDateOnDesigner(designerId, startDate, endDate, excludeId)
                 .orElseGet(Collections::emptyList);
 
         if (!duplicatedReserve.isEmpty()) {
@@ -300,4 +300,21 @@ public class ReservationService {
     public Page<Reservation> getHistory(int userId, Pageable pageable) {
         return reservationRepository.findByUserIdAndStatusCreated(userId, pageable);
     }
+
+    public Reservation adjustReservationPeriod(int regId, int amount, int rootUserId) throws ReserveException{
+        Reservation r = getReservation( regId).orElseThrow();
+        int originPeriod = (int)(r.getEndDate().getTime() - r.getStartDate().getTime()) / 1000 /60;
+        Date newEnd = new Date( r.getEndDate().getTime() + amount * 60 * 1000 );
+
+        if( originPeriod + amount <= 0 ){
+            throw new ReserveException("Can't reduce the period.");
+        }
+
+        validateReservationTime( r.getDesignerId(), r.getStartDate(), newEnd , regId);
+        r.setEndDate( newEnd);
+        r.setModifyDate(new Date());
+        r.setModifier( rootUserId );
+        return reservationRepository.save(r);
+    }
+
 }

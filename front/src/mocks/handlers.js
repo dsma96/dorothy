@@ -205,7 +205,7 @@ export const handlers = [
                             password: null,
                             email: "silverwing@gmail.com",
                             name: "Lemmy",
-                            "rootUser":false,
+                            "rootUser":true,
                             id: 2
                         }
                     }
@@ -229,7 +229,7 @@ export const handlers = [
                         email: "silverwing@gmail.com",
                         name: "Lemmy",
                         id:2,
-                        rootUser:false
+                        rootUser:true
                     }
                 }
             )
@@ -616,7 +616,8 @@ export const handlers = [
                         "reservationId": 28,
                         "userName": "동석",
                         "phone": "6474060364",
-                        "startDate": "20250326T14:00",
+                        "startDate": "20250326T13:00",
+                        "endDate": "20250326T14:00",
                         "createDate": "20250319T01:09",
                         "status": "CREATED",
                         "userId":2,
@@ -814,4 +815,51 @@ export const handlers = [
             )
         }
     ),
+    http.put('/api/reserve/:op/:id',() => {
+    // ...and respond to them using this JSON response.
+    return HttpResponse.json(
+        {
+            "msg": "OK",
+            "code": 200,
+            "payload": {
+                "reservationId": 1,
+                "userName": "Aiden",
+                "phone": "2892440503",
+                "startDate": "20250411T15:00",
+                "endDate": "20250411T15:30",
+                "createDate": "20250418T16:15",
+                "status": "CREATED",
+                "services": [
+                    {
+                        "serviceId": 1,
+                        "name": "남자 헤어컷",
+                        "mandatory": false,
+                        "idx": 10,
+                        "defaultValue": false,
+                        "serviceTime": 30,
+                        "price": 16.0,
+                        "visible": true,
+                        "use": true
+                    },
+                    {
+                        "serviceId": 3,
+                        "name": "남자 다운펌 (커트포함)",
+                        "mandatory": false,
+                        "idx": 30,
+                        "defaultValue": false,
+                        "serviceTime": 60,
+                        "price": 40.0,
+                        "visible": true,
+                        "use": true
+                    }
+                ],
+                "memo": "첫예약",
+                "files": [],
+                "userId": 3,
+                "editable": false,
+                "requireSilence": false
+            }
+        }
+    )
+})
 ]

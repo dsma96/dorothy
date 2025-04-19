@@ -411,6 +411,32 @@ export default function ReserveEdit() {
         return "SUCCESS";
     }
 
+    function adjustReservation (amount : number){
+        let op = amount > 0 ? 'extend' : 'shrink';
+
+        fetch(`/api/reserve/${op}/${reservation.reservationId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })  .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        console.log(JSON.stringify(data.payload));
+                        setReservation( data.payload);
+                        showDialog("Complete!", "시간 조정 완료", false);
+                    }else{
+                        showDialog("Error",data.msg,false);
+                    }
+                }
+            )
+            .catch(error => {
+                setDialogMessage(error.msg);
+                showDialog('Error',error.msg, false);
+            });
+    }
+
     const saveUserMemo = (event) => {
         event.preventDefault();
 
@@ -655,6 +681,51 @@ export default function ReserveEdit() {
                                 닫기
                             </Button>
                         </CardActions>
+                        {loginUser.rootUser &&
+                            <TextField
+                                placeholder="memo"
+                                multiline
+                                rows={2}
+                                value={customerInfo.memo}
+                                onChange={handleUserMemoInput}
+                            />}
+                        {loginUser.rootUser &&
+                            <Button
+                                type="submit"
+                                size="large"
+                                variant="contained"
+                                onClick={saveUserMemo}
+                            >
+                                메모저장
+                            </Button>
+                        }
+
+                        {loginUser.rootUser &&
+                            <CardActions  sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}>
+                                { ((moment(reservation.endDate,'YYYYMMDDTHH:mm').toDate().getTime() - moment(reservation.startDate,'YYYYMMDDTHH:mm').toDate().getTime()) / 1000 / 60 ) +' 분 ' }
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    onClick={()=>adjustReservation(30)}
+                                    disabled={!reservation.editable || reservation.reservationId == -1}
+                                >
+                                    30분+
+                                </Button>
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    onClick={()=>adjustReservation(-30)}
+                                    color="info"
+                                    disabled={!reservation.editable || reservation.reservationId == -1}
+                                >
+                                    30분 -
+                                </Button>
+                            </CardActions>
+                        }
+
                     </Box>
                 </Card>
                 <Dialog
@@ -725,24 +796,7 @@ export default function ReserveEdit() {
                     <></>
                 }
 
-                {loginUser.rootUser &&
-                    <TextField
-                    placeholder="memo"
-                    multiline
-                    rows={2}
-                    value={customerInfo.memo}
-                    onChange={handleUserMemoInput}
-                />}
-                {loginUser.rootUser &&
-                    <Button
-                        type="submit"
-                        size="large"
-                        variant="contained"
-                        onClick={saveUserMemo}
-                     >
-                        메모저장
-                    </Button>
-                }
+
             </ReserveEditContainer>
         </AppProvider>
     );

@@ -20,7 +20,7 @@ public class CacheConfig {
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES)
                 .maximumSize(100));
-        cacheManager.setCacheNames(List.of("reservation","member","offday","openday","hairservice","availableDesigners","messages"));
+        cacheManager.setCacheNames(List.of("reservation","member","member_phone","offday","openday","hairservice","availableDesigners","messages"));
         cacheManager.setAllowNullValues(false);
         return cacheManager;
     }

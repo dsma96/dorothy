@@ -2,14 +2,14 @@ package com.silverwing.dorothy.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.silverwing.dorothy.domain.dao.ReservationRepository;
-import com.silverwing.dorothy.domain.service.reserve.ReservationService;
-import com.silverwing.dorothy.domain.Exception.ReserveException;
-import com.silverwing.dorothy.domain.entity.Member;
-import com.silverwing.dorothy.domain.entity.HairServices;
-import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
+import com.silverwing.dorothy.domain.Exception.ReserveException;
+import com.silverwing.dorothy.domain.dao.ReservationRepository;
+import com.silverwing.dorothy.domain.entity.HairServices;
+import com.silverwing.dorothy.domain.entity.Member;
+import com.silverwing.dorothy.domain.entity.Reservation;
+import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -175,6 +175,31 @@ public class ReserveController {
                 HttpStatus.OK
         );
     }
+
+
+
+    @PutMapping("/extend/{regId}")
+    public ResponseEntity<ResponseData<ReservationDto>> extendReservation(
+            @AuthenticationPrincipal Member member, @PathVariable int regId) {
+            if (member == null || !member.isRootUser()) {
+                throw new AuthenticationCredentialsNotFoundException("Permission Error");
+            }
+        Reservation r = reservationService.adjustReservationPeriod(regId, 30, member.getUserId());
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
+    }
+
+    @PutMapping("/shrink/{regId}")
+    public ResponseEntity<ResponseData<ReservationDto>> shrinkReservation(
+            @AuthenticationPrincipal Member member, @PathVariable int regId) {
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Permission Error");
+        }
+
+        Reservation r = reservationService.adjustReservationPeriod(regId, -30, member.getUserId());
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
+    }
+
+
 
 }
 

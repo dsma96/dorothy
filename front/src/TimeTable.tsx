@@ -28,7 +28,7 @@ import  './App.css'
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
 import   'moment-timezone';
-import {setUser} from "./redux/store";
+import {setDate, setUser} from "./redux/store";
 import Footer from './components/Footer';
 const defaultTZ = moment.tz.guess();
 
@@ -101,6 +101,8 @@ const TimeTable: FC = () => {
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
+    let dispatch = useDispatch();
+
 
     function refreshAvailableDesigner(dateStr){
         const url = `/api/user/${dateStr}/designers`;
@@ -252,6 +254,7 @@ const TimeTable: FC = () => {
 
     const handleDayChange = ( newDate: Date ) =>{
         setToday(newDate);
+        dispatch( setDate( newDate ))
     }
 
     const customMessages = {

@@ -84,12 +84,12 @@ public class DorothyUserService  {
             throw new UsernameNotFoundException("Disabled user "+phone);
     }
 
-    @Cacheable( key = "#phone", unless="#result == null")
+    @Cacheable(cacheNames = "member_phone", key = "#phone", unless="#result == null")
     public Member getMember( String phone ) throws AuthenticationException {
         return memberRepository.findMemberByPhone( phone ).orElseThrow( () -> new UsernameNotFoundException("Can't find "+phone) );
     }
 
-    @Cacheable
+    @Cacheable( cacheNames = "member" , key="#memberId")
     public Member getMember(int memberId)  {
         return memberRepository.findById( memberId ).orElseThrow();
     }
@@ -126,7 +126,7 @@ public class DorothyUserService  {
         return memberRepository.save( member );
     }
 
-    @CacheEvict(key="#member.phone")
+    @CacheEvict(key="#member.userId")
     public Member updateUser( Member member) throws UserException{
         return memberRepository.save( member );
     }
@@ -147,6 +147,7 @@ public class DorothyUserService  {
         return offDayRepository.getOffDays(StartDate, endDate).orElseGet(Collections::emptyList);
     }
 
+    @CacheEvict(cacheNames="member", key="#userId")
     public void updateUserMemo( int userId, String memo) {
         Member member = memberRepository.findById(userId).orElseThrow();
         member.setMemo(memo);

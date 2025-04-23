@@ -52,6 +52,12 @@ export interface Reservation{
     userId: number
 }
 
+export interface Stamp{
+    serviceDate:string,
+    stampCount: number,
+    userId: number,
+}
+
 export interface OffDay{
     offDay: string,
     designer: number

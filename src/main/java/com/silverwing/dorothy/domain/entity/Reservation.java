@@ -65,9 +65,8 @@ public class Reservation {
     @Column(name="stamp_count")
     int stampCount;
 
-    @Column(name="coupon_converted")
-    @Convert(converter = YesNoConverter.class)
-    boolean couponConverted;
+    @Column(name="coupon_id")
+    int couponId;
 
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;

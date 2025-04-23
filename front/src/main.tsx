@@ -14,10 +14,12 @@ import store from './redux/store';
 import { worker } from './mocks/browser';
 import EventHome from "./EventHome";
 import MyInfo from "./myInfo";
+import Stamps from "./Stamps";
+
 import ReserveHistory from "./ReserveHistory";
 
-if (process.env.NODE_ENV === 'development') {
-    worker.start()
+if (process.env.NODE_ENV === 'development' ) {
+/*    worker.start() */
 }
 
 const theme = createTheme({
@@ -45,6 +47,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/my" element={<MyInfo/>}></Route>
                     <Route path="/dateChoose" element={<><DateChoose/></>}></Route>
                     <Route path="/reserveHistory" element={<><ReserveHistory/></>}></Route>
+                    <Route path="/stamp" element={<Stamps/>}></Route>
                 </Routes>
                 </ThemeProvider>
             </StrictMode>

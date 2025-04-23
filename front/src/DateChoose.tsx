@@ -140,7 +140,7 @@ const DateChoose: FC = () => {
                             if (data.payload && data.payload.length > 0) {
                                 const today = new Date();
                                 let startDate  = new Date( date.getFullYear(), date.getMonth(), 1);
-                                if( startDate.getTime() < today.getTime()){
+                                if( startDate.getTime() < today.getTime() && !loginUser.rootUser){
                                     startDate = new Date( today.getFullYear(), today.getMonth(), today.getDate());
                                 }
 
@@ -168,7 +168,6 @@ const DateChoose: FC = () => {
                                             id: -1,
                                         }
                                         newEvents.push(tableEvent);
-
                                     }
 
                                     setEvents(

@@ -176,8 +176,6 @@ public class ReserveController {
         );
     }
 
-
-
     @PutMapping("/extend/{regId}")
     public ResponseEntity<ResponseData<ReservationDto>> extendReservation(
             @AuthenticationPrincipal Member member, @PathVariable int regId) {
@@ -198,9 +196,6 @@ public class ReserveController {
         Reservation r = reservationService.adjustReservationPeriod(regId, -30, member.getUserId());
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
     }
-
-
-
 }
 
 

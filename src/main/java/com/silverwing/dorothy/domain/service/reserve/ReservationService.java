@@ -14,6 +14,7 @@ import com.silverwing.dorothy.domain.type.FileUploadStatus;
 import com.silverwing.dorothy.domain.type.ReservationStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,6 +151,7 @@ public class ReservationService {
     }
 
     @Transactional
+    @Synchronized
     public Reservation updateReservation(Reservation reservation, ReservationRequestDTO reqDto, Member customer, MultipartFile[] files) {
         if (reqDto.getServiceIds() == null || reqDto.getServiceIds().isEmpty()) {
             throw new ReserveException("Reservation should have at least one service");
@@ -178,6 +180,7 @@ public class ReservationService {
     }
 
     @Transactional
+    @Synchronized
     public Reservation createReservation(ReservationRequestDTO reqDto, Member customer, MultipartFile[] files) {
         if (reqDto.getServiceIds() == null || reqDto.getServiceIds().isEmpty()) {
             throw new ReserveException("Reservation should have at least one service");
@@ -205,6 +208,8 @@ public class ReservationService {
         reservation.setModifier(customer.getUserId());
         reservation.setRequireSilence(reqDto.isRequireSilence());
         reservation.setUser(customer);
+        reservation.setStampCount(1);
+        reservation.setCouponId(0);
         Reservation persistedReservation = reservationRepository.save(reservation);
 
         updateServiceMappings(reqDto, persistedReservation);

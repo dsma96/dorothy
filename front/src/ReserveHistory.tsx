@@ -6,7 +6,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
 
-
 import * as React from "react";
 import {useNavigate} from "react-router";
 import Footer from "./components/Footer";
@@ -81,7 +80,6 @@ export default function ReserveHistory() {
     const [page, setPage] = React.useState(0);
     const PAGE_PER_SIZE = 100;
     const [rows, setRows] = React.useState<Reservation[]>([]);
-
 
     const fetchData = (page = 0  ) => {
         const url = `/api/reserve/history?page=${page}&size=${PAGE_PER_SIZE}`;

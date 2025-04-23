@@ -1,6 +1,5 @@
 package com.silverwing.dorothy.domain.service.notification;
 
-
 import com.silverwing.dorothy.domain.entity.VerifyRequest;
 import com.silverwing.dorothy.domain.external.TwilioMessageSender;
 import com.silverwing.dorothy.domain.entity.Member;
@@ -19,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,11 +27,10 @@ public class NotificationService {
     private final DorothyUserService userService;
     private final MessageResourceService messageResourceService;
 
-
     static final String VERIFY_PHONE=" ktime.ca verification code: %s";
 
-    private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 HH시mm분");
-    private SimpleDateFormat shortSdf = new SimpleDateFormat("HH시 mm분");
+    private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 hh시mm분");
+    private SimpleDateFormat shortSdf = new SimpleDateFormat("hh시 mm분");
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -109,7 +106,6 @@ public class NotificationService {
             log.error(e.getMessage());
         }
     }
-
 
     public void sendSMSAsync(String to, String from , String message) {
         try {

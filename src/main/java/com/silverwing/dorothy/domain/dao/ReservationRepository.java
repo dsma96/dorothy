@@ -1,13 +1,16 @@
 package com.silverwing.dorothy.domain.dao;
 
+import com.silverwing.dorothy.api.dto.StampDto;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.awt.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +20,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r From Reservation r WHERE r.userId = :userId and r.startDate between :startDate and :endDate and r.status != 'CANCELED'" )
     Optional<List<Reservation>> findAllWithStartDate(@Param("userId")int userId, @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
-    @Query("SELECT r From Reservation r WHERE r.startDate between :startDate and :endDate and r.status != 'CANCELED'" )
+    @Query("SELECT r From Reservation r WHERE r.startDate < :endDate and r.endDate > :startDate and r.status != 'CANCELED'" )
     Optional<List<Reservation>> findAllWithStartDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
     @Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate < :endDate and  r.endDate  > :startDate and r.status != 'CANCELED' and r.regId != :exclude")
@@ -26,11 +29,22 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r FROM Reservation r WHERE r.userId = :userId AND r.status IN ('CREATED', 'COMPLETED') ")
     Page<Reservation> findByUserIdAndStatusCreated(@Param("userId") int userId, Pageable pageable);
 
-    @Query("SELECT r FROM Reservation r WHERE r.userId = :userId AND r.status IN ('CREATED', 'COMPLETED') and r.stampCount > 0 and r.couponConverted = false order by r.startDate DESC")
-    Optional<List<Reservation>> getStamps(@Param("userId") int userId);
+//    @Query("SELECT r FROM Reservation r WHERE r.userId = :userId AND r.startDate < :until AND r.status IN ('CREATED', 'COMPLETED') and r.stampCount > 0 and r.couponConverted = false order by r.startDate")
+    @Query(nativeQuery = true,
+            value="select r.user_id as userId, DATE_FORMAT(r.start_date,'%y/%m/%d') as serviceDate, max(r.stamp_count) as stampCount from reservation r  "+
+                    "where r.user_id = :userId and r.start_date < :until AND r.status IN ('CREATED', 'COMPLETED') and r.stamp_count > 0 and r.coupon_id = 0 "+
+                    "GROUP BY r.user_id, DATE_FORMAT(r.start_date, '%y/%m/%d') " +
+                    "ORDER BY r.start_date "+
+                    "LIMIT :maxRows"
+    )
+
+    Optional<List<StampDto>> getStamps(@Param("userId") int userId, @Param("until") Date until, @Param("maxRows") int maxRows);
 
     @Modifying
-    @Query("UPDATE Reservation r SET r.couponConverted = true WHERE r.stampCount > 0 AND r.couponConverted = false and r.userId = :userId AND r.status IN ('CREATED', 'COMPLETED')")
-    int convertStampToCoupon(@Param("userId")int userId);
+    @Query(nativeQuery = true,
+            value= "UPDATE reservation r SET r.coupon_id = :couponId "+
+                    "WHERE r.stamp_count > 0 AND r.coupon_id = 0 "+
+                    " and r.user_id = :userId and  date_format( start_date,'%y/%m/%d') in ( :dates ) AND r.status IN ('CREATED', 'COMPLETED')")
+    int convertStampToCoupon(@Param("userId")int userId, @Param("dates") List<String> dates, @Param("couponId") int couponId);
 
 }

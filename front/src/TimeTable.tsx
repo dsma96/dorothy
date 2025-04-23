@@ -98,11 +98,12 @@ const TimeTable: FC = () => {
     const [popupMessage, setPopupMessage] = useState<string>();
     const [today, setToday] = useState<Date>( selectedDate.date  );
     const [isOffday, setIsOffday] = useState(false);
+
     if( loginUser.id < 0){
        return <Navigate to ="/login?ret=time"/>
     }
-    let dispatch = useDispatch();
 
+    let dispatch = useDispatch();
 
     function refreshAvailableDesigner(dateStr){
         const url = `/api/user/${dateStr}/designers`;
@@ -234,8 +235,8 @@ const TimeTable: FC = () => {
             return;
         }
 
-        if( evt.start < now && loginUser.rootUser == false) {
-            console.log(JSON.stringify(evt));
+        if( evt.end < now && loginUser.rootUser == false) {
+            console.log("now"+ now+" "+JSON.stringify(evt));
             return;
         }
         if( (evt.editable !== true ) && loginUser.rootUser !== true) {
@@ -293,7 +294,7 @@ const TimeTable: FC = () => {
                             today.getFullYear(),
                             today.getMonth(),
                             today.getDate(),
-                            19,0
+                            18,30
                         )
                     }
                     views={['day']}

@@ -11,6 +11,7 @@ import { Menu, MenuItem } from '@mui/material';
 interface FooterProps{
     backUrl: string; // back button url
     showMyInfo?: boolean;
+    showMyStamp?:boolean;
 }
 
 const TabBarButton = styled(BottomNavigationAction)({
@@ -21,7 +22,7 @@ const TabBarButton = styled(BottomNavigationAction)({
 });
 
 
-export default function  Footer({backUrl, showMyInfo}: FooterProps) {
+export default function  Footer({backUrl, showMyInfo, showMyStamp}: FooterProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -53,12 +54,11 @@ export default function  Footer({backUrl, showMyInfo}: FooterProps) {
                     horizontal: 'left',
                 }}
             >
-                {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/reserveHistory")}>My Reserv</MenuItem>}
+                {showMyStamp == false ? null : <MenuItem onClick={()=>navigate("/stamp")}>My Stamp</MenuItem>}
+                {/*{showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/reserveHistory")}>My Reserv</MenuItem>}*/}
                 <MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>
             </Menu>
             <TabBarButton label="Main" color='primary' icon={<HomeIcon/>} onClick={() => navigate('/')}/>
-
-
 
             <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon/>} onClick={() => navigate("BACK" == backUrl ? -1 : backUrl)}/>
         </BottomNavigation>

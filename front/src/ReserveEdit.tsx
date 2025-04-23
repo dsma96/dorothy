@@ -17,8 +17,6 @@ import { useSearchParams } from "react-router-dom";
 import moment from 'moment'
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
-
-
 import {
     CardActions,
     Dialog,
@@ -137,6 +135,9 @@ export default function ReserveEdit() {
     const [openPreviewDialog, setOpenPreviewDialog] = useState(false);
     const [previewFile,setPreviewFile] = useState<UploadFile>();
     const [services, setServices] = useState <HairService[]>([]);
+    const [stampCount, setStampCount] = useState<number>(0);
+
+    let buttonClicked = false;
 
     const [ customerInfo, setCustomerInfo] = useState<Member>({
         phone: '',
@@ -171,7 +172,8 @@ export default function ReserveEdit() {
         editable:true,
         memo:'',
         phone: loginUser.phone,
-        requireSilence: false
+        requireSilence: false,
+        userId: -1
     });
 
     const localThumbs = localFiles.map(file => (
@@ -307,6 +309,17 @@ export default function ReserveEdit() {
                 .catch((error) => {
                     console.error('Error fetching services:', error);
                 });
+
+            fetch(`/api/coupon/${reservation.userId}/stampAmount`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if( data.code == 200)
+                        setStampCount(data.payload);
+                })
+                .catch((error) => {
+                    console.error('Error fetching services:', error);
+                });
+
         }
     },[reservation]);
 
@@ -355,8 +368,6 @@ export default function ReserveEdit() {
 
         return () => localFiles.forEach(file => URL.revokeObjectURL(file.preview));
     },[]);
-
-
 
     const handleCloseDialog=()=>{
         setOpenDialog(false);
@@ -409,6 +420,29 @@ export default function ReserveEdit() {
             return "예약할 서비스를 선택해주세요";
         }
         return "SUCCESS";
+    }
+
+    const useCoupon = ()=>{
+        fetch(`/api/coupon/${reservation.userId}/coupon?regId=${reservation.reservationId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })  .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        setStampCount(data.payload);
+                        showDialog("Success",'쿠폰이 적용되었습니다',false);
+                    }else{
+                        showDialog("Error",data.msg,false);
+                    }
+                }
+            )
+            .catch(error => {
+                setDialogMessage(error.msg);
+                showDialog('Error',error.msg, false);
+            });
     }
 
     function adjustReservation (amount : number){
@@ -466,9 +500,16 @@ export default function ReserveEdit() {
 
     const saveReserve = (event) => {
         event.preventDefault();
+
+        if( buttonClicked == false)
+            buttonClicked = true;
+        else
+            return;
+
         let msg = validateInput();
         if( msg != "SUCCESS"){
             showDialog('Error',msg, false);
+            buttonClicked = false;
             return;
         }
         let serviceIds: number[] = [];
@@ -477,7 +518,6 @@ export default function ReserveEdit() {
                 serviceIds.push( service.serviceId);
             }
         });
-
 
         const reqDto = {
             startTime: reservation.startDate,
@@ -524,12 +564,12 @@ export default function ReserveEdit() {
                         setOpenDialog(true);
                         setHasError(true);
                     }
+                    buttonClicked = false;
                 }
             )
             .catch(error => {
                 navigate(-1);
             });
-
     };
 
     const navigate = useNavigate();
@@ -659,7 +699,7 @@ export default function ReserveEdit() {
                                 size="large"
                                 variant="contained"
                                 onClick={saveReserve}
-                                disabled={!reservation.editable }
+                                disabled={!reservation.editable || buttonClicked }
                             >
                                 {reservation.reservationId > 0 ? '수정' : '예약'}
                             </Button>
@@ -681,25 +721,7 @@ export default function ReserveEdit() {
                                 닫기
                             </Button>
                         </CardActions>
-                        {loginUser.rootUser &&
-                            <TextField
-                                placeholder="memo"
-                                multiline
-                                rows={2}
-                                value={customerInfo.memo}
-                                onChange={handleUserMemoInput}
-                            />}
-                        {loginUser.rootUser &&
-                            <Button
-                                type="submit"
-                                size="large"
-                                variant="contained"
-                                onClick={saveUserMemo}
-                            >
-                                메모저장
-                            </Button>
-                        }
-
+                        <Divider/>
                         {loginUser.rootUser &&
                             <CardActions  sx={{
                                 display: 'flex',
@@ -723,8 +745,41 @@ export default function ReserveEdit() {
                                 >
                                     30분 -
                                 </Button>
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    color="error"
+                                    disabled={stampCount < 10}
+                                    onClick={useCoupon}
+                                    style={{
+                                        marginLeft:'25px'
+                                    }}
+                                >
+                                    쿠폰사용
+                                </Button>
                             </CardActions>
                         }
+                        {loginUser.rootUser &&
+                            <TextField
+                                placeholder="memo"
+                                multiline
+                                rows={4}
+                                value={customerInfo.memo}
+                                onChange={handleUserMemoInput}
+                            />
+
+                        }
+                        {loginUser.rootUser &&
+                            <Button
+                                type="submit"
+                                size="large"
+                                variant="contained"
+                                onClick={saveUserMemo}
+                            >
+                                메모저장
+                            </Button>
+                        }
+
 
                     </Box>
                 </Card>
@@ -795,8 +850,6 @@ export default function ReserveEdit() {
                     :
                     <></>
                 }
-
-
             </ReserveEditContainer>
         </AppProvider>
     );

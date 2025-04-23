@@ -9,7 +9,8 @@ Lightweight hair shop appointment system.
 - Daily/Hourly notification for appointment 
 - Cellphone number verification using SMS
 - Customizable User Role 
-
+- Mileage deposit & redeem
+- 
 ### prerequisite
 - mvn
 - React, npm, vite
@@ -23,7 +24,7 @@ Lightweight hair shop appointment system.
 - docker build -t [IMAGE_TAG]:[VERSION] .
 
 ### Environment value
-- DB_URL : maria db JDBC connection URI 
+- DB_URL : maria db JDBC connection URI g
 - DB_PWD : USER ID for maria DB
 - JWT_SECRET : JWT token encrypt secret key
 - TWILIO_SID : Twilio account id
@@ -32,6 +33,8 @@ Lightweight hair shop appointment system.
 - VOLUME_PATH : Volume path for image files
 
 #### TODO
+- user feedback board
 - support multiple instance
 - support multiple designer
-- Mileage deposit & redeem
+- support multiple branches / shops
+- support multiple language

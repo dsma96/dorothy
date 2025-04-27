@@ -70,7 +70,7 @@ public class ReservationMorningNotiTask {
                 59
         );
 
-        List<Reservation> reservations =  reservationService.getReservations( from, to);
+        List<Reservation> reservations =  reservationService.getReservationsWithStartDate( from, to);
         log.debug("start sending beforeOneHourNotification {} {} ~ {} total Reservation:{} ", sdf.format(now), sdf.format(from), sdf.format(to),reservations.size());
 
         for( Reservation reservation : reservations ){

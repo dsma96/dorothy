@@ -17,7 +17,7 @@ public class Member {
 
     @Builder
     public Member(String username, String phone, String email, String password){
-        this.username = username;
+        this.userName = username;
         this.phone = phone;
         this.email = email;
         this.password = password;
@@ -29,7 +29,7 @@ public class Member {
     private int userId;
 
     @Column(name="user_name")
-    private String username;
+    private String userName;
 
     @Column(name="phone")
     private String phone;

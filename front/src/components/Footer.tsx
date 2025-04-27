@@ -7,6 +7,9 @@ import {styled} from "@mui/material/styles";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import {useNavigate} from "react-router";
 import { Menu, MenuItem } from '@mui/material';
+import {Member} from "../typedef";
+import {useSelector} from "react-redux";
+import {Textsms} from "@mui/icons-material";
 
 interface FooterProps{
     backUrl: string; // back button url
@@ -23,6 +26,7 @@ const TabBarButton = styled(BottomNavigationAction)({
 
 
 export default function  Footer({backUrl, showMyInfo, showMyStamp}: FooterProps) {
+    const loginUser: Member = useSelector( state => state.user.loginUser);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -55,11 +59,10 @@ export default function  Footer({backUrl, showMyInfo, showMyStamp}: FooterProps)
                 }}
             >
                 {showMyStamp == false ? null : <MenuItem onClick={()=>navigate("/stamp")}>My Stamp</MenuItem>}
-                {/*{showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/reserveHistory")}>My Reserv</MenuItem>}*/}
-                <MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>
+                {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>}
+                {loginUser.rootUser == true ? <MenuItem onClick={()=>navigate("/memberList")}>Member List</MenuItem> : null}
             </Menu>
-            <TabBarButton label="Main" color='primary' icon={<HomeIcon/>} onClick={() => navigate('/')}/>
-
+            <TabBarButton label="Contact" color='primary' icon={<Textsms/>} onClick={() => window.location.href=`sms:6475008282`}/>
             <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon/>} onClick={() => navigate("BACK" == backUrl ? -1 : backUrl)}/>
         </BottomNavigation>
     )

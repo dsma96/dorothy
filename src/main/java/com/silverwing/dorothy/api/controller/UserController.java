@@ -9,9 +9,11 @@ import com.silverwing.dorothy.api.dto.ChangeMemberInfoDto;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.type.UserStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -41,7 +43,7 @@ public class UserController {
 
         MemberDto resp = MemberDto.builder()
                 .email(newMember.getEmail())
-                .name(newMember.getUsername())
+                .name(newMember.getUserName())
                 .phone( newMember.getPhone())
                 .id(newMember.getUserId())
                 .isRootUser(newMember.isRootUser())
@@ -116,7 +118,7 @@ public class UserController {
         }
 
         if( memberDto.getName()!= null ){
-            loginUser.setUsername(memberDto.getName());
+            loginUser.setUserName(memberDto.getName());
         }
 
         loginUser.setEmail(memberDto.getEmail());
@@ -129,7 +131,7 @@ public class UserController {
 
         MemberDto resp = MemberDto.builder()
                 .email(loginUser.getEmail())
-                .name(loginUser.getUsername())
+                .name(loginUser.getUserName())
                 .phone( loginUser.getPhone())
                 .id(loginUser.getUserId())
                 .isRootUser(loginUser.isRootUser())
@@ -155,7 +157,7 @@ public class UserController {
 
         return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),
                 designers.stream().map( m -> MemberDto.builder()
-                        .name(m.getUsername())
+                        .name(m.getUserName())
                         .id(m.getUserId())
                         .build()).toList() ),HttpStatus.OK);
     }
@@ -212,5 +214,29 @@ public class UserController {
         return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<ResponseData<Page<MemberDto>>> getAllUsers(
+            @AuthenticationPrincipal Member member,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "userName,asc") String[] sort) {
 
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Not enough permission");
+        }
+
+        // Parse sort parameters
+        String sortField = sort[0];
+        String sortDirection = sort.length > 1 ? sort[1] : "asc";
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        // Fetch paginated and sorted user list
+        Page<Member> userPage = userService.getAllUsers(pageable);
+
+        // Map entities to DTOs
+        Page<MemberDto> userDtoPage = userPage.map(   user -> MemberDto.of(user));
+
+        return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), userDtoPage), HttpStatus.OK);
+    }
 }

@@ -68,7 +68,7 @@ public class DotothyUserServiceTest {
         newMember.setEmail(email);
         newMember.setPassword(password);
         newMember.setPhone(phone);
-        newMember.setUsername(name);
+        newMember.setUserName(name);
         newMember.setRole(UserRole.CUSTOMER);
         newMember.setStatus(UserStatus.ENABLED);
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
@@ -77,7 +77,7 @@ public class DotothyUserServiceTest {
         Member member = dorothyUserService.createMember(name, phone, email, password);
 
         assertNotNull(member);
-        assertEquals(name, member.getUsername());
+        assertEquals(name, member.getUserName());
         assertEquals(phone, member.getPhone());
         assertEquals(email, member.getEmail());
         assertEquals(UserRole.CUSTOMER, member.getRole());

@@ -7,7 +7,8 @@ export interface Member {
     newPassword?: string
     id: number,
     rootUser: boolean,
-    memo?: string
+    memo?: string,
+    createDate?: string
 }
 
 export interface ReserveTimeEvent {

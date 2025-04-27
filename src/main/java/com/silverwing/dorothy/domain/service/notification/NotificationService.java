@@ -47,7 +47,7 @@ public class NotificationService {
             Member customer = reservation.getUser();
             Member designer = userService.getMember(reservation.getDesignerId());
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_changed_designer),
-                    fullSdf.format(reservation.getStartDate()), customer.getUsername(), customer.getPhone());
+                    fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){
             log.error(e.getMessage());
@@ -61,7 +61,7 @@ public class NotificationService {
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_create_customer),
                                                 fullSdf.format(reservation.getStartDate()));
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_create_designer),
-                                                fullSdf.format(reservation.getStartDate()), customer.getUsername(), customer.getPhone());
+                                                fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
             sendSMSAsync(customer.getPhone(), "", customerMsg);
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){
@@ -77,7 +77,7 @@ public class NotificationService {
                                                 fullSdf.format(reservation.getStartDate()));
 
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_cancel_designer),
-                                                fullSdf.format(reservation.getStartDate()), customer.getUsername(), customer.getPhone());
+                                                fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
             sendSMSAsync(customer.getPhone(), "", customerMsg);
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){

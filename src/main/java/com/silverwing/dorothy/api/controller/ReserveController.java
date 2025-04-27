@@ -10,6 +10,7 @@ import com.silverwing.dorothy.domain.entity.HairServices;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
+import com.silverwing.dorothy.domain.type.ReservationStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,27 @@ public class ReserveController {
         this.reservationService = reservice;
         this.reservationRepository = reservationRepository;
     }
+
+    @GetMapping("/reservation/start")
+    public ResponseEntity<ResponseData<List<ReservationDto>>> getStartDate(@AuthenticationPrincipal Member member, @RequestParam("startDate") String startDateStr, @RequestParam("endDate") String endDateStr) {
+        if (member == null) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = sdf.parse(startDateStr);
+            endDate = sdf.parse(endDateStr);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
+        }
+
+        List<Reservation> reservations = reservationService.getReservationsWithStartDate(startDate, endDate);
+        List<ReservationDto> reservationDtos = reservationService.convertReservations(reservations, member.getUserId());
+        return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), reservationDtos), HttpStatus.OK);
+    }
+
 
     @GetMapping("/reservations")
     public ResponseEntity< ResponseData<List<ReservationDto>>> getReservations(@AuthenticationPrincipal Member member, @RequestParam("startDate") String startDateStr, @RequestParam("endDate") String endDateStr) {
@@ -157,17 +179,23 @@ public class ReserveController {
     @GetMapping("/history")
     public ResponseEntity<ResponseData<Page<ReservationDto>>> getHistory(
             @AuthenticationPrincipal Member member,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+            @RequestParam int userId)
+        {
         if (member == null) {
             throw new AuthenticationCredentialsNotFoundException("You must login first");
         }
 
+        if( !member.isRootUser() && userId != member.getUserId()){
+            throw new ReserveException("Not enough permission");
+        }
+
         // Fetch paginated and sorted reservations
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
-        Page<Reservation> reservationsPage = reservationService.getHistory(member.getUserId(), pageable);
+        Page<Reservation> reservationsPage = reservationService.getHistory(userId, pageable);
         // Convert reservations to DTOs
-        List<ReservationDto> reservationDtos = reservationService.convertReservations(reservationsPage.getContent(), member.getUserId());
+        List<ReservationDto> reservationDtos = reservationService.convertReservations(reservationsPage.getContent(), member);
         Page<ReservationDto> reservationDtosPage = new PageImpl<>(reservationDtos, pageable, reservationsPage.getTotalElements());
 
         return new ResponseEntity<>(
@@ -194,6 +222,18 @@ public class ReserveController {
         }
 
         Reservation r = reservationService.adjustReservationPeriod(regId, -30, member.getUserId());
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
+    }
+
+    @PutMapping("/status/{regId}/{status}")
+    public ResponseEntity<ResponseData<ReservationDto>> setReservationStatus( @AuthenticationPrincipal Member member, @PathVariable int regId, @PathVariable String status){
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Permission Error");
+        }
+
+        ReservationStatus reservationStatus = ReservationStatus.valueOf(status);
+        Reservation r = reservationService.setReservationStatus( regId, reservationStatus, member.getUserId());
+
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
     }
 }

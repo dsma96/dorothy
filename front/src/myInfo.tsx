@@ -20,6 +20,8 @@ import {setUser} from "./redux/store";
 import {useState} from "react";
 import {useSelector,useDispatch} from "react-redux";
 import {Navigate} from "react-router-dom";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -232,7 +234,9 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <SignUpContainer direction="column" justifyContent="space-between">
-                <Card variant="outlined" style={{overflowY:'scroll'}}>
+                <Header/>
+                <Card variant="outlined" style={{overflowY: 'scroll'}}>
+
                     <Typography
                         component="h3"
                         variant="h3"
@@ -256,7 +260,10 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 defaultValue={loginUser.name}
                                 error={nameError}
                                 helperText={nameErrorMessage}
-                                onChange={ e=> {setChanged(true); validateInputs()}}
+                                onChange={e => {
+                                    setChanged(true);
+                                    validateInputs()
+                                }}
                                 color={nameError ? 'error' : 'primary'}
                                 size="small"
                             />
@@ -291,7 +298,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 variant="outlined"
                                 error={currentPasswordError}
                                 helperText={currentPasswordErrorMessage}
-                                onChange={ e=>validateInputs()}
+                                onChange={e => validateInputs()}
                                 color={passwordError ? 'error' : 'primary'}
                                 size="small"
                             />
@@ -309,7 +316,10 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 variant="outlined"
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
-                                onChange={  e=> {setChanged(true); validateInputs()}}
+                                onChange={e => {
+                                    setChanged(true);
+                                    validateInputs()
+                                }}
                                 color={passwordError ? 'error' : 'primary'}
                                 size="small"
                             />
@@ -326,20 +336,23 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                                 variant="outlined"
                                 error={confirmPasswordError}
                                 helperText={confirmPasswordErrorMessage}
-                                onChange={  e=> {setChanged(true); validateInputs()}}
+                                onChange={e => {
+                                    setChanged(true);
+                                    validateInputs()
+                                }}
                                 color={confirmPasswordError ? 'error' : 'primary'}
                                 size="small"
                             />
                         </FormControl>
 
-                        <CardActions >
+                        <CardActions>
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
                                 onClick={validateInputs}
                                 size="small"
-                                disabled={ !changed || !validInput }
+                                disabled={!changed || !validInput}
                             >
                                 Save
                             </Button>
@@ -365,6 +378,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
                         </CardActions>
                     </Box>
                 </Card>
+                <Footer backUrl={"/"} showMyInfo={false}></Footer>
                 <Dialog
                     open={openDialog}
                     aria-labelledby="alert-dialog-title"

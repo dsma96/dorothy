@@ -10,8 +10,10 @@ import * as React from "react";
 import {useNavigate} from "react-router";
 import Footer from "./components/Footer";
 import {Reservation, HairService} from './typedef';
-import {Table, TableBody, TableCell, TableHead, TablePagination, TableRow} from "@mui/material";
+import {Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow} from "@mui/material";
 import {useEffect} from "react";
+import {useSearchParams} from "react-router-dom";
+import Header from "./components/Header";
 
 interface Column {
     id: 'startDate' | 'services' ;
@@ -76,13 +78,13 @@ const ReserveHistoryContainer = styled(Stack)(({ theme }) => ({
 export default function ReserveHistory() {
     const theme = useTheme();
     const navigate = useNavigate();
-
+    let [searchParams] = useSearchParams();
     const [page, setPage] = React.useState(0);
     const PAGE_PER_SIZE = 100;
     const [rows, setRows] = React.useState<Reservation[]>([]);
 
-    const fetchData = (page = 0  ) => {
-        const url = `/api/reserve/history?page=${page}&size=${PAGE_PER_SIZE}`;
+    const fetchData = (userId,page = 0  ) => {
+        const url = `/api/reserve/history?page=${page}&size=${PAGE_PER_SIZE}&userId=${userId}`;
 
         fetch(url, {
             method: "GET",
@@ -115,14 +117,15 @@ export default function ReserveHistory() {
     }
 
     useEffect(() => {
-        fetchData( page);
+        if( searchParams.get("userId"))
+            fetchData(searchParams.get("userId"), page);
     },[page] )
 
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <ReserveHistoryContainer direction="column" justifyContent="space-between">
-                <img src={'./dorothy.png'} alt={'Dorothy'}/>
+                <Header/>
 
                 <Typography
                     component="h6"
@@ -131,29 +134,44 @@ export default function ReserveHistory() {
                     Reservation History
                 </Typography>
 
-                <Card variant="outlined" style={{overflowY: 'scroll'}}>
-                    <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                            <TableRow>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                        style={{minWidth: column.minWidth}}
-                                    >
-                                        {column.label}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows
-                                .slice(page * PAGE_PER_SIZE, page * PAGE_PER_SIZE + PAGE_PER_SIZE)
-                                .map((row, index) => {
-                                    return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.startDate} sx={{
-                                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#fcf3cf', // White for even, light gray for odd
-                                        }}>
+                <Card
+                    variant="outlined"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-start',
+                        alignItems: 'stretch',
+                        height: '100%', // Ensure the card takes full height
+                    }}
+                >
+                    <TableContainer style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+                        <Table stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableCell
+                                            key={column.id}
+                                            align={column.align}
+                                            style={{ minWidth: column.minWidth }}
+                                        >
+                                            {column.label}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {rows
+                                    .slice(page * PAGE_PER_SIZE, page * PAGE_PER_SIZE + PAGE_PER_SIZE)
+                                    .map((row, index) => (
+                                        <TableRow
+                                            hover
+                                            role="checkbox"
+                                            tabIndex={-1}
+                                            key={row.startDate}
+                                            sx={{
+                                                backgroundColor: index % 2 === 0 ? '#ffffff' : '#fcf3cf',
+                                            }}
+                                        >
                                             {columns.map((column) => {
                                                 const value = row[column.id];
                                                 return (
@@ -163,12 +181,10 @@ export default function ReserveHistory() {
                                                 );
                                             })}
                                         </TableRow>
-                                    );
-                                })}
-                        </TableBody>
-                    </Table>
-
-
+                                    ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Card>
                 <Footer backUrl="BACK" showMyInfo={false}></Footer>
             </ReserveHistoryContainer>

@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -152,5 +154,9 @@ public class DorothyUserService  {
         Member member = memberRepository.findById(userId).orElseThrow();
         member.setMemo(memo);
         memberRepository.save(member);
+    }
+
+    public Page<Member> getAllUsers(Pageable pageable) {
+        return memberRepository.findAll(pageable);
     }
 }

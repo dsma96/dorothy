@@ -15,6 +15,7 @@ import moment from 'moment'
 import Typography from "@mui/material/Typography";
 import {useSelector} from "react-redux";
 import Divider from "@mui/material/Divider";
+import Header from "./components/Header";
 interface StampItemProps{
     stamped: boolean; // back button url
     date?: string;
@@ -147,7 +148,7 @@ export default function Stamps() {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme/>
             <StampContainer direction="column" justifyContent="space-between">
-                <img src={'./dorothy.png'} alt={'Dorothy'}/>
+                <Header/>
                 <Typography component="h5" variant="h5"> My Stamp</Typography>
                 <Card variant="outlined">
                 {stampComp()}
@@ -160,8 +161,8 @@ export default function Stamps() {
                     >
                     * 10개 적립시, 남자커트 1회 무료입니다.<br/>
                     * 익일 적립됩니다<br/>
-                    * 합산적용되지 않습니다.<br/>
-                    * 1일 1건만 적립됩니다.
+                    * 가족 합산적용되지 않고, 1일 1건만 적립됩니다.<br/>
+
                     </Card>
                 </Card>
                 <Footer backUrl="BACK" showMyStamp={false}></Footer>

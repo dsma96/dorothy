@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,7 +34,7 @@ public class LoginController {
 
         MemberDto resp = MemberDto.builder()
                 .email(loginUser.getEmail())
-                .name(loginUser.getUsername())
+                .name(loginUser.getUserName())
                 .phone( loginUser.getPhone())
                 .id(loginUser.getUserId())
                 .isRootUser(loginUser.isRootUser())
@@ -56,7 +55,7 @@ public class LoginController {
             tokenManager.persistToken( tokenManager.generateToken(member.getPhone()) ,response);
             MemberDto resp = MemberDto.builder()
                                 .email(loginUser.getEmail())
-                                .name(loginUser.getUsername())
+                                .name(loginUser.getUserName())
                                 .phone( loginUser.getPhone())
                                 .id(loginUser.getUserId())
                                 .isRootUser(loginUser.isRootUser())

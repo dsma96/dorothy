@@ -24,6 +24,7 @@ import PropTypes from 'prop-types'
 import {Navigate} from "react-router-dom";
 import type {Member, OffDay} from 'src/typedef'
 import Footer from "./components/Footer";
+import Header from "./components/Header";
 
 
 // Custom Toolbar Component
@@ -219,20 +220,22 @@ const DateChoose: FC = () => {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <DateChooseContainer direction="column" justifyContent="space-between" >
-                <Card variant="elevation" style={ {overflowY:'scroll'}}>
+
+                <Card variant="elevation" style={{overflowY: 'scroll'}}>
+                    <Header/>
                     <Calendar
                         components={components}
                         defaultDate={today}
                         startAccessor="start"
                         endAccessor="end"
                         localizer={localizer}
-                        style={{height: "75vh"}}
-                        views={{ month: true, week: false, day: false }}
+                        style={{height: "60vh"}}
+                        views={{month: true, week: false, day: false}}
                         onSelectSlot={handleSelectSlot}
                         onSelectEvent={handleSelectEvent}
-                        onNavigate={(date:Date) => {
+                        onNavigate={(date: Date) => {
                             setToday(date);
-                            dispatch( setDate( date))
+                            dispatch(setDate(date))
                         }}
 
                         selectable={true}
@@ -240,6 +243,7 @@ const DateChoose: FC = () => {
                         longPressThreshold={5}
                         events={events}
                         messages={customMessages}
+
                     />
                 </Card>
                 <Footer backUrl={"/"}></Footer>

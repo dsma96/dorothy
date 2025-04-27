@@ -17,11 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,7 +49,13 @@ public class ReservationService {
 
     public List<Reservation> getReservations(Date startDate, Date endDate ) {
         List<Reservation> reservations;
-            reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
+            reservations = reservationRepository.findAllWithStartDateAndEndDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
+        return reservations;
+    }
+
+    public List<Reservation> getReservationsWithStartDate( Date startDate, Date endDate ) {
+        List<Reservation> reservations;
+        reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
         return reservations;
     }
 
@@ -70,7 +73,7 @@ public class ReservationService {
         List<HairServices> hairServices = reservation.getServices().stream().map(s-> s.getService()).toList();
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
-                .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUsername() : "Occupied" )
+                .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
                 .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "000-000-0000" )
                 .startDate(sdf.format(reservation.getStartDate()))
                 .endDate(sdf.format(reservation.getEndDate()))
@@ -86,11 +89,14 @@ public class ReservationService {
         return dto;
     }
 
-    public List<ReservationDto> convertReservations(List<Reservation> reservations, int userId) {
-        Member caller = memberRepository.findMemberByUserId( userId ).orElseThrow();
+    public List<ReservationDto> convertReservations(List<Reservation> reservations, Member caller) {
         return reservations.stream().map( s-> convertReservation( s, caller )).toList();
     }
 
+    public List<ReservationDto> convertReservations(List<Reservation> reservations, int userId) {
+        Member caller = memberRepository.findMemberByUserId( userId ).orElseThrow();
+        return convertReservations( reservations, caller);
+    }
 
     private Date calculateServiceTime(ReservationRequestDTO reqDto, Date startDate) {
         int totalTime = 0;
@@ -319,6 +325,23 @@ public class ReservationService {
         r.setEndDate( newEnd);
         r.setModifyDate(new Date());
         r.setModifier( rootUserId );
+        return reservationRepository.save(r);
+    }
+
+    public Reservation setReservationStatus(int regId , ReservationStatus status , int rootUserId) throws ReserveException{
+        Reservation r = getReservation(regId).orElseThrow();
+        if( r.getStatus().equals( status))
+            return r;
+
+        if( r.getStatus().equals( ReservationStatus.CANCELED) )
+            return r;
+        if( r.getStatus().equals( ReservationStatus.NOSHOW))
+            return r;
+
+        log.info("change reg {} from {} to {}", regId, r.getStatus(), status);
+        r.setStatus(status);
+        r.setModifyDate(new Date());
+        r.setModifier( rootUserId);
         return reservationRepository.save(r);
     }
 

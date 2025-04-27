@@ -30,6 +30,7 @@ import {
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { HairService, Reservation, UploadFile, Member } from "./typedef";
 import {setAvailableServices} from "./redux/store";
+import Header from "./components/Header";
 
 const thumbsContainer = {
     display: 'flex',
@@ -118,6 +119,7 @@ const ReserveEditContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
+
 export default function ReserveEdit() {
     const loginUser: Member = useSelector(state => state.user.loginUser);
     const availableServices: HairService[] = useSelector(state => state.config.services);
@@ -127,6 +129,7 @@ export default function ReserveEdit() {
     const [dialogTitle, setDialogTitle] = useState("Dorothy");
     const [ dialogMessage, setDialogMessage] = useState("");
     const [openCancelDialog, setOpenCancelDialog] = useState(false);
+    const [openYesNoDialog, setOpenYesNoDialog] = useState(false);
     const cancelDialogTitle = "Cancel reservation";
     const cancelDialogMessage = "Would you like to cancel your reservation?";
     const [hasError, setHasError] = useState(false);
@@ -210,6 +213,35 @@ export default function ReserveEdit() {
 
         </Box>
     ));
+
+
+    const yesNoDialog = ({title, message, yesCallback, noCallback})=>{
+        return (
+            <Dialog
+                open={openYesNoDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {title}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{yesCallback();setOpenYesNoDialog(false)}} autoFocus>
+                        Yes
+                    </Button>
+                    <Button onClick={()=>{ if(noCallback) noCallback(); setOpenYesNoDialog(false);}} autoFocus>
+                        No
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        )
+    }
+
 
     const serviceCheckBoxes = services.map( (service: HairService, index) => {
         return (
@@ -613,6 +645,10 @@ export default function ReserveEdit() {
         return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
     }
 
+    function handleNoshow(){
+        console.log('noshow')
+    }
+
     const theme = useTheme();
 
     return (
@@ -620,7 +656,7 @@ export default function ReserveEdit() {
             <CssBaseline enableColorScheme />
             <ReserveEditContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
-                    <img src={'./dorothy.png'} alt={'Dorothy Hairshop'} style={{width:'100%'}}/>
+                    <Header/>
                     <Divider/>
                     <Typography
                         component="h6"
@@ -643,7 +679,7 @@ export default function ReserveEdit() {
                             {serviceCheckBoxes}
                         </FormGroup>
                         <TextField
-                            placeholder={"가일컷, 댄디컷 등 원하시는 스타일을 적어 주세요. 디자이너에게 전달됩니다"}
+                            placeholder={"원하시는 스타일을 적어주시면 디자이너에게 전달됩니다"}
                             multiline
                             rows={3}
                             value={reservation.memo}
@@ -770,40 +806,30 @@ export default function ReserveEdit() {
 
                         }
                         {loginUser.rootUser &&
+                            <CardActions  sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}>
                             <Button
-                                type="submit"
-                                size="large"
+                                size="medium"
                                 variant="contained"
                                 onClick={saveUserMemo}
                             >
                                 메모저장
                             </Button>
+                                <Button
+                                    size="medium"
+                                    variant="contained"
+                                    onClick={() => setOpenYesNoDialog(true)}
+                                    >
+                                No Show
+                                </Button>
+                            </CardActions>
                         }
 
 
                     </Box>
                 </Card>
-                <Dialog
-                    open={openDialog}
-                    onClose={handleCloseDialog}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        {dialogTitle}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            {dialogMessage}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog} autoFocus>
-                            Confirm
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
                 <Dialog
                     open={openCancelDialog}
                     aria-labelledby="alert-dialog-title"
@@ -826,6 +852,13 @@ export default function ReserveEdit() {
                         </Button>
                     </DialogActions>
                 </Dialog>
+
+                { loginUser.rootUser && yesNoDialog({
+                    title:'NoShow',
+                    message:'Noshow 처리하시겠습니까?',
+                    yesCallback: handleNoshow,
+                    noCallback:null
+                })}
 
                 { openPreviewDialog ?
 

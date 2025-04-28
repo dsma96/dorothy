@@ -68,11 +68,11 @@ export default function MemberList() {
                     if (scrollHeight - scrollTop === clientHeight && hasMore) {
                         setPage((prevPage) => prevPage + 1);
                     }else{
-                        console.log("sh:"+scrollHeight +"st: "+scrollTop +"ch: "+clientHeight+" HM:"+hasMore); // Debugging
+//                        alert("sh:"+scrollHeight +"st: "+scrollTop +"ch: "+clientHeight+" HM:"+hasMore); // Debugging
                     }
                 }}
                 style={{
-                    maxHeight: 600,
+                    maxHeight: '81vh',
                     overflowY: "scroll", // Ensure scrolling is enabled
                     WebkitOverflowScrolling: "touch", // Enable smooth scrolling on iOS
                     touchAction: "auto", // Allow touch gestures for scrolling
@@ -84,6 +84,9 @@ export default function MemberList() {
                 >
                     <TableHead>
                         <TableRow>
+                            <TableCell>
+                                ID
+                            </TableCell>
                             <TableCell>
                                 <TableSortLabel
                                     active={sortField === "name"}
@@ -114,13 +117,25 @@ export default function MemberList() {
                                 }}
                             >
                                 <TableCell
-                                    style={{ cursor: "pointer", color: "blue" }}
+                                    style={{ padding:'4px' }}
+                                >
+                                    {user.id}
+                                </TableCell>
+                                <TableCell
+                                    style={{ padding:'4px' }}
                                     onClick={() => handleUserClick(user.id)}
                                 >
                                     {user.name}
                                 </TableCell>
-                                <TableCell>{user.phone}</TableCell>
-                                <TableCell>{user.createDate}</TableCell>
+                                <TableCell
+                                    style={{ padding:'4px' }}
+                                    onClick={()=> {window.location.href=`sms:${user.phone}`}}
+                                >
+                                    {`${user.phone.substring(0,3)}-${user.phone.substring(3,6)}-${user.phone.substring(6)}`}
+                                </TableCell>
+                                <TableCell
+                                    style={{ padding:'4px' }}
+                                >{user.createDate}</TableCell>
                             </TableRow>
                         ))}
                         {loading && (

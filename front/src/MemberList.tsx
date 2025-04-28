@@ -53,12 +53,6 @@ export default function MemberList() {
         setHasMore(true);
     };
 
-    const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-        const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-        if (scrollHeight - scrollTop === clientHeight && hasMore) {
-            setPage((prevPage) => prevPage + 1);
-        }
-    };
 
     const handleUserClick = (userId: number) => {
         navigate(`/reserveHistory?userId=${userId}`);
@@ -68,10 +62,13 @@ export default function MemberList() {
         <Paper>
             <TableContainer
                 onScroll={(event) => {
-                    console.log("Scroll event triggered"); // Debugging
-                    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+
+                    let { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+                    scrollTop = Math.floor(scrollTop);
                     if (scrollHeight - scrollTop === clientHeight && hasMore) {
                         setPage((prevPage) => prevPage + 1);
+                    }else{
+                        console.log("sh:"+scrollHeight +"st: "+scrollTop +"ch: "+clientHeight+" HM:"+hasMore); // Debugging
                     }
                 }}
                 style={{

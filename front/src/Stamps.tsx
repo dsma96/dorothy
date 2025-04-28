@@ -159,9 +159,9 @@ export default function Stamps() {
                             padding: 2, // Optional: Add padding for better spacing
                         }}
                     >
-                    * 10개 적립시, 남자커트 1회 무료입니다.<br/>
-                    * 익일 적립됩니다<br/>
-                    * 가족 합산적용되지 않고, 1일 1건만 적립됩니다.<br/>
+                    * 스탬프 10개 적립시, 남자커트 1회를 무료로 제공합니다<br/>
+                    * 스탬프는 하루 1회만 적립가능하며, 가족간 합산은 불가합니다.<br/>
+                    * 스탬프 적립은 방문 다음 날 적용됩니다.<br/>
 
                     </Card>
                 </Card>

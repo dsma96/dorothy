@@ -15,6 +15,7 @@ interface FooterProps{
     backUrl: string; // back button url
     showMyInfo?: boolean;
     showMyStamp?:boolean;
+    style?: React.CSSProperties;
 }
 
 const TabBarButton = styled(BottomNavigationAction)({
@@ -25,7 +26,7 @@ const TabBarButton = styled(BottomNavigationAction)({
 });
 
 
-export default function  Footer({backUrl, showMyInfo, showMyStamp}: FooterProps) {
+export default function  Footer({backUrl, showMyInfo, showMyStamp,style}: FooterProps) {
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -41,6 +42,15 @@ export default function  Footer({backUrl, showMyInfo, showMyStamp}: FooterProps)
         <BottomNavigation
             showLabels={true}
             className='stickToBottom'
+            style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: '#fff',
+                zIndex: 1,
+            }
+            }
         >
             <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon/>} onClick={ handleClick} />
             <Menu

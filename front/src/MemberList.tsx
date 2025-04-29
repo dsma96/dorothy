@@ -24,16 +24,16 @@ export default function MemberList() {
     const navigate = useNavigate();
 
     const fetchUsers = () => {
-        if (loading || !hasMore) return;
-
+        if ( !hasMore) return;
+        console.log(`Fetching users: page=${page}, sortField=${sortField}, sortDirection=${sortDirection}`);
         setLoading(true);
-        const url = `/api/user/list?page=${page}&size=20&sort=${sortField},${sortDirection}`;
+        const url = `/api/user/list?page=${page}&size=25&sort=${sortField},${sortDirection}`;
         fetch(url)
             .then((response) => response.json())
             .then((data) => {
                 if (data.code === 200) {
                     setUsers((prevUsers) => [...prevUsers, ...data.payload.content]);
-                    setHasMore(data.payload.content.length > 0);
+                    setHasMore(!data.payload.last);
                 }
             })
             .catch((error) => console.error("Error fetching users:", error))
@@ -65,15 +65,15 @@ export default function MemberList() {
 
                     let { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
                     scrollTop = Math.floor(scrollTop);
-                    if (scrollHeight - scrollTop === clientHeight && hasMore) {
+                    if (scrollHeight - scrollTop >= (clientHeight  ) && hasMore) {
                         setPage((prevPage) => prevPage + 1);
                     }else{
 //                        alert("sh:"+scrollHeight +"st: "+scrollTop +"ch: "+clientHeight+" HM:"+hasMore); // Debugging
                     }
                 }}
                 style={{
-                    maxHeight: '81vh',
-                    overflowY: "scroll", // Ensure scrolling is enabled
+                    maxHeight: 'calc(100vh - 64px - 56px)',
+                    overflowY: "auto", // Ensure scrolling is enabled
                     WebkitOverflowScrolling: "touch", // Enable smooth scrolling on iOS
                     touchAction: "auto", // Allow touch gestures for scrolling
                     position: 'relative', // Ensure proper layout
@@ -148,7 +148,14 @@ export default function MemberList() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Footer />
+            <Footer style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: '#fff',
+                zIndex: 1,
+            }} />
         </Paper>
     );
 }

@@ -18,6 +18,7 @@ import Stamps from "./Stamps";
 
 import ReserveHistory from "./ReserveHistory";
 import MemberList from "./MemberList";
+import Statistics from "./Statistics";
 
 if (process.env.NODE_ENV === 'development' ) {
 /*    worker.start() */
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/reserveHistory" element={<><ReserveHistory/></>}></Route>
                     <Route path="/stamp" element={<Stamps/>}></Route>
                     <Route path="/memberList" element={<MemberList/>}></Route>
+                    <Route path="/stat" element={<Statistics/>}></Route>
                 </Routes>
                 </ThemeProvider>
             </StrictMode>

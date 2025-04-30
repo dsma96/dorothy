@@ -71,6 +71,7 @@ export default function  Footer({backUrl, showMyInfo, showMyStamp,style}: Footer
                 {showMyStamp == false ? null : <MenuItem onClick={()=>navigate("/stamp")}>My Stamp</MenuItem>}
                 {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>}
                 {loginUser.rootUser == true ? <MenuItem onClick={()=>navigate("/memberList")}>Member List</MenuItem> : null}
+                {loginUser.rootUser == true ? <MenuItem onClick={()=>navigate("/stat")}>Statistics</MenuItem> : null}
             </Menu>
             <TabBarButton label="Contact" color='primary' icon={<Textsms/>} onClick={() => window.location.href=`sms:6475008282`}/>
             <TabBarButton label="Back" color='primary' icon={<ArrowBackIosIcon/>} onClick={() => navigate("BACK" == backUrl ? -1 : backUrl)}/>

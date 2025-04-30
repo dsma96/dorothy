@@ -2,14 +2,12 @@ package com.silverwing.dorothy.domain.task;
 
 import com.silverwing.dorothy.domain.dao.UploadFileRepository;
 import com.silverwing.dorothy.domain.entity.UploadFile;
-import com.silverwing.dorothy.domain.service.file.PhotoFileService;
+import com.silverwing.dorothy.domain.service.PhotoFileService;
 import com.silverwing.dorothy.domain.type.FileUploadStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

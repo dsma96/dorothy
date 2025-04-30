@@ -1,5 +1,6 @@
 package com.silverwing.dorothy.domain.dao;
 
+import com.silverwing.dorothy.api.dto.SaleStatDto;
 import com.silverwing.dorothy.api.dto.StampDto;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import org.springframework.data.domain.Page;
@@ -53,5 +54,41 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
                     "WHERE r.stamp_count > 0 AND r.coupon_id = 0 "+
                     " and r.user_id = :userId and  date_format( start_date,'%y/%m/%d') in ( :dates ) AND r.status IN ('CREATED', 'COMPLETED')")
     int convertStampToCoupon(@Param("userId")int userId, @Param("dates") List<String> dates, @Param("couponId") int couponId);
+
+
+
+
+    @Query(value = """
+        SELECT 
+            TO_CHAR(R.start_date, 'yy/mm') AS period,
+            COUNT(*) AS totalCount,
+            SUM(S.price) AS totalSale,
+            COUNT(CASE WHEN S.svc_id = 1 THEN 1 ELSE NULL END) AS manCutCount,
+            SUM(CASE WHEN S.svc_id = 1 THEN S.price ELSE 0 END) AS manCutSale,
+            COUNT(CASE WHEN S.svc_id = 2 THEN 1 ELSE NULL END) AS manRootCount,
+            SUM(CASE WHEN S.svc_id = 2 THEN S.price ELSE 0 END) AS manRootSale,
+            COUNT(CASE WHEN S.svc_id IN (3, 4) THEN 1 ELSE NULL END) AS manPermCount,
+            SUM(CASE WHEN S.svc_id IN (3, 4) THEN S.price ELSE 0 END) AS manPermSale,
+            COUNT(CASE WHEN S.svc_id = 7 THEN 1 ELSE NULL END) AS womanCutCount,
+            SUM(CASE WHEN S.svc_id = 7 THEN S.price ELSE 0 END) AS womanCutSale,
+            COUNT(CASE WHEN S.svc_id = 8 THEN 1 ELSE NULL END) AS womanRootCount,
+            SUM(CASE WHEN S.svc_id = 8 THEN S.price ELSE 0 END) AS womanRootSale
+        FROM 
+            reservation R
+        JOIN 
+            reserve_services RS ON R.reg_id = RS.reg_id
+        JOIN 
+            services S ON RS.svc_id = S.svc_id
+        WHERE 
+            R.status = 'CREATED'
+            AND R.user_id > 9
+            AND R.stamp_count > 0
+            AND R.start_date <= now()
+            AND to_char(R.start_date,'yyyy') = :year
+        GROUP BY 
+            TO_CHAR(R.start_date, 'yy/mm')
+        """, nativeQuery = true)
+    List<SaleStatDto> getMonthlySaleStat(String year);
+
 
 }

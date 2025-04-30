@@ -2,7 +2,7 @@ package com.silverwing.dorothy.domain.service.reserve;
 
 import com.silverwing.dorothy.api.dto.UploadFileDto;
 import com.silverwing.dorothy.domain.Exception.FileUploadException;
-import com.silverwing.dorothy.domain.service.file.PhotoFileService;
+import com.silverwing.dorothy.domain.service.PhotoFileService;
 import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.dao.*;

@@ -1,4 +1,4 @@
-package com.silverwing.dorothy.domain.service.file;
+package com.silverwing.dorothy.domain.service;
 
 import com.silverwing.dorothy.domain.Exception.FileUploadException;
 import com.silverwing.dorothy.domain.dao.ReservationRepository;
@@ -8,7 +8,6 @@ import com.silverwing.dorothy.domain.entity.UploadFile;
 import com.silverwing.dorothy.domain.type.FileUploadStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -22,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j

@@ -1,11 +1,10 @@
 package com.silverwing.dorothy.api.controller;
 
-import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.domain.entity.UploadFile;
 import com.silverwing.dorothy.domain.service.MessageResourceService;
-import com.silverwing.dorothy.domain.service.file.PhotoFileService;
+import com.silverwing.dorothy.domain.service.PhotoFileService;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import com.silverwing.dorothy.domain.type.MessageResourceId;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -10,7 +10,8 @@ Lightweight hair shop appointment system.
 - Cellphone number verification using SMS
 - Customizable User Role 
 - Mileage deposit & redeem
-- 
+- send configured marketing message
+- User list / sale report for admin user
 ### prerequisite
 - mvn
 - React, npm, vite
@@ -18,11 +19,9 @@ Lightweight hair shop appointment system.
 - node 22.14
 - docker
 - MariaDB
-
 ### build
 - mvn clean install package
 - docker build -t [IMAGE_TAG]:[VERSION] .
-
 ### Environment value
 - DB_URL : maria db JDBC connection URI g
 - DB_PWD : USER ID for maria DB
@@ -31,7 +30,6 @@ Lightweight hair shop appointment system.
 - TWILIO_AUTH : Twilio auth token
 - TWILIO_FROM : Twilio sender number
 - VOLUME_PATH : Volume path for image files
-
 #### TODO
 - user feedback board
 - support multiple instance

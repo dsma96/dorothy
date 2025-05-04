@@ -53,6 +53,12 @@ public class ReservationService {
         return reservations;
     }
 
+    public List<Reservation> getReservationWithStartDateAndServiceIds( Date startDate, Date endDate, List<Integer> serviceId ) {
+        List<Reservation> reservations;
+        reservations = reservationRepository.findStartDateAndService(startDate,endDate,serviceId).orElseGet(()-> Collections.emptyList());
+        return reservations;
+    }
+
     public List<Reservation> getReservationsWithStartDate( Date startDate, Date endDate ) {
         List<Reservation> reservations;
         reservations = reservationRepository.findAllWithStartDate(startDate,endDate).orElseGet(()-> Collections.emptyList());
@@ -181,7 +187,7 @@ public class ReservationService {
 
         Reservation persistedReservation = reservationRepository.save(reservation);
         updateServiceMappings(reqDto, persistedReservation);
-        notificationService.sendReservationChangedMessage(persistedReservation);
+//        notificationService.sendReservationChangedMessage(persistedReservation);
         return persistedReservation;
     }
 
@@ -343,6 +349,10 @@ public class ReservationService {
         r.setModifyDate(new Date());
         r.setModifier( rootUserId);
         return reservationRepository.save(r);
+    }
+
+    public Reservation getLastReservation(int userId, List<Integer> serviceIds) {
+        return reservationRepository.findLastReservation(userId, serviceIds).orElse(null);
     }
 
 }

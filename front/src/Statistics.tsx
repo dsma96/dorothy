@@ -99,7 +99,7 @@ const Statistics: React.FC = () => {
             </div>
 
             {/* Table */}
-            <Paper style={{ width: '100%', overflowX: 'auto', marginTop: '20px' }}>
+            <Paper style={{ width: '100%', overflowX: 'auto', marginTop: '10px' }}>
                 <TableContainer>
                     <Table>
                         <TableHead>
@@ -127,13 +127,44 @@ const Statistics: React.FC = () => {
                                     <TableCell   style={{ padding:'4px' }}>{stat.manCutSale + stat.manPermSale + stat.manRootSale+'$'}</TableCell>
                                     <TableCell   style={{ padding:'4px' }}>{stat.womanCutCount + stat.womanRootCount}</TableCell>
                                     <TableCell   style={{ padding:'4px' }}>{stat.womanCutSale + stat.womanRootSale+'$'}</TableCell>
+
                                 </TableRow>
                             ))}
+                            <TableRow style={{ backgroundColor: '#e0e0e0', fontWeight: 'bold' }}>
+                                <TableCell style={{ padding: '4px' }}>Total</TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.totalCount, 0)}
+                                </TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.totalSale, 0) + '$'}
+                                </TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.manCutCount + stat.manPermCount + stat.manRootCount, 0)}
+                                </TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.manCutSale + stat.manPermSale + stat.manRootSale, 0) + '$'}
+                                </TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.womanCutCount + stat.womanRootCount, 0)}
+                                </TableCell>
+                                <TableCell style={{ padding: '4px' }}>
+                                    {stats.reduce((sum, stat) => sum + stat.womanCutSale + stat.womanRootSale, 0) + '$'}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <Footer backUrl={"BACK"}/>
+
             </Paper>
+            <Footer style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: '#fff',
+                zIndex: 1,
+            }
+            }backUrl={"BACK"}/>
         </div>
     );
 };

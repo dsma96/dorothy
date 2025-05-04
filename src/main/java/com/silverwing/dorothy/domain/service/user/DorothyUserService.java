@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.AuthenticationException;
@@ -128,7 +129,10 @@ public class DorothyUserService  {
         return memberRepository.save( member );
     }
 
-    @CacheEvict(key="#member.userId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "member", key = "#member.userId"),
+            @CacheEvict(cacheNames = "member_phone", key = "#member.phone")
+    })
     public Member updateUser( Member member) throws UserException{
         return memberRepository.save( member );
     }
@@ -149,7 +153,7 @@ public class DorothyUserService  {
         return offDayRepository.getOffDays(StartDate, endDate).orElseGet(Collections::emptyList);
     }
 
-    @CacheEvict(cacheNames="member", key="#userId")
+    @CacheEvict(cacheNames="member", key="#member.userId")
     public void updateUserMemo( int userId, String memo) {
         Member member = memberRepository.findById(userId).orElseThrow();
         member.setMemo(memo);

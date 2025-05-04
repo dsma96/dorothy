@@ -42,15 +42,8 @@ export default function  Footer({backUrl, showMyInfo, showMyStamp,style}: Footer
         <BottomNavigation
             showLabels={true}
             className='stickToBottom'
-            style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: '#fff',
-                zIndex: 1,
-            }
-            }
+            style= {{...style}}
+
         >
             <TabBarButton label="My Info" color='primary' icon={<AccountBoxIcon/>} onClick={ handleClick} />
             <Menu

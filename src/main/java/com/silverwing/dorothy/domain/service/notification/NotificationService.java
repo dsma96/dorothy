@@ -61,7 +61,7 @@ public class NotificationService {
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_create_customer),
                                                 fullSdf.format(reservation.getStartDate()));
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_create_designer),
-                                                fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
+                                                fullSdf.format(reservation.getStartDate()),reservation.getServices().get(0).getService().getName(), customer.getUserName());
             sendSMSAsync(customer.getPhone(), "", customerMsg);
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){

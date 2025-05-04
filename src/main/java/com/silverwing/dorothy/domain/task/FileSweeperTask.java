@@ -53,6 +53,7 @@ public class FileSweeperTask {
         Optional<List<UploadFile>> filesWrapper = uploadFileRepository.findByStatus(FileUploadStatus.CREATED);
         if (filesWrapper.isPresent()) {
             List<UploadFile> files = filesWrapper.get();
+            log.info("resizing {} files", files.size());
             for (UploadFile file : files) {
                 try {
                     File fsFile = photoFileService.getPhysicalFile(file);

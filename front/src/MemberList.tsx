@@ -13,6 +13,31 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Member } from "./typedef";
 import Footer from "./components/Footer";
+import {styled} from "@mui/material/styles";
+import Stack from "@mui/material/Stack";
+
+const MemberListContainer = styled(Stack)(({ theme }) => ({
+    height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
+    minHeight: '100%',
+    padding: theme.spacing(1),
+    [theme.breakpoints.up('sm')]: {
+        padding: theme.spacing(1),
+    },
+    '&::before': {
+        content: '""',
+        display: 'block',
+        position: 'absolute',
+        zIndex: -1,
+        inset: 0,
+        backgroundImage:
+            'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+        backgroundRepeat: 'no-repeat',
+        ...theme.applyStyles('dark', {
+            backgroundImage:
+                'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+        }),
+    },
+}));
 
 export default function MemberList() {
     const [users, setUsers] = useState<Member[]>([]);
@@ -59,6 +84,7 @@ export default function MemberList() {
     };
 
     return (
+        <MemberListContainer>
         <Paper>
             <TableContainer
                 onScroll={(event) => {
@@ -72,11 +98,12 @@ export default function MemberList() {
                     }
                 }}
                 style={{
-                    maxHeight: 'calc(100vh - 64px - 56px)',
+                    maxHeight: 'calc(100vh - 64px )',
                     overflowY: "auto", // Ensure scrolling is enabled
                     WebkitOverflowScrolling: "touch", // Enable smooth scrolling on iOS
                     touchAction: "auto", // Allow touch gestures for scrolling
                     position: 'relative', // Ensure proper layout
+                    marginLeft:'10px'
                 }}
             >
                 <Table stickyHeader
@@ -148,6 +175,8 @@ export default function MemberList() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+        </Paper>
             <Footer style={{
                 position: 'fixed',
                 bottom: 0,
@@ -155,7 +184,9 @@ export default function MemberList() {
                 right: 0,
                 backgroundColor: '#fff',
                 zIndex: 1,
-            }} />
-        </Paper>
+            }}
+                    backUrl={"/"}
+            />
+        </MemberListContainer>
     );
 }

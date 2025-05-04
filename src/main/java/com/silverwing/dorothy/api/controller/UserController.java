@@ -112,7 +112,6 @@ public class UserController {
 
 
         Member loginUser  = userService.getMember(userId );
-
         if(!UserStatus.ENABLED.equals( loginUser.getStatus() ) ){
             return new ResponseEntity<>(  new ResponseData<>("disabled user "), HttpStatus.UNAUTHORIZED);
         }

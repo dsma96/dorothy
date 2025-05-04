@@ -7,5 +7,6 @@ public enum MessageResourceId {
     reservation_create_designer,
     reservation_changed_designer,
     reservation_notification_1hour,
-    reservation_notification_morning
+    reservation_notification_morning,
+    marketing_remind_30days
 }

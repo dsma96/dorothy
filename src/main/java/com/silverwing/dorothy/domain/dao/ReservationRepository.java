@@ -29,9 +29,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED'" )
     Optional<List<Reservation>> findAllWithStartDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
+    @Query(nativeQuery = true,
+            value="SELECT r.* "+
+                    "FROM reservation r , reserve_services rs " +
+                    "WHERE r.reg_id = rs.reg_id  and r.start_date between :startDate and :endDate and r.status = 'CREATED' and rs.svc_id in (:serviceIds)" )
+    Optional<List<Reservation>> findStartDateAndService(@Param("startDate")Date startDate, @Param("endDate")Date endDate, @Param("serviceIds") List<Integer> serviceIds );
 
 
-    @Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate < :endDate and  r.endDate  > :startDate and r.status != 'CANCELED' and r.regId != :exclude")
+    @Query(nativeQuery = true, value="""
+        SELECT r.*
+        FROM reservation r , reserve_services rs
+        WHERE r.reg_id = rs.reg_id
+          and r.user_id = :userId
+            and r.status = 'CREATED' and rs.svc_id in (:serviceIds)
+        order by r.start_date desc
+        limit 1
+        """)
+    Optional<Reservation> findLastReservation(@Param("userId") int userId, @Param("serviceIds") List<Integer> serviceIds  );
+
+
+@Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate < :endDate and  r.endDate  > :startDate and r.status != 'CANCELED' and r.regId != :exclude")
     Optional<List<Reservation>> findAllWithDateOnDesigner(@Param("designerId") int designerId, @Param("startDate")Date startDate, @Param("endDate")Date endDate, @Param("exclude") int excludeId );
 
     @Query("SELECT r FROM Reservation r WHERE r.userId = :userId AND r.status IN ('CREATED', 'COMPLETED') ")
@@ -54,9 +71,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
                     "WHERE r.stamp_count > 0 AND r.coupon_id = 0 "+
                     " and r.user_id = :userId and  date_format( start_date,'%y/%m/%d') in ( :dates ) AND r.status IN ('CREATED', 'COMPLETED')")
     int convertStampToCoupon(@Param("userId")int userId, @Param("dates") List<String> dates, @Param("couponId") int couponId);
-
-
-
 
     @Query(value = """
         SELECT 
@@ -89,6 +103,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             TO_CHAR(R.start_date, 'yy/mm')
         """, nativeQuery = true)
     List<SaleStatDto> getMonthlySaleStat(String year);
-
 
 }

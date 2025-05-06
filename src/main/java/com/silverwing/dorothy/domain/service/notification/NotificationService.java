@@ -45,6 +45,9 @@ public class NotificationService {
     public void sendReservationChangedMessage( final Reservation reservation){
         try {
             Member customer = reservation.getUser();
+            if( customer.isRootUser() ){
+                return;
+            }
             Member designer = userService.getMember(reservation.getDesignerId());
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_changed_designer),
                     fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
@@ -57,6 +60,10 @@ public class NotificationService {
     public void sendReservationMessage(final Reservation reservation) {
         try {
             Member customer = reservation.getUser();
+            if( customer.isRootUser() ){
+                return;
+            }
+
             Member designer = userService.getMember(reservation.getDesignerId());
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_create_customer),
                                                 fullSdf.format(reservation.getStartDate()));
@@ -71,7 +78,11 @@ public class NotificationService {
 
     public void sendReservationCancelMessage(Reservation reservation){
         try {
+
             Member customer = reservation.getUser();
+            if( customer.isRootUser() ){
+                return;
+            }
             Member designer = userService.getMember(reservation.getDesignerId());
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_cancel_customer),
                                                 fullSdf.format(reservation.getStartDate()));
@@ -88,6 +99,10 @@ public class NotificationService {
     public void sendReservationNotiInMorning(Reservation reservation){
         try {
             Member customer = reservation.getUser();
+            if( customer.isRootUser() ){
+                return;
+            }
+
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_notification_morning),
                                                 fullSdf.format(reservation.getStartDate()));
             sendSMSAsync(customer.getPhone(), "", customerMsg);
@@ -99,6 +114,9 @@ public class NotificationService {
     public void sendReservationNotiBefore1Hour(Reservation reservation){
         try {
             Member customer = reservation.getUser();
+            if( customer.isRootUser() ){
+                return;
+            }
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_notification_1hour),
                     shortSdf.format(reservation.getStartDate()));
             sendSMSAsync(customer.getPhone(), "", customerMsg);

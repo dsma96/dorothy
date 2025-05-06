@@ -220,7 +220,8 @@ public class ReservationService {
         reservation.setModifier(customer.getUserId());
         reservation.setRequireSilence(reqDto.isRequireSilence());
         reservation.setUser(customer);
-        reservation.setStampCount(1);
+
+        reservation.setStampCount( customer.isRootUser()? 0 : 1);
         reservation.setCouponId(0);
         Reservation persistedReservation = reservationRepository.save(reservation);
 

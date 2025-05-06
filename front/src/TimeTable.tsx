@@ -38,7 +38,14 @@ const TabBarButton = styled(BottomNavigationAction)({
         color: '#e67e22',
     }
 });
-
+const CustomEvent = ({ event }) => {
+    return (
+        <span>
+            {event.title} <br />
+            {event.service}
+        </span>
+    );
+};
 // Custom Toolbar Component
 const CustomToolbar = (toolbarProps) => {
     const goToToday = () => {
@@ -69,6 +76,9 @@ const TimeTableContainer = styled(Stack)(({ theme }) => ({
     overflow: 'scroll',
     [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(1),
+    },
+    '& .rbc-event-label': {
+        display: 'none', // Hides the start and end time
     },
     '&::before': {
         content: '""',
@@ -172,7 +182,8 @@ const TimeTable: FC = () => {
                                 title: e.userName,
                                 start: moment( e.startDate,"YYYYMMDDTHH:mm").toDate(),
                                 end:   moment(  e.endDate,"YYYYMMDDTHH:mm").toDate(),
-                                editable: e.editable
+                                editable: e.editable,
+                                service: e.services.length > 0 ? e.services[0].name : "",
                             }
                             newEvents.push( tableEvent );
                         })
@@ -279,6 +290,7 @@ const TimeTable: FC = () => {
                     step={TIME_UNIT}
                     timeslots={1}
 
+
                     date = {today}
                     min={
 
@@ -309,9 +321,11 @@ const TimeTable: FC = () => {
                     onNavigate={handleDayChange}
                     style={{height: "90vh"}}
                     messages={customMessages}
+                    showMultiDayTimes={false}
                     draggableAccessor={event => false}
                     components={{
-                        toolbar: CustomToolbar, // Use the custom toolbar
+                        toolbar: CustomToolbar, // Use the custom toolbar,
+                        event:CustomEvent
                     }}
                 />
             </Card>

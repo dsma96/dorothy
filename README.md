@@ -23,7 +23,7 @@ Lightweight hair shop appointment system.
 - mvn clean install package
 - docker build -t [IMAGE_TAG]:[VERSION] .
 ### Environment value
-- DB_URL : maria db JDBC connection URI g
+- DB_URL : maria db JDBC connection URI 
 - DB_PWD : USER ID for maria DB
 - JWT_SECRET : JWT token encrypt secret key
 - TWILIO_SID : Twilio account id

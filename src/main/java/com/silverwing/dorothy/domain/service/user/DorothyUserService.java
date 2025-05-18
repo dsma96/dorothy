@@ -153,7 +153,7 @@ public class DorothyUserService  {
         return offDayRepository.getOffDays(StartDate, endDate).orElseGet(Collections::emptyList);
     }
 
-    @CacheEvict(cacheNames="member", key="#member.userId")
+    @CacheEvict(cacheNames="member", key="#userId")
     public void updateUserMemo( int userId, String memo) {
         Member member = memberRepository.findById(userId).orElseThrow();
         member.setMemo(memo);

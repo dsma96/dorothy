@@ -36,6 +36,6 @@ public class Marketing {
     @Column(name="days")
     int days;
 
-    @OneToMany(mappedBy ="marketingId" )
+    @OneToMany(mappedBy ="marketingId" ,fetch = FetchType.EAGER)
     List<MarketingServiceMap> services;
 }

@@ -37,7 +37,7 @@ public class FileSweeperTask {
         if (filesWrapper.isPresent()) {
             List<UploadFile> files = filesWrapper.get();
             for (UploadFile file : files) {
-                log.info("sweeping file: {}", file.getFileId());
+                log.debug("sweeping file: {}", file.getFileId());
                 try {
                     photoFileService.removeFile(file);
                 } catch (IOException e) {
@@ -53,7 +53,7 @@ public class FileSweeperTask {
         Optional<List<UploadFile>> filesWrapper = uploadFileRepository.findByStatus(FileUploadStatus.CREATED);
         if (filesWrapper.isPresent()) {
             List<UploadFile> files = filesWrapper.get();
-            log.info("resizing {} files", files.size());
+            log.debug("resizing {} files", files.size());
             for (UploadFile file : files) {
                 try {
                     File fsFile = photoFileService.getPhysicalFile(file);

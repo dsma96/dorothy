@@ -31,7 +31,7 @@ public class CustomerRemindTask {
 
     static final int GAP = 7;
 
-    @Scheduled(cron="0 0 19 ? * WED")
+    @Scheduled(cron="0 0 19 ? * THU")
     public void smsMarketingTask() {
         LocalDate today = LocalDate.now();
         List<Marketing> marketings =  marketingService.getAvailableMarketings();
@@ -42,6 +42,7 @@ public class CustomerRemindTask {
         }
 
         for( Marketing marketing : marketings ){
+            log.info("Marketing: {} message:{}", marketing.getId(), marketing.getMessageId());
             String msg = messageResourceService.getMessage(marketing.getMessageId());
             List<Integer> svcIds = marketing.getServices().stream().map( s -> s.getService().getServiceId()).toList();
 

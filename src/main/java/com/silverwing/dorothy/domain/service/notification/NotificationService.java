@@ -1,5 +1,7 @@
 package com.silverwing.dorothy.domain.service.notification;
 
+import com.silverwing.dorothy.domain.dao.HairServiceRepository;
+import com.silverwing.dorothy.domain.entity.HairServices;
 import com.silverwing.dorothy.domain.entity.VerifyRequest;
 import com.silverwing.dorothy.domain.external.TwilioMessageSender;
 import com.silverwing.dorothy.domain.entity.Member;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -26,6 +29,7 @@ public class NotificationService {
     private final TwilioMessageSender smsSender;
     private final DorothyUserService userService;
     private final MessageResourceService messageResourceService;
+    private final HairServiceRepository hairServiceRepository;
 
     static final String VERIFY_PHONE=" ktime.ca verification code: %s";
 
@@ -64,12 +68,21 @@ public class NotificationService {
                 return;
             }
 
+            Optional<HairServices> service = hairServiceRepository.findById( reservation.getServices().get(0).getSvcId() );
+            String serviceName = service.isEmpty() ? "" : service.get().getName();
+
             Member designer = userService.getMember(reservation.getDesignerId());
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_create_customer),
                                                 fullSdf.format(reservation.getStartDate()));
-            String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_create_designer),
-                                                fullSdf.format(reservation.getStartDate()),reservation.getServices().get(0).getService().getName(), customer.getUserName());
             sendSMSAsync(customer.getPhone(), "", customerMsg);
+
+            String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_create_designer),
+                                                serviceName, fullSdf.format(reservation.getStartDate()), customer.getUserName());
+
+            if( reservation.getUploadFiles() != null && reservation.getUploadFiles().size() > 0 ){
+                designerMsg = "사진)"+designerMsg;
+            }
+
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){
             log.error(e.getMessage());
@@ -78,17 +91,20 @@ public class NotificationService {
 
     public void sendReservationCancelMessage(Reservation reservation){
         try {
-
             Member customer = reservation.getUser();
             if( customer.isRootUser() ){
                 return;
             }
+            Optional<HairServices> service = hairServiceRepository.findById( reservation.getServices().get(0).getSvcId() );
+            String serviceName = service.isEmpty() ? "" : service.get().getName();
+
+
             Member designer = userService.getMember(reservation.getDesignerId());
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_cancel_customer),
                                                 fullSdf.format(reservation.getStartDate()));
 
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_cancel_designer),
-                                                fullSdf.format(reservation.getStartDate()), customer.getUserName(), customer.getPhone());
+                                                serviceName, fullSdf.format(reservation.getStartDate()));
             sendSMSAsync(customer.getPhone(), "", customerMsg);
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){

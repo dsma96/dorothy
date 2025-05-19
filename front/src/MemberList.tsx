@@ -11,10 +11,12 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Member } from "./typedef";
+import { MemberStat } from "./typedef";
 import Footer from "./components/Footer";
 import {styled} from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MemberListContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
@@ -40,9 +42,9 @@ const MemberListContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function MemberList() {
-    const [users, setUsers] = useState<Member[]>([]);
+    const [users, setUsers] = useState<MemberStat[]>([]);
     const [page, setPage] = useState(0);
-    const [sortField, setSortField] = useState("createDate");
+    const [sortField, setSortField] = useState("userId");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -52,7 +54,7 @@ export default function MemberList() {
         if ( !hasMore) return;
         console.log(`Fetching users: page=${page}, sortField=${sortField}, sortDirection=${sortDirection}`);
         setLoading(true);
-        const url = `/api/user/list?page=${page}&size=25&sort=${sortField},${sortDirection}`;
+        const url = `/api/user/stat?page=${page}&size=25&sort=${sortField},${sortDirection}`;
         fetch(url)
             .then((response) => response.json())
             .then((data) => {
@@ -83,9 +85,36 @@ export default function MemberList() {
         navigate(`/reserveHistory?userId=${userId}`);
     };
 
+    const handleNameClick = (memo: string) => {
+        if( !memo || memo.length < 1) return;
+
+        toast.info(memo , {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            style: {
+                backgroundColor: "#FFFB87", // Post-it yellow
+                color: "#000", // Black text for contrast
+                fontWeight: "bold",
+            },
+        });
+    };
+
     return (
         <MemberListContainer>
-        <Paper>
+        <ToastContainer
+            style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                position: "fixed"
+            }}
+        />
+            <Paper>
             <TableContainer
                 onScroll={(event) => {
 
@@ -112,25 +141,58 @@ export default function MemberList() {
                     <TableHead>
                         <TableRow>
                             <TableCell>
+                                <TableSortLabel
+                                    active={sortField === "userId"}
+                                    direction={sortDirection}
+                                    onClick={() => handleSort("userId")}
+                                >
                                 ID
+                                </TableSortLabel>
                             </TableCell>
                             <TableCell>
                                 <TableSortLabel
-                                    active={sortField === "name"}
+                                    active={sortField === "Name"}
                                     direction={sortDirection}
                                     onClick={() => handleSort("userName")}
                                 >
                                     Name
                                 </TableSortLabel>
                             </TableCell>
-                            <TableCell>Phone</TableCell>
+                            <TableCell >
+                                <TableSortLabel
+                                    active={sortField === "r.reservationCount"}
+                                    direction={sortDirection}
+                                    onClick={() => handleSort("r.reservationCount")}
+                                >
+                                CNT
+                                </TableSortLabel>
+                            </TableCell>
                             <TableCell>
                                 <TableSortLabel
-                                    active={sortField === "가입일"}
+                                    active={sortField === "createDate"}
                                     direction={sortDirection}
                                     onClick={() => handleSort("createDate")}
                                 >
-                                    가입일
+                                    Join
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === "lastDate"}
+                                    direction={sortDirection}
+                                    onClick={() => handleSort("r.lastVisitDate")}
+                                >
+                                    Last
+                                </TableSortLabel>
+
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === "firstDate"}
+                                    direction={sortDirection}
+                                    onClick={() => handleSort("r.fistVisitDate")}
+                                >
+                                    First
                                 </TableSortLabel>
                             </TableCell>
                         </TableRow>
@@ -150,19 +212,26 @@ export default function MemberList() {
                                 </TableCell>
                                 <TableCell
                                     style={{ padding:'4px' }}
-                                    onClick={() => handleUserClick(user.id)}
+                                    onClick={() => handleNameClick(user.memo || "")}
                                 >
                                     {user.name}
                                 </TableCell>
                                 <TableCell
-                                    style={{ padding:'4px' }}
-                                    onClick={()=> {window.location.href=`sms:${user.phone}`}}
+                                    style={{ padding:'0px', minWidth: '2em' }}
+                                    onClick={() => handleUserClick(user.id)}
                                 >
-                                    {`${user.phone.substring(0,3)}-${user.phone.substring(3,6)}-${user.phone.substring(6)}`}
+                                    {user.reservationCount}
                                 </TableCell>
                                 <TableCell
                                     style={{ padding:'4px' }}
                                 >{user.createDate}</TableCell>
+                                <TableCell>
+                                    {user.lastDate}
+                                </TableCell>
+                                <TableCell>
+                                    {user.firstDate}
+                                </TableCell>
+
                             </TableRow>
                         ))}
                         {loading && (

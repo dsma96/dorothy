@@ -38,5 +38,5 @@ public class HairServices {
     int serviceTime;
 
     @Column(name="price")
-    float price;
+    int price;
 }

@@ -11,6 +11,16 @@ export interface Member {
     createDate?: string
 }
 
+export interface MemberStat{
+    id: number,
+    name: string,
+    reservationCount: number,
+    createDate: string,
+    lastDate: string,
+    firstDate: string,
+    memo?:string
+}
+
 export interface ReserveTimeEvent {
     id: number,
     title: string,

@@ -1,13 +1,11 @@
 package com.silverwing.dorothy.api.controller;
 
-import com.silverwing.dorothy.api.dto.OffDayDto;
-import com.silverwing.dorothy.api.dto.UpdateMemberInfoDto;
+import com.silverwing.dorothy.api.dto.*;
 import com.silverwing.dorothy.domain.Exception.UserException;
 import com.silverwing.dorothy.domain.entity.OffDay;
+import com.silverwing.dorothy.domain.service.StatService;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
-import com.silverwing.dorothy.api.dto.ChangeMemberInfoDto;
 import com.silverwing.dorothy.domain.entity.Member;
-import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.type.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +31,7 @@ import java.util.List;
 public class UserController {
 
     private final DorothyUserService userService;
-
+    private final StatService statService;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
     @PostMapping("/signup")
@@ -238,4 +236,29 @@ public class UserController {
 
         return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), userDtoPage), HttpStatus.OK);
     }
+
+    @GetMapping("/stat")
+    public ResponseEntity<ResponseData<Page<MemberStatDto>>> getUserStats(
+            @AuthenticationPrincipal Member member,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "userId,desc") String[] sort) {
+
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Not enough permission");
+        }
+
+        // Parse sort parameters
+        String sortField = sort[0];
+        String sortDirection = sort.length > 1 ? sort[1] : "asc";
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+
+        // Fetch paginated and sorted user list
+        Page<MemberStatDto> userPage = statService.getMemberStat(pageable);
+
+
+        return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), userPage), HttpStatus.OK);
+    }
+
 }

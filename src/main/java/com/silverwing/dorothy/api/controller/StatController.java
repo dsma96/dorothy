@@ -1,12 +1,16 @@
 package com.silverwing.dorothy.api.controller;
 
 import com.silverwing.dorothy.api.dto.MemberDto;
+import com.silverwing.dorothy.api.dto.MemberStatDto;
 import com.silverwing.dorothy.api.dto.SaleStatDto;
 import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.service.StatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -33,4 +37,17 @@ public class StatController {
         List <SaleStatDto> monthlyStats =  statService.getMonthlyStat(year);
         return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), monthlyStats), HttpStatus.OK);
     }
+
+    @GetMapping("/members")
+    public ResponseEntity<ResponseData<String>> getUserStat(
+            @AuthenticationPrincipal Member member) {
+
+        if (member == null || !member.isRootUser()) {
+            throw new AuthenticationCredentialsNotFoundException("Not enough permission");
+        }
+
+        statService.refreshMemberStat();
+        return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), "OK"), HttpStatus.OK);
+    }
+
 }

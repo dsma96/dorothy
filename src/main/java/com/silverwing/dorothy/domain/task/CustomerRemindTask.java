@@ -31,7 +31,7 @@ public class CustomerRemindTask {
 
     static final int GAP = 7;
 
-    @Scheduled(cron="0 0 19 ? * THU")
+    @Scheduled(cron="0 0 19 ? * WED")
     public void smsMarketingTask() {
         LocalDate today = LocalDate.now();
         List<Marketing> marketings =  marketingService.getAvailableMarketings();

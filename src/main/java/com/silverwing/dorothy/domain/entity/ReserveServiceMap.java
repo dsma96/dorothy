@@ -18,6 +18,9 @@ public class ReserveServiceMap {
     @Column(name="svc_id")
     int svcId;
 
+    @Column(name="price")
+    int price;
+
     @ManyToOne
     @JoinColumn(name="svc_id",insertable=false,updatable=false)
     HairServices service;

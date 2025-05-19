@@ -130,6 +130,7 @@ public class ReservationService {
             ReserveServiceMap hairService = new ReserveServiceMap();
             hairService.setRegId(regId);
             hairService.setSvcId( hs.getServiceId());
+            hairService.setPrice( hs.getPrice());
             hairServicesMap.add( hairService );
         }
         return hairServicesMap;

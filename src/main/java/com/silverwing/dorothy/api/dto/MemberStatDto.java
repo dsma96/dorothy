@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 public class MemberStatDto {
-    long id;
+    int id;
     String name;
     String memo;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yy/MM/dd", timezone = JsonFormat.DEFAULT_TIMEZONE)
@@ -21,3 +21,4 @@ public class MemberStatDto {
     private Date firstDate;
 
 }
+

@@ -18,9 +18,9 @@ import java.util.List;
 public interface MemberReservationStatRepository extends JpaRepository<MemberReservationStat, Integer> {
 
     @Query("SELECT new com.silverwing.dorothy.api.dto.MemberStatDto( " +
-            "u.userId, u.userName, u.memo, u.createDate, r.reservationCount, r.lastVisitDate , r.firstVisitDate) " +
+            "u.userId, u.userName, u.memo, u.createDate,COALESCE(r.reservationCount, 0), r.lastVisitDate , r.firstVisitDate) " +
             "FROM Member u " +
-            "LEFT JOIN MemberReservationStat r ON u.userId = r.userId "
+            "LEFT OUTER JOIN MemberReservationStat r ON u.userId = r.userId "
     )
     Page<MemberStatDto> getMemberStat(Pageable pageable);
 

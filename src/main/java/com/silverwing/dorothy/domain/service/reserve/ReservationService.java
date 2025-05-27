@@ -91,6 +91,7 @@ public class ReservationService {
                 .userId(reservation.getUserId())
                 .isRequireSilence((caller.isRootUser() || userId == reservation.getUserId()) && reservation.isRequireSilence())
                 .files( (caller.isRootUser() || userId == reservation.getUserId()) &&  reservation.getUploadFiles() != null ?  reservation.getUploadFiles().stream().map( r -> UploadFileDto.of(r)).toList() : Collections.emptyList() )
+                .tip(caller.isRootUser()  ? reservation.getTip() : 0f)
                 .build();
         return dto;
     }

@@ -68,10 +68,15 @@ public class Reservation {
     @Column(name="coupon_id")
     int couponId;
 
+    @Column(name="tip")
+    float tip;
+
     @OneToMany(mappedBy = "regId")
     List<ReserveServiceMap> services;
 
     @OneToMany(mappedBy = "regId")
     @Where(clause = "file_status != 'SHOULD_DELETE' and file_status != 'DELETED'")
     List<UploadFile> uploadFiles;
+
+
 }

@@ -17,6 +17,9 @@ import { useSearchParams } from "react-router-dom";
 import moment from 'moment'
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ReservationHistoryTable from "./components/ReservationHistoryTable";
 import {
     CardActions,
     Dialog,
@@ -625,6 +628,14 @@ export default function ReserveEdit() {
 
     }
 
+
+    const handleTipInput = e=>{
+        setReservation({
+            ...reservation,
+            tip: e.target.value
+        })
+    }
+
     const handleCheckbox = (e)=>{
         reservation.requireSilence = !reservation.requireSilence;
         setReservation({
@@ -643,6 +654,35 @@ export default function ReserveEdit() {
 
     const formatDate = (dateStr: string) =>{
         return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
+    }
+
+    function saveTip(){
+        if( reservation.reservationId == -1 )
+            return;
+
+        let url = `/api/reserve/reservation/${reservation.reservationId}/tip?tip=${reservation.tip}`;
+
+        fetch(url, {
+            method: "PUT"
+        })
+            .then(response =>response.json())
+            .then(
+                data => {
+                    if( data.code == 200 ){
+                        setDialogTitle("Complete!");
+                        setOpenDialog(true);
+                        setDialogMessage( 'Tip Saved!');
+                        setHasError(true);
+                    }
+                    else{
+                        setDialogTitle("Error!");
+                        setDialogMessage( data.msg);
+                        setOpenDialog(true);
+                        setHasError(true);
+                    }
+                    buttonClicked = false;
+                }
+            )
     }
 
     function handleNoshow(){
@@ -701,16 +741,17 @@ export default function ReserveEdit() {
                         <section className="container">
                             <div {...getRootProps({className: 'dropzone', style: baseStyle})}>
                                 <input {...getInputProps()} />
+                                {!loginUser.rootUser &&
                                 <p style={{'fontSize':'small'}} >원하시는 스타일 사진첨부 가능합니다 (최대 2장)</p>
+                                }
                             </div>
                             <aside style={thumbsContainer}>
                                 { fromServer ? serverThumbs : localThumbs}
                             </aside>
                         </section>
 
-
                         <Divider/>
-
+                {!loginUser.rootUser &&
                         <Typography
                             component="h4"
                             variant="h4"
@@ -718,6 +759,8 @@ export default function ReserveEdit() {
                         >
                             800 Steeles Ave W
                         </Typography>
+                }
+                {!loginUser.rootUser &&
                         <Typography
                             component="h4"
                             variant="h4"
@@ -725,6 +768,7 @@ export default function ReserveEdit() {
                         >
                             Bing's hair salon, Designer Jay
                         </Typography>
+                   }
 
                         <CardActions  sx={{
                             display: 'flex',
@@ -758,44 +802,91 @@ export default function ReserveEdit() {
                             </Button>
                         </CardActions>
                         <Divider/>
-                        {loginUser.rootUser &&
+                        {loginUser.rootUser && reservation.reservationId > 0 &&
                             <CardActions  sx={{
                                 display: 'flex',
                                 justifyContent: 'center',
                             }}>
                                 { ((moment(reservation.endDate,'YYYYMMDDTHH:mm').toDate().getTime() - moment(reservation.startDate,'YYYYMMDDTHH:mm').toDate().getTime()) / 1000 / 60 ) +' 분 ' }
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        border: '0px solid #ccc',
+                                        borderRadius: '0px',
+                                        overflow: 'hidden',
+                                        width:'40px'
+                                    }}
+                                >
                                 <Button
-                                    size="medium"
+                                    size="small"
                                     variant="contained"
                                     onClick={()=>adjustReservation(30)}
                                     disabled={!reservation.editable || reservation.reservationId == -1}
+                                    id={'btn_increase'}
+
+                                    sx={{
+                                        borderRadius: 0,
+                                        padding: '0px',
+                                        height: '25%',
+                                        maxWidth:'2px'
+                                    }}
                                 >
-                                    30분+
+                                    <ArrowDropUpIcon color={"error"}/>
                                 </Button>
                                 <Button
-                                    size="medium"
+                                    size="small"
                                     variant="contained"
                                     onClick={()=>adjustReservation(-30)}
-                                    color="info"
                                     disabled={!reservation.editable || reservation.reservationId == -1}
+                                    id={'btn_decrease'}
+                                    sx={{
+                                        borderRadius: 0,
+                                        padding: '0px',
+                                        height: '25%',
+                                    }}
                                 >
-                                    30분 -
+                                    <ArrowDropDownIcon />
                                 </Button>
+                                </Box>
                                 <Button
-                                    size="medium"
+                                    size="large"
                                     variant="contained"
                                     color="error"
                                     disabled={stampCount < 10}
                                     onClick={useCoupon}
                                     style={{
-                                        marginLeft:'25px'
+                                        marginLeft:'15px',
+                                        marginRight:'15px',
+                                        padding: '0px',
+                                        height:'100%'
                                     }}
                                 >
                                     쿠폰사용
                                 </Button>
+                                <TextField
+                                    type="number"
+                                    variant="outlined"
+                                    placeholder={"tip"}
+                                    value={reservation.tip}
+                                    onChange={handleTipInput}
+                                    sx={{
+                                        width: '80px',
+                                        marginLeft:'25px'
+                                    }}
+                                />
+                                <Button
+                                    size="large"
+                                    color="success"
+                                    variant="contained"
+                                    onClick={saveTip}
+
+                                >Tip</Button>
                             </CardActions>
                         }
-                        {loginUser.rootUser &&
+                        {loginUser.rootUser &&  reservation.reservationId > 0 &&
                             <TextField
                                 placeholder="memo"
                                 multiline
@@ -805,7 +896,7 @@ export default function ReserveEdit() {
                             />
 
                         }
-                        {loginUser.rootUser &&
+                        {loginUser.rootUser && reservation.reservationId > 0 &&
                             <CardActions  sx={{
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -826,7 +917,11 @@ export default function ReserveEdit() {
                                 </Button>
                             </CardActions>
                         }
-
+                        { loginUser.rootUser && reservation.userId > 0 &&
+                            <ReservationHistoryTable
+                                userId={reservation.userId.toString()}
+                            />
+                        }
 
                     </Box>
                 </Card>

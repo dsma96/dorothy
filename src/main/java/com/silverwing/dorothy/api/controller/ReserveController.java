@@ -125,6 +125,33 @@ public class ReserveController {
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
     }
 
+    @PutMapping("/reservation/{regId}/tip")
+    public ResponseEntity<ResponseData<ReservationDto>> updateTip(@AuthenticationPrincipal Member member,
+                                                                          @PathVariable int regId,
+                                                                            @RequestParam("tip") float tip) {
+        ReservationRequestDTO reservationDto;
+        if( member == null ) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        if( !member.isRootUser()){
+            throw new ReserveException("Not enough permission");
+        }
+
+        if( tip < 0 || tip > 100 ){
+            throw new ReserveException("Invalid tip");
+        }
+
+        Reservation reservation =  reservationService.getReservation(regId).orElseThrow();
+
+        reservation.setModifyDate( new Date());
+        reservation.setModifier( member.getUserId());
+        reservation.setTip( tip );
+        reservationRepository.save(reservation);
+        ReservationDto dto = reservationService.convertReservation( reservation, member);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), dto), HttpStatus.OK);
+    }
+
     @PutMapping("/reservation/{regId}")
     public ResponseEntity<ResponseData<ReservationDto>> updateReservation(@AuthenticationPrincipal Member member,
                                                                           @RequestParam(value = "files", required = false) MultipartFile[] files,

@@ -145,7 +145,7 @@ const DateChoose: FC = () => {
                                     startDate = new Date( today.getFullYear(), today.getMonth(), today.getDate());
                                 }
 
-                                let lastOfMonth = new Date( date.getFullYear(), date.getMonth() + 1, 0);
+                                let lastOfMonth = new Date( date.getFullYear(), date.getMonth() + 1, 1);
                                 let offDays: OffDay[] = data.payload;
 
                                 for( ;startDate.getTime() < lastOfMonth.getTime(); startDate.setDate(startDate.getDate() + 1)) {

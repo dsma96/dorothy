@@ -60,7 +60,8 @@ export interface Reservation{
     requireSilence: boolean,
     editable: boolean,
     files?: UploadFile[]
-    userId: number
+    userId: number,
+    tip:number
 }
 
 export interface Stamp{

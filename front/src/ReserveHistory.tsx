@@ -1,192 +1,58 @@
-import {styled, useTheme} from "@mui/material/styles";
-import MuiCard from "@mui/material/Card";
-import Stack from "@mui/material/Stack";
-import {AppProvider} from "@toolpad/core/AppProvider";
+import React, { useEffect } from "react";
+import { styled, useTheme } from "@mui/material/styles";
+import { AppProvider } from "@toolpad/core/AppProvider";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
-import moment from 'moment'
-
-import * as React from "react";
-import {useNavigate} from "react-router";
-import Footer from "./components/Footer";
-import {Reservation, HairService} from './typedef';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow} from "@mui/material";
-import {useEffect} from "react";
-import {useSearchParams} from "react-router-dom";
+import moment from "moment";
+import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router-dom";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+import ReservationHistoryTable from "./components/ReservationHistoryTable";
+import { Reservation } from "./typedef";
 
-interface Column {
-    id: 'startDate' | 'services' ;
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-    format?: (value: string) => string;
-}
-
-const columns: readonly Column[] = [
-    { id: 'startDate', label: 'Date', minWidth: 50,
-      format: (value: string) =>  moment(value,'YYYYMMDDTHH:mm').format('YY/MM/DD') ,
-    },
-    { id: 'services', label: 'Services', minWidth: 120
-    }
-
-];
-
-const Card = styled(MuiCard)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignSelf: 'center',
-    width: '100%',
+const ReserveHistoryContainer = styled("div")(({ theme }) => ({
+    height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
+    minHeight: "100%",
     padding: theme.spacing(1),
-    gap: theme.spacing(2),
-    margin: 'auto',
-    [theme.breakpoints.up('sm')]: {
-        maxWidth: '450px',
-    },
-    boxShadow:
-        'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-    ...theme.applyStyles('dark', {
-        boxShadow:
-            'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-    }),
-}));
-
-const ReserveHistoryContainer = styled(Stack)(({ theme }) => ({
-    height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-    minHeight: '100%',
-    padding: theme.spacing(1),
-    [theme.breakpoints.up('sm')]: {
-        padding: theme.spacing(1),
-    },
-    '&::before': {
+    "&::before": {
         content: '""',
-        display: 'block',
-        position: 'absolute',
+        display: "block",
+        position: "absolute",
         zIndex: -1,
         inset: 0,
         backgroundImage:
-            'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-        backgroundRepeat: 'no-repeat',
-        ...theme.applyStyles('dark', {
-            backgroundImage:
-                'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-        }),
+            "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
+        backgroundRepeat: "no-repeat",
     },
 }));
 
-
 export default function ReserveHistory() {
     const theme = useTheme();
-    const navigate = useNavigate();
-    let [searchParams] = useSearchParams();
-    const [page, setPage] = React.useState(0);
-    const PAGE_PER_SIZE = 100;
-    const [rows, setRows] = React.useState<Reservation[]>([]);
 
-    const fetchData = (userId,page = 0  ) => {
-        const url = `/api/reserve/history?page=${page}&size=${PAGE_PER_SIZE}&userId=${userId}`;
-
-        fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-            .then(response =>response.json())
-            .then(
-                data => {
-                    if( data.code == 200 ){
-                        if( data.payload.content.length > 0) {
-                            let newRow = [] as Reservation[];
-                            data.payload.content.map((item: Reservation) => {
-                                newRow.push({
-                                    startDate: item.startDate,
-                                    services: item.services.map(service => service.name).join(", "),
-                                    status: item.status
-                                })
-                            });
-                            setRows(newRow);
-                        }else{
-                            setRows([]);
-                        }
-                    }
-                }
-            )
-            .catch(error => console.error("Error:", error));
-
-    }
-
-    useEffect(() => {
-        if( searchParams.get("userId"))
-            fetchData(searchParams.get("userId"), page);
-    },[page] )
+    const [searchParams] = useSearchParams();
 
     return (
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
-            <ReserveHistoryContainer direction="column" justifyContent="space-between">
-                <Header/>
-
-                <Typography
-                    component="h6"
-                    variant="h6"
-                >
+            <ReserveHistoryContainer>
+                <Header />
+                <Typography component="h6" variant="h6">
                     Reservation History
                 </Typography>
-
-                <Card
-                    variant="outlined"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'flex-start',
-                        alignItems: 'stretch',
-                        height: '100%', // Ensure the card takes full height
-                    }}
-                >
-                    <TableContainer style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
-                        <Table stickyHeader aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    {columns.map((column) => (
-                                        <TableCell
-                                            key={column.id}
-                                            align={column.align}
-                                            style={{ minWidth: column.minWidth }}
-                                        >
-                                            {column.label}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rows
-                                    .slice(page * PAGE_PER_SIZE, page * PAGE_PER_SIZE + PAGE_PER_SIZE)
-                                    .map((row, index) => (
-                                        <TableRow
-                                            hover
-                                            role="checkbox"
-                                            tabIndex={-1}
-                                            key={row.startDate}
-                                            sx={{
-                                                backgroundColor: index % 2 === 0 ? '#ffffff' : '#fcf3cf',
-                                            }}
-                                        >
-                                            {columns.map((column) => {
-                                                const value = row[column.id];
-                                                return (
-                                                    <TableCell key={column.id} align={column.align}>
-                                                        {column.format ? column.format(value) : value}
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Card>
-                <Footer backUrl="BACK" showMyInfo={false}></Footer>
+                <ReservationHistoryTable
+                    userId={searchParams.get("userId") ? searchParams.get("userId") : ''}
+                />
+                <Footer backUrl="BACK" showMyInfo={false}
+                        style={{
+                            position: 'fixed',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            backgroundColor: '#fff',
+                            zIndex: 1,
+                        }}
+                />
             </ReserveHistoryContainer>
         </AppProvider>
     );

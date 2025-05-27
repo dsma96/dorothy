@@ -27,4 +27,5 @@ public class ReservationDto {
     private boolean isRequireSilence;
     private List<UploadFileDto> files;
     private int userId;
+    private float tip;
 }

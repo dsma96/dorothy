@@ -155,9 +155,8 @@ export const handlers = [
                 msg: "OK",
                 code: 200,
                 payload: {
-                    phone: "6474060362",
+                    phone: "6471112222",
                     password: null,
-                    email: "silverwing@gmail.com",
                     name: "Lemmy",
                     id: 99
                 }
@@ -172,8 +171,7 @@ export const handlers = [
                 msg: "OK",
                 code: 200,
                 payload: {
-                    phone: "6474060362",
-                    email: "silverwing@gmail.com",
+                    phone: "6471112222",
                     name: "Lemmy",
                     id: 99
                 }
@@ -195,17 +193,16 @@ export const handlers = [
     http.post('/api/login/login', async ( {request, params, cookies}) => {
             // ...and respond to them using this JSON response.
             const data = await request.json();
-            if (data.phone == '6474060362') {
+            if (data.phone == '6471112222') {
                 return HttpResponse.json(
                     {
                         msg: "OK",
                         code: 200,
                         payload: {
-                            phone: "6474060362",
+                            phone: "6471112222",
                             password: null,
-                            email: "silverwing@gmail.com",
                             name: "Lemmy",
-                            "rootUser":true,
+                            "rootUser":false,
                             id: 2
                         }
                     }
@@ -213,9 +210,22 @@ export const handlers = [
             }
             else {
                 return HttpResponse.json(
-                    {"msg":"Invalid password :6474060362 merong2w3","code":500,"payload":null}
+                    {"msg":"Invalid password :6471112222 merong2w3","code":500,"payload":null}
                 );
             }
+        }
+    ),
+    http.get('api/configurations/', async () => {
+            return HttpResponse.json(
+                {
+                    "msg": "OK",
+                    "code": 200,
+                    "payload": {
+                        "address": "3 Abbey Road,St",
+                        "shopName": "Abbey Road Hair Salon",
+                    }
+                }
+            )
         }
     ),
     http.get('/api/login/relogin', async () => {
@@ -224,12 +234,11 @@ export const handlers = [
                     msg: "OK",
                     code: 200,
                     payload: {
-                        phone: "6474060362",
+                        phone: "6471112222",
                         password: null,
-                        email: "silverwing@gmail.com",
                         name: "Lemmy",
                         id:2,
-                        rootUser:true
+                        rootUser:false
                     }
                 }
             )
@@ -241,7 +250,7 @@ export const handlers = [
                     "msg": "OK",
                     "code": 200,
                     "payload": {
-                        "phone": "6474060362",
+                        "phone": "6471112222",
                         "password": null,
                         "email": null,
                         "name": "Lemmy Ma",
@@ -263,7 +272,7 @@ export const handlers = [
                         {
                             "reservationId": 86,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250412T14:30",
                             "endDate": "20250412T16:00",
                             "createDate": "20250411T15:44",
@@ -290,7 +299,7 @@ export const handlers = [
                         {
                             "reservationId": 2,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250411T16:00",
                             "endDate": "20250411T16:30",
                             "createDate": "20250306T00:00",
@@ -316,7 +325,7 @@ export const handlers = [
                         {
                             "reservationId": 20,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250313T10:30",
                             "endDate": "20250313T11:00",
                             "createDate": "20250312T22:46",
@@ -342,7 +351,7 @@ export const handlers = [
                         {
                             "reservationId": 17,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250312T10:30",
                             "endDate": "20250312T11:00",
                             "createDate": "20250312T00:30",
@@ -368,7 +377,7 @@ export const handlers = [
                         {
                             "reservationId": 14,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250308T14:00",
                             "endDate": "20250308T14:30",
                             "createDate": "20250308T03:46",
@@ -394,7 +403,7 @@ export const handlers = [
                         {
                             "reservationId": 13,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250308T13:00",
                             "endDate": "20250308T13:30",
                             "createDate": "20250308T03:42",
@@ -420,7 +429,7 @@ export const handlers = [
                         {
                             "reservationId": 12,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250308T11:30",
                             "endDate": "20250308T12:00",
                             "createDate": "20250308T03:40",
@@ -446,7 +455,7 @@ export const handlers = [
                         {
                             "reservationId": 11,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": "20250308T10:00",
                             "endDate": "20250308T10:30",
                             "createDate": "20250308T02:20",
@@ -561,7 +570,7 @@ export const handlers = [
                         {
                             "reservationId": 86,
                             "userName": "Lemmy Ma",
-                            "phone": "6474060362",
+                            "phone": "6471112222",
                             "startDate": today+"T13:00",
                             "endDate": today+"T14:00",
                             "createDate": "20250411T15:44",
@@ -675,7 +684,7 @@ export const handlers = [
     http.post('/api/verify/request', async ( {request, params, cookies}) => {
         // ...and respond to them using this JSON response.
         const data = await request.json();
-        if( data.phoneNo == '6474060362') {
+        if( data.phoneNo == '6471112222') {
             return HttpResponse.json(
                 {
                     "msg": "OK",

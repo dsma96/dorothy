@@ -3,13 +3,8 @@ import MuiCard from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import {AppProvider} from "@toolpad/core/AppProvider";
 import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import {useNavigate} from "react-router";
 import * as React from "react";
-import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import Link from "@mui/material/Link";
+
 import {CardMedia} from "@mui/material";
 
 
@@ -58,12 +53,6 @@ const HomeContainer = styled(Stack)(({ theme }) => ({
 
 export default function EventHome() {
     const theme = useTheme();
-    const navigate = useNavigate();
-
-    const gotoTimetable  = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        navigate("/time");
-    }
 
     return (
         <AppProvider theme={theme}>

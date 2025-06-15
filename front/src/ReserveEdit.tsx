@@ -125,7 +125,7 @@ const ReserveEditContainer = styled(Stack)(({ theme }) => ({
 
 export default function ReserveEdit() {
     const loginUser: Member = useSelector(state => state.user.loginUser);
-    const availableServices: HairService[] = useSelector(state => state.config.services);
+    const availableServices: HairService[] = useSelector(state => state.service.services);
 
     let [searchParams] = useSearchParams();
     const [openDialog, setOpenDialog] = useState(false);

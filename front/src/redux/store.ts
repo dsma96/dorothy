@@ -57,6 +57,6 @@ export default configureStore({
     reducer: {
         user: user.reducer,
         date: date.reducer,
-        config: availableServices.reducer
+        service: availableServices.reducer
     }
 });

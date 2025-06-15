@@ -104,7 +104,7 @@ public class NotificationService {
                                                 fullSdf.format(reservation.getStartDate()));
 
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_cancel_designer),
-                                                serviceName, fullSdf.format(reservation.getStartDate()));
+                                                serviceName, fullSdf.format(reservation.getStartDate()), customer.getUserName());
             sendSMSAsync(customer.getPhone(), "", customerMsg);
             sendSMSAsync(designer.getPhone(), "", designerMsg);
         }catch(RuntimeException e){

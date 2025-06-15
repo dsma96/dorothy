@@ -35,8 +35,8 @@ import java.util.*;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
-    private final ReserveServiceMapRepository serviceMapRepository;
     private final ReserveServiceMapRepository reserveServiceMapRepository;
+    private final ServiceConfigRepository serviceConfigRepository;
     private final HairServiceRepository hairServiceRepository;
     private final OffDayRepository offDayRepository;
     private final NotificationService notificationService;
@@ -46,6 +46,7 @@ public class ReservationService {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm");
     private SimpleDateFormat dayOnly = new SimpleDateFormat("yyyyMMdd");
+    private SimpleDateFormat hourOnly = new SimpleDateFormat("HH:mm");
 
     public List<Reservation> getReservations(Date startDate, Date endDate ) {
         List<Reservation> reservations;
@@ -243,7 +244,10 @@ public class ReservationService {
         }
     }
 
-    private void validateReservationTime(int designerId, Date startDate, Date endDate, int excludeId) {
+    public  void validateReservationTime(int designerId, Date startDate, Date endDate, int excludeId) {
+
+        Date now = new Date();
+
         String startDateDayOnly = dayOnly.format(startDate);
         try {
             OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), designerId);
@@ -258,7 +262,19 @@ public class ReservationService {
                 .orElseGet(Collections::emptyList);
 
         if (!duplicatedReserve.isEmpty()) {
-            throw new ReserveException("예약시간이 겹칩니다. \n You should select another time");
+            throw new ReserveException("예약시간이 겹칩니다. \n Please select another time");
+        }
+
+        ServiceConfig config = serviceConfigRepository.findAll().stream().findFirst().orElseThrow();
+        long dayBetween = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (dayBetween >= config.getMaxReservationDate()) {
+            throw new ReserveException("예약은 최대 " + config.getMaxReservationDate() + "일 전까지 가능합니다. \n You can only reserve up to " + config.getMaxReservationDate() + " days in advance.");
+        }
+
+        String endTime = hourOnly.format(endDate);
+        if( endTime.compareTo(config.getCloseTime()) > 0){
+            throw new ReserveException("영업 종료시간과 겹칩니다.\n Please select more earlier time");
         }
     }
 

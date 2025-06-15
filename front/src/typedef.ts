@@ -74,3 +74,10 @@ export interface OffDay{
     offDay: string,
     designer: number
 }
+
+export interface Configuration{
+    address: string,
+    shopName: string,
+    closeTime: string,
+    maxReservationDate: number
+}

@@ -48,7 +48,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     Optional<Reservation> findLastReservation(@Param("userId") int userId, @Param("serviceIds") List<Integer> serviceIds  );
 
 
-@Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate < :endDate and  r.endDate  > :startDate and r.status != 'CANCELED' and r.regId != :exclude")
+    @Query("SELECT r from Reservation r WHERE r.designerId = :designerId and r.startDate < :endDate and  r.endDate  > :startDate and r.status != 'CANCELED' and r.regId != :exclude")
     Optional<List<Reservation>> findAllWithDateOnDesigner(@Param("designerId") int designerId, @Param("startDate")Date startDate, @Param("endDate")Date endDate, @Param("exclude") int excludeId );
 
     @Query("SELECT r FROM Reservation r WHERE r.userId = :userId AND r.status IN ('CREATED', 'COMPLETED') ")

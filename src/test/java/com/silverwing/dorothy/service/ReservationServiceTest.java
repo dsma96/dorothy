@@ -3,10 +3,7 @@ package com.silverwing.dorothy.service;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.dao.*;
-import com.silverwing.dorothy.domain.entity.HairServices;
-import com.silverwing.dorothy.domain.entity.Member;
-import com.silverwing.dorothy.domain.entity.Reservation;
-import com.silverwing.dorothy.domain.entity.ReserveServiceMap;
+import com.silverwing.dorothy.domain.entity.*;
 import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +17,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -42,6 +39,8 @@ public class ReservationServiceTest {
     private OffDayRepository offDayRepository;
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private ServiceConfigRepository serviceConfigRepository;
 
     @Mock
     private ObjectProvider<ReservationService> reservationServiceProvider;
@@ -63,14 +62,17 @@ public class ReservationServiceTest {
         h.setPrice(1000);
         h.setUse(true);
         hairServices.add(h);
+        ServiceConfig config = new ServiceConfig();
+        config.setCloseTime("18:30");
+        config.setAddress("Test Address");
+        config.setShopName("Welcome to Dorothy");
+        config.setMaxReservationDate(30);
 
         MockitoAnnotations.openMocks(this);
         when(reservationServiceProvider.getObject()).thenReturn(reservationService);
         when( hairServiceRepository.getAvailableServices()).thenReturn(Optional.of(hairServices));
-
-
         when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn( Optional.of(hairServices));
-
+        when(serviceConfigRepository.findAll()).thenReturn(Collections.singletonList(config));
     }
 
     @Test
@@ -163,5 +165,61 @@ public class ReservationServiceTest {
     }
 
 
+    @Test
+    public void testValidateReservationTime_DesignerOffDay() throws ParseException {
+        int designerId = 1;
+        Date startDate = sdf.parse("20231001T10:00");
+        Date endDate = sdf.parse("20231001T11:00");
+        int excludeId = -1;
+
+        OffDayId offDayId = new OffDayId(dayOnly.parse("20231001"), designerId);
+        when(offDayRepository.findById(any(OffDayId.class))).thenReturn(Optional.of(mock(OffDay.class)));
+
+        assertThrows(ReserveException.class, () ->
+                reservationService.validateReservationTime(designerId, startDate, endDate, excludeId)
+        );
+    }
+
+    @Test
+    public void testValidateReservationTime_OverlappingReservation() throws ParseException {
+        int designerId = 1;
+        Date startDate = sdf.parse("20231001T10:00");
+        Date endDate = sdf.parse("20231001T11:00");
+        int excludeId = -1;
+
+        when(reservationRepository.findAllWithDateOnDesigner(designerId, startDate, endDate, excludeId))
+                .thenReturn(Optional.of(Collections.singletonList(mock(Reservation.class))));
+
+        assertThrows(ReserveException.class, () ->
+                reservationService.validateReservationTime(designerId, startDate, endDate, excludeId)
+        );
+    }
+
+    @Test
+    public void testValidateReservationTime_MaxReservationDaysExceeded() throws ParseException {
+        int designerId = 1;
+        Date startDate = new Date( new Date().getTime() + (31L * 24 * 60 * 60 * 1000)); // 31 days later
+
+        Date endDate = new Date(startDate.getTime() + 1800000); // 30 minutes later
+        int excludeId = -1;
+
+
+        assertThrows(ReserveException.class, () ->
+                reservationService.validateReservationTime(designerId, startDate, endDate, excludeId)
+        );
+    }
+
+    @Test
+    public void testValidateReservationTime_ClosingTimeConflict() throws ParseException {
+        int designerId = 1;
+        Date startDate = sdf.parse("20231001T18:00");
+        Date endDate = sdf.parse("20231001T19:00");
+        int excludeId = -1;
+
+
+        assertThrows(ReserveException.class, () ->
+                reservationService.validateReservationTime(designerId, startDate, endDate, excludeId)
+        );
+    }
 
 }

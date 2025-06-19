@@ -21,7 +21,7 @@ public class ReservationDto {
     private String endDate;
     private String createDate;
     private ReservationStatus status;
-    private List<HairServices> services;
+    private List<HairSerivceDto> services;
     private boolean isEditable;
     private String memo;
     private boolean isRequireSilence;

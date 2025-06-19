@@ -32,8 +32,8 @@ import {
 
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { HairService, Reservation, UploadFile, Member } from "./typedef";
-import {setAvailableServices} from "./redux/store";
 import Header from "./components/Header";
+
 
 const thumbsContainer = {
     display: 'flex',
@@ -125,7 +125,7 @@ const ReserveEditContainer = styled(Stack)(({ theme }) => ({
 
 export default function ReserveEdit() {
     const loginUser: Member = useSelector(state => state.user.loginUser);
-    const availableServices: HairService[] = useSelector(state => state.service.services);
+    const [availableServices, setAvailableServices] = useState<HairService[]>([]);
 
     let [searchParams] = useSearchParams();
     const [openDialog, setOpenDialog] = useState(false);
@@ -246,7 +246,7 @@ export default function ReserveEdit() {
     }
 
 
-    const serviceCheckBoxes = services.map( (service: HairService, index) => {
+    const serviceCheckBoxes = services == null ? [] : services.map( (service: HairService, index) => {
         return (
             <FormControlLabel
                 key={service.serviceId}
@@ -312,7 +312,7 @@ export default function ReserveEdit() {
 
     useEffect(() => {
         if( fromServer ){ // EDIT mode
-            if(reservation.reservationId > 0 && availableServices.length > 0 && services. length == 0) {
+            if(reservation.reservationId > 0 &&availableServices &&  availableServices.length > 0 && services.length == 0) {
                 let newServices: HairService[] = [];
                 availableServices.forEach( (service: HairService) => {
                     let newService = { ...service};
@@ -322,7 +322,7 @@ export default function ReserveEdit() {
                 setServices(newServices);
             }
         }else{
-            if( availableServices.length > 0 && services. length == 0) {
+            if(availableServices && availableServices.length > 0 && services.length == 0) {
                 let newServices: HairService[] = [];
                 availableServices.forEach( (service: HairService) => {
                     let newService = { ...service};
@@ -359,17 +359,6 @@ export default function ReserveEdit() {
     },[reservation]);
 
     useEffect(() => {
-        if( availableServices.length ==0 ) { // need to load available service
-            fetch('/api/reserve/services')
-                .then((response) => response.json())
-                .then((data) => {
-                    dispatch( setAvailableServices(data.payload));
-                    setServices(availableServices);
-                    })
-                .catch((error) => {
-                    console.error('Error fetching services:', error);
-                });
-        }
 
         if (searchParams.get("start")) {
             let startDateString = searchParams.get("start");
@@ -377,7 +366,18 @@ export default function ReserveEdit() {
                 ...reservation,
                 startDate: startDateString
             } as Reservation;
-            setReservation( newReservation);
+            console.debug("getService from startDate");
+        // need to load available service
+            fetch(`/api/reserve/services/${startDateString.substring(0,8)}`)
+                .then((response) => response.json())
+                .then((serviceData) => {
+                    setAvailableServices(serviceData.payload)
+                    setReservation( newReservation);
+                })
+                .catch((error) => {
+                    console.error('Error fetching services:', error);
+                });
+
         }
         else if( searchParams.get("regId")){
             let regId = searchParams.get("regId");
@@ -394,7 +394,18 @@ export default function ReserveEdit() {
                             console.log(JSON.stringify(data.payload));
                             if( data.payload.files == null )
                                 data.payload.files = [];
-                            setReservation( data.payload );
+                            let startDate = data.payload.startDate;
+                            console.log("getService from regId");
+                            fetch(`/api/reserve/services/${startDate.substring(0,8)}`)
+                                .then((response) => response.json())
+                                .then((serviceData) => {
+                                    setAvailableServices(serviceData.payload)
+                                    setReservation( data.payload );
+                                })
+                                .catch((error) => {
+                                    console.error('Error fetching services:', error);
+                                });
+
                         }
                     }
                 )
@@ -751,24 +762,6 @@ export default function ReserveEdit() {
                         </section>
 
                         <Divider/>
-                {!loginUser.rootUser &&
-                        <Typography
-                            component="h4"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(0.9rem, 9vw, 0.9rem)', lineHeight: 1}}
-                        >
-                            800 Steeles Ave W
-                        </Typography>
-                }
-                {!loginUser.rootUser &&
-                        <Typography
-                            component="h4"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(1rem, 9vw, 0.9rem)', lineHeight: 1}}
-                        >
-                            Bing's hair salon, Designer Jay
-                        </Typography>
-                   }
 
                         <CardActions  sx={{
                             display: 'flex',

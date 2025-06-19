@@ -13,18 +13,11 @@ export default defineConfig(({ mode }) => {
               target: apiServer,
               changeOrigin:true,
               secure:false,
-              configure: (proxy) => {
-                  proxy.on('proxyReq', (proxyReq, req) => {
-                      // Ensure PUT and other methods are forwarded
-                      if (req.method) {
-                          proxyReq.method = req.method;
-                      }
-                  });
-              },
+
             }
           } : undefined,
           watch: {
-            usePolling: true
+            usePolling: false
           }
         ,
         }

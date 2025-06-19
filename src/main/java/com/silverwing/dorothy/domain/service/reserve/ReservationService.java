@@ -1,5 +1,6 @@
 package com.silverwing.dorothy.domain.service.reserve;
 
+import com.silverwing.dorothy.api.dto.HairSerivceDto;
 import com.silverwing.dorothy.api.dto.UploadFileDto;
 import com.silverwing.dorothy.domain.Exception.FileUploadException;
 import com.silverwing.dorothy.domain.service.PhotoFileService;
@@ -78,6 +79,7 @@ public class ReservationService {
         int userId = caller.getUserId();
         Date now = new Date();
         List<HairServices> hairServices = reservation.getServices().stream().map(s-> s.getService()).toList();
+        List<HairSerivceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
@@ -85,7 +87,7 @@ public class ReservationService {
                 .startDate(sdf.format(reservation.getStartDate()))
                 .endDate(sdf.format(reservation.getEndDate()))
                 .createDate( reservation.getModifyDate().after( reservation.getStartDate()) ?  sdf.format(reservation.getModifyDate()) : sdf.format(reservation.getCreateDate()))
-                .services(caller.isRootUser() || userId == reservation.getUserId() ? hairServices : Collections.emptyList())
+                .services(caller.isRootUser() || userId == reservation.getUserId() ? hairServiceDtos : Collections.emptyList())
                 .status( reservation.getStatus())
                 .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
                 .memo(caller.isRootUser() || userId == reservation.getUserId() ? reservation.getMemo() : "")
@@ -120,19 +122,21 @@ public class ReservationService {
         return endDate;
     }
 
-
-
     static final int MANDATORY_ID= 1;
 
-    private List<ReserveServiceMap> getHairServices(ReservationRequestDTO reservation, int regId) {
+    private List<ReserveServiceMap> getHairServices(ReservationRequestDTO requestDTO,Reservation reservation) {
         ArrayList <ReserveServiceMap> hairServicesMap = new ArrayList<>();
-        List <HairServices> hairServices = hairServiceRepository.findHairServicesByIds( reservation.getServiceIds()).orElseThrow();
+        List <HairServices> hairServices = hairServiceRepository.findHairServicesByIds( requestDTO.getServiceIds()).orElseThrow();
 
         for( HairServices hs : hairServices ){
             ReserveServiceMap hairService = new ReserveServiceMap();
-            hairService.setRegId(regId);
+            hairService.setRegId( reservation.getRegId());
             hairService.setSvcId( hs.getServiceId());
-            hairService.setPrice( hs.getPrice());
+            ServicePrice price = hs.getServicePrices().stream()
+                    .filter( p -> reservation.getStartDate().after( p.getStartDate() ) && reservation.getStartDate().before( p.getEndDate()))
+                    .findFirst()
+                    .orElseThrow(()-> new ReserveException("Can't find service price: " + hs.getServiceId()+" at " + reservation.getStartDate()));
+            hairService.setPrice(price.getPrice());
             hairServicesMap.add( hairService );
         }
         return hairServicesMap;
@@ -163,6 +167,31 @@ public class ReservationService {
     @Cacheable(cacheNames = "hairservice")
     public List<HairServices> getHairServices() {
         return hairServiceRepository.getAvailableServices().orElseThrow();
+    }
+
+    public List<HairSerivceDto> convertHairServices(List<HairServices> services, Date regDate ) {
+        if (services == null || services.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return services.stream().map( s -> {
+            if( s == null )
+                return null;
+
+             return HairSerivceDto.builder()
+                    .serviceId(s.getServiceId())
+                    .name(s.getName())
+                    .idx(s.getIdx())
+                    .serviceTime(s.getServiceTime())
+                     .price( s.getServicePrices().stream()
+                             .filter( p -> regDate.after(p.getStartDate()) && regDate.before(p.getEndDate()))
+                             .findFirst()
+                             .orElseThrow(() -> new ReserveException("Can't find service price: " + s.getServiceId() + " at " + regDate))
+                             .getPrice())
+                    .build();
+
+        }).toList();
+
     }
 
     @Transactional
@@ -314,7 +343,7 @@ public class ReservationService {
 
 
     private void updateServiceMappings(ReservationRequestDTO reqDto, Reservation reservation) {
-        List<ReserveServiceMap> newServiceMap = getHairServices(reqDto, reservation.getRegId());
+        List<ReserveServiceMap> newServiceMap = getHairServices(reqDto, reservation);
         List<ReserveServiceMap> oldServiceMap = reservation.getServices();
 
         if (newServiceMap.isEmpty()) {

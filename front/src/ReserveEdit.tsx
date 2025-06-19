@@ -312,7 +312,7 @@ export default function ReserveEdit() {
 
     useEffect(() => {
         if( fromServer ){ // EDIT mode
-            if(reservation.reservationId > 0 && availableServices.length > 0 && services. length == 0) {
+            if(reservation.reservationId > 0 && availableServices.length > 0 && services.length == 0) {
                 let newServices: HairService[] = [];
                 availableServices.forEach( (service: HairService) => {
                     let newService = { ...service};
@@ -322,7 +322,7 @@ export default function ReserveEdit() {
                 setServices(newServices);
             }
         }else{
-            if( availableServices.length > 0 && services. length == 0) {
+            if( availableServices.length > 0 && services.length == 0) {
                 let newServices: HairService[] = [];
                 availableServices.forEach( (service: HairService) => {
                     let newService = { ...service};

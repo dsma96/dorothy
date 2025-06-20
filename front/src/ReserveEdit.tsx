@@ -751,25 +751,6 @@ export default function ReserveEdit() {
                         </section>
 
                         <Divider/>
-                {!loginUser.rootUser &&
-                        <Typography
-                            component="h4"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(0.9rem, 9vw, 0.9rem)', lineHeight: 1}}
-                        >
-                            800 Steeles Ave W
-                        </Typography>
-                }
-                {!loginUser.rootUser &&
-                        <Typography
-                            component="h4"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(1rem, 9vw, 0.9rem)', lineHeight: 1}}
-                        >
-                            Bing's hair salon, Designer Jay
-                        </Typography>
-                   }
-
                         <CardActions  sx={{
                             display: 'flex',
                             justifyContent: 'center',

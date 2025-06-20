@@ -2,6 +2,7 @@ package com.silverwing.dorothy.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.silverwing.dorothy.api.dto.HairSerivceDto;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
@@ -32,6 +33,7 @@ public class ReserveController {
 
     private final ReservationService reservationService;
     private SimpleDateFormat sdf= new SimpleDateFormat("yyyyMMdd'T'HH:mm");
+    private SimpleDateFormat dateOnlySdf = new SimpleDateFormat("yyyyMMdd");
     private final ReservationRepository reservationRepository;
 
     public ReserveController(ReservationService reservice,
@@ -197,10 +199,18 @@ public class ReserveController {
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), reservationDto), HttpStatus.OK);
     }
 
-    @GetMapping("/services")
-    public ResponseEntity<ResponseData<List<HairServices>>> getServices() {
+    @GetMapping("/services/{dateStr}")
+    public ResponseEntity<ResponseData<List<HairSerivceDto>>> getServices(@PathVariable String dateStr) {
+        Date date;
+        try {
+            date = dateOnlySdf.parse(dateStr);
+        }catch (ParseException e) {
+            return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
+        }
+
         List<HairServices> services = reservationService.getHairServices();
-        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), services), HttpStatus.OK);
+        List<HairSerivceDto> serviceDtos = reservationService.convertHairServices(services, date);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), serviceDtos), HttpStatus.OK);
     }
 
     @GetMapping("/history")

@@ -21,7 +21,7 @@ import MemberList from "./MemberList";
 import Statistics from "./Statistics";
 
 if (process.env.NODE_ENV === 'development' ) {
-    worker.start()
+//    worker.start()
 }
 
 const theme = createTheme({

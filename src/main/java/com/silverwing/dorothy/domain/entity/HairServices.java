@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.type.YesNoConverter;
 
+import java.util.List;
+
 @Entity
 @Table(name="services")
 @Data
@@ -39,4 +41,7 @@ public class HairServices {
 
     @Column(name="price")
     int price;
+
+    @OneToMany(mappedBy = "serviceId", fetch = FetchType.EAGER)
+    private List<ServicePrice> servicePrices;
 }

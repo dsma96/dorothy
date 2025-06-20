@@ -31,11 +31,7 @@ export interface ReserveTimeEvent {
 export interface HairService {
     serviceId: number,
     name: string,
-    mandatory: boolean,
     idx: number,
-    use: boolean,
-    visible: boolean
-    defaultValue: boolean,
     serviceTime: number,
     price: number,
     selected?:boolean

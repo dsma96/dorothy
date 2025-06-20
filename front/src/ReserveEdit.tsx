@@ -762,7 +762,6 @@ export default function ReserveEdit() {
                         </section>
 
                         <Divider/>
-
                         <CardActions  sx={{
                             display: 'flex',
                             justifyContent: 'center',

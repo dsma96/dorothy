@@ -136,7 +136,7 @@ export default function SignIn() {
     let dispatch = useDispatch();
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        console.log("handleSubmit");
+
         if (phoneError || passwordError) {
             event.preventDefault();
             return;
@@ -162,7 +162,8 @@ export default function SignIn() {
                       dispatch( setUser( data.payload )) ;
                       navigate(retUrl)
                     }else{
-                        setDialogMessage( data.msg || 'Invalid UserName or Password' );
+                        setDialogMessage( data.msg || 'Invalid UserName or Password!' );
+                        setPassword('');
                         setOpenDialog(true);
                     }
                 }
@@ -260,8 +261,7 @@ export default function SignIn() {
                                 error={passwordError}
                                 helperText={passwordErrorMessage}
                                 name="password"
-                                placeholder="••••••"
-                                defaultValue={password}
+                                value={password}
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"

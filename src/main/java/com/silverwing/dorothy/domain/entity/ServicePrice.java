@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.IdClass;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -13,6 +14,7 @@ import java.util.Date;
 @IdClass(ServicePriceId.class)
 @Table(name = "service_price")
 @Getter
+@Setter
 public class ServicePrice {
     @Id
     @Column(name = "svc_id")

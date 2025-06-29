@@ -122,8 +122,6 @@ public class ReservationService {
         return endDate;
     }
 
-    static final int MANDATORY_ID= 1;
-
     private List<ReserveServiceMap> getHairServices(ReservationRequestDTO requestDTO,Reservation reservation) {
         ArrayList <ReserveServiceMap> hairServicesMap = new ArrayList<>();
         List <HairServices> hairServices = hairServiceRepository.findHairServicesByIds( requestDTO.getServiceIds()).orElseThrow();

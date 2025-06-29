@@ -107,10 +107,24 @@ public class ReservationServiceTest {
         reservation.setDesignerId(reqDto.getDesigner());
         reservation.setRequireSilence(reqDto.isRequireSilence());
 
+
+        ServicePrice p = new ServicePrice();
+        p.setStartDate( new Date());
+        p.setEndDate( new Date(
+                now.getYear()+1,
+                now.getMonth(),
+                now.getDate()+1
+        ));
+        List<ServicePrice> prices = new ArrayList<>();
+        prices.add(p);
+
         when(offDayRepository.findById(any())).thenReturn(Optional.empty());
         when(reservationRepository.findAllWithDateOnDesigner(anyInt(), any(), any(), anyInt())).thenReturn(Optional.empty());
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
-        when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(new HairServices(), new HairServices(), new HairServices())));
+
+        HairServices hairService = new HairServices();
+        hairService.setServicePrices(prices);
+        when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(hairService)));
 
         Reservation createdReservation = reservationService.createReservation(reqDto, customer,null);
 
@@ -152,9 +166,20 @@ public class ReservationServiceTest {
         existingReservation.setRequireSilence(reqDto.isRequireSilence());
         existingReservation.setServices( List.of(serviceMap));
 
+        ServicePrice p = new ServicePrice();
+        p.setStartDate( new Date());
+        p.setEndDate( new Date(
+                now.getYear()+1,
+                now.getMonth(),
+                now.getDate()+1
+        ));
+        List<ServicePrice> prices = new ArrayList<>();
+        prices.add(p);
         when(reservationRepository.findById(anyInt())).thenReturn(Optional.of(existingReservation));
         when(reservationRepository.save(any(Reservation.class))).thenReturn(existingReservation);
-        when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(new HairServices(), new HairServices(), new HairServices())));
+        HairServices hairService = new HairServices();
+        hairService.setServicePrices(prices);
+        when(hairServiceRepository.findHairServicesByIds(anyList())).thenReturn(Optional.of(Arrays.asList(hairService)));
 
         Reservation updatedReservation = reservationService.updateReservation(existingReservation, reqDto, customer, null);
 

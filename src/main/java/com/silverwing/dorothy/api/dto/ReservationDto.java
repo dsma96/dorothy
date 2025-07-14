@@ -1,6 +1,5 @@
 package com.silverwing.dorothy.api.dto;
 
-import com.silverwing.dorothy.domain.entity.HairServices;
 import com.silverwing.dorothy.domain.type.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +20,7 @@ public class ReservationDto {
     private String endDate;
     private String createDate;
     private ReservationStatus status;
-    private List<HairSerivceDto> services;
+    private List<HairServiceDto> services;
     private boolean isEditable;
     private String memo;
     private boolean isRequireSilence;

@@ -6,17 +6,17 @@ import org.hibernate.type.YesNoConverter;
 
 @Entity
 @Table(name = "service_options")
+@IdClass(ServiceOptionId.class)
 @Data
 public class ServiceOptionMap {
+
     @Id
-    @Column(name = "svc_opt_id")
-    int svcOptId;
-
     @Column(name = "svc_id")
-    int svcId;
+    int serviceId;
 
+    @Id
     @Column(name = "opt_id")
-    int optId;
+    int optionId;
 
     @Column(name="use")
     @Convert(converter = YesNoConverter.class)

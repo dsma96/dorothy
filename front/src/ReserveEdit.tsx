@@ -396,11 +396,12 @@ export default function ReserveEdit() {
                                 data.payload.files = [];
                             let startDate = data.payload.startDate;
                             console.log("getService from regId");
-                            fetch(`/api/reserve/services/${startDate.substring(0,8)}`)
+                            setReservation( data.payload );
+                            let dateParam = startDate.substring(0,8);
+                            fetch(`/api/reserve/services/${dateParam}`)
                                 .then((response) => response.json())
                                 .then((serviceData) => {
                                     setAvailableServices(serviceData.payload)
-                                    setReservation( data.payload );
                                 })
                                 .catch((error) => {
                                     console.error('Error fetching services:', error);

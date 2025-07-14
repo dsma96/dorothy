@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode}) => {
 
   const isLocal = process.env.NODE_ENV == 'development';
   const apiServer = 'https://localhost:8443'
@@ -25,7 +27,9 @@ export default defineConfig(({ mode }) => {
           react({
               include: "**/*.tsx"
             }
-        )],
+        ),
+          mkcert()
+      ],
       esbuild : {
           loader: "tsx", // OR "jsx"
               include : [

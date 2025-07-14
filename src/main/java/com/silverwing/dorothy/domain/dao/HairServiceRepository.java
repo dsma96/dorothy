@@ -10,9 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface HairServiceRepository extends JpaRepository<HairServices, Integer>{
-    @Query("SELECT s from HairServices s WHERE s.isUse = true order by s.idx")
+    @Query("SELECT s from HairServices s join fetch s.options  WHERE s.isUse = true order by s.idx")
     Optional<List<HairServices>> getAvailableServices();
 
-    @Query("SELECT s from HairServices s where s.serviceId in :ids and s.isUse = true")
+    @Query("SELECT s from HairServices s join fetch s.options where s.serviceId in :ids and s.isUse = true")
     Optional<List<HairServices>> findHairServicesByIds(List<Integer> ids);
 }

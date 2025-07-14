@@ -17,6 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
+
+    @Query("SELECT r FROM Reservation r join fetch r.user u join fetch r.services join fetch r.uploadFiles WHERE r.regId = :regId")
+    Optional<Reservation> findBy(int regId);
+
+
     Optional<List<Reservation>> findAllByUserId(int userId);
     @Query("SELECT r From Reservation r WHERE r.userId = :userId and r.startDate between :startDate and :endDate and r.status != 'CANCELED'" )
     Optional<List<Reservation>> findAllWithStartDate(@Param("userId")int userId, @Param("startDate")Date startDate, @Param("endDate")Date endDate );

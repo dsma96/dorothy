@@ -1,16 +1,12 @@
 package com.silverwing.dorothy.domain.service.reserve;
 
-import com.silverwing.dorothy.api.dto.HairSerivceDto;
-import com.silverwing.dorothy.api.dto.UploadFileDto;
+import com.silverwing.dorothy.api.dto.*;
 import com.silverwing.dorothy.domain.Exception.FileUploadException;
-import com.silverwing.dorothy.domain.service.PhotoFileService;
-import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.dao.*;
-import com.silverwing.dorothy.api.dto.ReservationDto;
-import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import com.silverwing.dorothy.domain.entity.*;
-
+import com.silverwing.dorothy.domain.service.PhotoFileService;
+import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.type.FileUploadStatus;
 import com.silverwing.dorothy.domain.type.ReservationStatus;
 import jakarta.transaction.Transactional;
@@ -79,7 +75,7 @@ public class ReservationService {
         int userId = caller.getUserId();
         Date now = new Date();
         List<HairServices> hairServices = reservation.getServices().stream().map(s-> s.getService()).toList();
-        List<HairSerivceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
+        List<HairServiceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
@@ -123,7 +119,7 @@ public class ReservationService {
     }
 
     private List<ReserveServiceMap> getHairServices(ReservationRequestDTO requestDTO,Reservation reservation) {
-        ArrayList <ReserveServiceMap> hairServicesMap = new ArrayList<>();
+        ArrayList <ReserveServiceMap> selectedServices = new ArrayList<>();
         List <HairServices> hairServices = hairServiceRepository.findHairServicesByIds( requestDTO.getServiceIds()).orElseThrow();
 
         for( HairServices hs : hairServices ){
@@ -135,9 +131,9 @@ public class ReservationService {
                     .findFirst()
                     .orElseThrow(()-> new ReserveException("Can't find service price: " + hs.getServiceId()+" at " + reservation.getStartDate()));
             hairService.setPrice(price.getPrice());
-            hairServicesMap.add( hairService );
+            selectedServices.add( hairService );
         }
-        return hairServicesMap;
+        return selectedServices;
     }
 
     public Reservation cancelReservation( int regId , Member caller){
@@ -167,7 +163,7 @@ public class ReservationService {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }
 
-    public List<HairSerivceDto> convertHairServices(List<HairServices> services, Date regDate ) {
+    public List<HairServiceDto> convertHairServices(List<HairServices> services, Date regDate ) {
         if (services == null || services.isEmpty()) {
             return Collections.emptyList();
         }
@@ -176,7 +172,7 @@ public class ReservationService {
             if( s == null )
                 return null;
 
-             return HairSerivceDto.builder()
+             return HairServiceDto.builder()
                     .serviceId(s.getServiceId())
                     .name(s.getName())
                     .idx(s.getIdx())
@@ -186,6 +182,11 @@ public class ReservationService {
                              .findFirst()
                              .orElseThrow(() -> new ReserveException("Can't find service price: " + s.getServiceId() + " at " + regDate))
                              .getPrice())
+                     .options( s.getOptions() == null ? Collections.emptyList() :
+                             s.getOptions().stream()
+                                     .map(OptionDto::from)
+                                     .filter(Objects::nonNull)
+                                     .toList())
                     .build();
 
         }).toList();

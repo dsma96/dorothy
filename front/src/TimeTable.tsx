@@ -208,6 +208,7 @@ const TimeTable: FC = () => {
     const theme = useTheme();
 
     const handleSelectSlot = ( {start , end, slots} ) => {
+        console.log("handleSelectSlot");
         let now = new Date();
 
         if( isOffday ){
@@ -245,7 +246,7 @@ const TimeTable: FC = () => {
         if( isOffday ){
             return;
         }
-
+        console.log("handleSelectEvent");
         if( evt.end < now && loginUser.rootUser == false) {
             console.log("now"+ now+" "+JSON.stringify(evt));
             return;
@@ -313,7 +314,7 @@ const TimeTable: FC = () => {
 
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
-                    onDoubleClickEvent={handleSelectEvent}
+                    // onDoubleClickEvent={handleSelectEvent}
                     onDragStart={(e)=>{console.log('drag');e.preventDefault(); e.stopPropagation()}}
                     onDragOver={(e)=>{e.preventDefault(); e.stopPropagation()}}
                     onDragEnd={(e)=>{e.preventDefault(); e.stopPropagation()}}

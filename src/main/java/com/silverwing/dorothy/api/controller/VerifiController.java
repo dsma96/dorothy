@@ -66,7 +66,7 @@ public class VerifiController {
             throw new VerifyException("Invalid verify code");
         }
         try {
-            VerifyRequest req = verifyService.verifyRequest(phoneNo, requestDto.getVerifyCode());
+            VerifyRequest req = verifyService.verifyRequest(phoneNo, requestDto.getVerifyCode(),requestDto.getType());
 
             VerifyRequestDto res = VerifyRequestDto.builder()
                     .phoneNo(req.getPhoneNo())

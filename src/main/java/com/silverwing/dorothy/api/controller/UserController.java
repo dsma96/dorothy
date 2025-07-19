@@ -49,6 +49,20 @@ public class UserController {
         return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
     }
 
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<  ResponseData<MemberDto>> resetPassword( @RequestBody MemberDto memberDto) {
+
+        Member newMember =  userService.resetPassword(memberDto.getPhone(), memberDto.getPassword());
+
+        MemberDto resp = MemberDto.builder()
+                .phone( newMember.getPhone())
+                .id(newMember.getUserId())
+                .build();
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),resp ),HttpStatus.OK);
+    }
+
+
     @GetMapping("/{userId}")
     public ResponseEntity<ResponseData<MemberDto>> getUser(@AuthenticationPrincipal Member member, @PathVariable int userId) {
         if (member == null) {
@@ -120,8 +134,11 @@ public class UserController {
 
         loginUser.setEmail(memberDto.getEmail());
 
-        if( memberDto.getNewPassword() != null && memberDto.getNewPassword().length() > 5 ){
-            loginUser.setPassword(userService.getEncryptedPassword( memberDto.getNewPassword() ));
+        if( memberDto.getNewPassword() != null  ){
+            if(  memberDto.getNewPassword().length() >= 4)
+                loginUser.setPassword(userService.getEncryptedPassword( memberDto.getNewPassword() ));
+            else
+                throw new UserException("Password must be at least 4 characters long");
         }
 
         userService.updateUser(loginUser );

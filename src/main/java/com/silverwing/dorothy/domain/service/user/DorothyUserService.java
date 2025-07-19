@@ -11,6 +11,7 @@ import com.silverwing.dorothy.domain.type.UserRole;
 import com.silverwing.dorothy.domain.type.UserStatus;
 import com.silverwing.dorothy.domain.type.VerifyState;
 import com.silverwing.dorothy.domain.type.VerifyType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,7 @@ public class DorothyUserService  {
     }
 
 
+    @Transactional
     public Member createMember( String name, String telNo, String email, String password ) throws UserException {
 
         if( memberRepository.findMemberByPhone(telNo).isPresent() )
@@ -121,6 +123,29 @@ public class DorothyUserService  {
             return memberRepository.save( member );
         } catch (Exception e) {
             throw new UserException( "Can't create user", e );
+        }
+    }
+
+    @Transactional
+    public Member resetPassword(String telNo, String newPassword) throws UserException {
+        Member member = memberRepository.findMemberByPhone(telNo).orElseThrow( () -> new UserException("Can't find user with phone "+telNo) );
+        VerifyRequest vr =  verifyRequestRepository.findVerify( telNo, VerifyType.PWD_RESET.name(), VerifyState.VERIFIED.name()).orElseThrow( ()->  new UserException("You should verify your phone number first"));
+        vr.setVerifyState(VerifyState.PERSISTED);
+
+        if( newPassword == null || newPassword.isEmpty() || newPassword.length() < 4) {
+            throw new UserException("too short password, should be at least 4 characters");
+        }
+
+        member.setPassword( passwordEncoder.encode(newPassword) );
+        member.setLastLoginTry(new Date());
+        member.setLoginFailCnt(0);
+        member.setLastLogin(new Date());
+
+        try {
+            verifyRequestRepository.save(vr);
+            return memberRepository.save(member);
+        } catch (Exception e) {
+            throw new UserException( "Can't reset password", e );
         }
     }
 

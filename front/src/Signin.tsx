@@ -201,9 +201,9 @@ export default function SignIn() {
             setPhoneErrorMessage('');
         }
 
-        if (!password || password.length < 5) {
+        if (!password || password.length < 4) {
             setPasswordError(true);
-            setPasswordErrorMessage('Password must be at least 5 characters long.');
+            setPasswordErrorMessage('Password must be at least 4 characters long.');
             isValid = false;
         } else {
             setPasswordError(false);
@@ -282,7 +282,7 @@ export default function SignIn() {
                             variant="contained"
                             onClick={validateInputs}
                             size="large"
-                            disabled={phoneError || passwordError || phone.length < 10 || password.length < 6}
+                            disabled={phoneError || passwordError || phone.length < 10 || password.length < 4}
                         >
                             Sign in
                         </Button>
@@ -306,8 +306,17 @@ export default function SignIn() {
                         >
                             Sign Up / 회원가입
                         </Button>
-
-
+                    </Box>
+                    <Divider>Missing Password?</Divider>
+                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                        <Button
+                            size="medium"
+                            color="info"
+                            variant="contained"
+                            onClick={()=>navigate("/passwordReset")}
+                        >
+                            Reset Pwd / 비번초기화
+                        </Button>
                     </Box>
 
                 </Card>

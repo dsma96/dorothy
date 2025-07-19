@@ -106,7 +106,7 @@ public class VerifyServiceTest {
         lenient().when( verifyRequestRepository.save( any(VerifyRequest.class) ) ).thenAnswer( i-> i.getArguments()[0]);
         lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP.name() )).thenReturn( Optional.of(getSavedRequest()));
 
-        VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "1234" );
+        VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "1234" , VerifyType.SIGN_UP);
         assertEquals(VerifyState.VERIFIED, resp.getVerifyState());
     }
 
@@ -117,7 +117,7 @@ public class VerifyServiceTest {
         lenient().when( verifyRequestRepository.save( any(VerifyRequest.class) ) ).thenAnswer( i-> i.getArguments()[0]);
         lenient().when( verifyRequestRepository.findLiveVerify( PHONE_NO, VerifyType.SIGN_UP.name() )).thenReturn( Optional.of(getSavedRequest()));
 
-        VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "4321" );
+        VerifyRequest resp =  verifyService.verifyRequest( PHONE_NO, "4321" , VerifyType.SIGN_UP);
         assertEquals(VerifyState.CREATED, resp.getVerifyState());
         assertEquals( 1, resp.getFailCnt());
     }

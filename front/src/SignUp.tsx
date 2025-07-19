@@ -135,7 +135,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         }
 
 
-        if (!password.value || password.value.length < 6) {
+        if (!password.value || password.value.length < 4) {
             setPasswordError(true);
             setPasswordErrorMessage('Password must be at least 6 characters long.');
             isValid = false;
@@ -297,7 +297,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
         let data = {
             phoneNo: telNo,
-            verifyCode: verifiCode
+            verifyCode: verifiCode,
+            type:'SIGN_UP'
         }
 
         fetch("/api/verify/match", {

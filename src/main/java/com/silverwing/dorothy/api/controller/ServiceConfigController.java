@@ -25,7 +25,6 @@ public class ServiceConfigController {
 
     @GetMapping("/")
     public ResponseEntity<ResponseData<ServiceConfig>> getServiceConfig(@AuthenticationPrincipal Member member) {
-
         if (member == null ) {
             throw new AuthenticationCredentialsNotFoundException("Not enough permission");
         }

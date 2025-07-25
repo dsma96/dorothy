@@ -29,7 +29,7 @@ public class MessageResourceService {
 
     @Cacheable(value = "messages", key = "#messageResourceId.name()")
     public String getMessage(MessageResourceId messageResourceId) {
-        log.info("getMessage: {} {}", messageResourceId, language);
+        log.debug("getMessage: {} {}", messageResourceId, language);
         return getMessage(messageResourceId, language);
     }
 }

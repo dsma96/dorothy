@@ -25,7 +25,7 @@ public class ReservationMorningNotiTask {
 
     @Scheduled(cron="0 0 9 * * *")
     public void morningNotification(){
-        log.info("start sending morningNotification");
+        log.debug("start sending morningNotification");
         Date start = new Date();
 
         List<Reservation> reservations =  reservationService.getReservations(
@@ -42,11 +42,11 @@ public class ReservationMorningNotiTask {
                         59
                 )
         );
-        log.info("total reservation: {}", reservations.size());
+        log.debug("total reservation: {}", reservations.size());
         for( Reservation reservation : reservations ){
             notificationService.sendReservationNotiInMorning(reservation);
         }
-        log.info("end sending morningNotification");
+        log.debug("end sending morningNotification");
     }
 
     @Scheduled(cron="0 * 8-18 * * *")

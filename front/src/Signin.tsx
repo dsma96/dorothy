@@ -311,7 +311,7 @@ export default function SignIn() {
                     <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
                         <Button
                             size="medium"
-                            color="info"
+                            color="primary"
                             variant="contained"
                             onClick={()=>navigate("/passwordReset")}
                         >

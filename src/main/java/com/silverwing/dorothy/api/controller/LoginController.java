@@ -5,6 +5,7 @@ import com.silverwing.dorothy.api.dto.MemberDto;
 import com.silverwing.dorothy.domain.security.JwtTokenManager;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/login")
 @AllArgsConstructor
+@Slf4j
 public class LoginController {
 
     @Autowired
@@ -51,7 +53,7 @@ public class LoginController {
             }
 
             Member loginUser  = userService.getMemberFromLogin(member.getPhone(), member.getPassword());
-
+            log.info("LOGIN :{} {}",loginUser.getUserId(), loginUser.getUserName());
             tokenManager.persistToken( tokenManager.generateToken(member.getPhone()) ,response);
             MemberDto resp = MemberDto.builder()
                                 .email(loginUser.getEmail())

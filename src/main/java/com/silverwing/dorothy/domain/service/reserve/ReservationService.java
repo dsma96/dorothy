@@ -390,7 +390,7 @@ public class ReservationService {
         if( r.getStatus().equals( ReservationStatus.NOSHOW))
             return r;
 
-        log.info("change reg {} from {} to {}", regId, r.getStatus(), status);
+        log.debug("change reg {} from {} to {}", regId, r.getStatus(), status);
         r.setStatus(status);
         r.setModifyDate(new Date());
         r.setModifier( rootUserId);

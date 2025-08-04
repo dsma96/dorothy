@@ -50,7 +50,7 @@ public class PhotoFileService {
             fileName = getFilePath( (reservation.getStartDate( ))) +
                     File.separator + now.getTime()+"_"+reservation.getRegId()+"_"+ idx+ "." + ext;
 
-            log.info("file path: {}", fileName);
+            log.debug("file path: {}", fileName);
             try {
                 File dataFile = new File(fileName);
                 FileUtils.forceMkdir(dataFile);

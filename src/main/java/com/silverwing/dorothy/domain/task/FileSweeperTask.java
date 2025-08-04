@@ -77,7 +77,7 @@ public class FileSweeperTask {
                         Thumbnails.of(fsFile)
                                 .scale(scale)
                                 .toFile(new File(newFilePath));
-                        log.info("converting file: {} scale:{}", file.getFileId(),scale);
+                        log.debug("converting file: {} scale:{}", file.getFileId(),scale);
                         file.setFilePath(THUMB_PREFIX + file.getFilePath());
                         Files.delete(Paths.get(previousFullPath));
                     }

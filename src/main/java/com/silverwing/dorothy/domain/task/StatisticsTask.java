@@ -16,7 +16,7 @@ public class StatisticsTask {
     @Scheduled(cron = "0 0 3 * * ?")
     @Transactional
     public void refreshUserStat() {
-        log.info("Make user stat");
+        log.debug("Make user stat");
         memberReservationStatRepository.truncateTable();
         memberReservationStatRepository.refreshMemberStatTable();
     }

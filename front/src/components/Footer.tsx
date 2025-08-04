@@ -61,7 +61,7 @@ export default function  Footer({backUrl, showMyInfo, showMyStamp,style}: Footer
                     horizontal: 'left',
                 }}
             >
-                {showMyStamp == false ? null : <MenuItem onClick={()=>navigate("/stamp")}>My Stamp</MenuItem>}
+                {/*{showMyStamp == false ? null : <MenuItem onClick={()=>navigate("/stamp")}>My Stamp</MenuItem>}*/}
                 {showMyInfo == false ? null :<MenuItem onClick={()=>navigate("/my")}>My Info</MenuItem>}
                 {loginUser.rootUser == true ? <MenuItem onClick={()=>navigate("/memberList")}>Member List</MenuItem> : null}
                 {loginUser.rootUser == true ? <MenuItem onClick={()=>navigate("/stat")}>Statistics</MenuItem> : null}

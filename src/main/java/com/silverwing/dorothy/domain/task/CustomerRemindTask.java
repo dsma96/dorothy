@@ -42,7 +42,7 @@ public class CustomerRemindTask {
         }
 
         for( Marketing marketing : marketings ){
-            log.info("Marketing: {} message:{}", marketing.getId(), marketing.getMessageId());
+            log.debug("Marketing: {} message:{}", marketing.getId(), marketing.getMessageId());
             String msg = messageResourceService.getMessage(marketing.getMessageId());
             List<Integer> svcIds = marketing.getServices().stream().map( s -> s.getService().getServiceId()).toList();
 
@@ -68,15 +68,15 @@ public class CustomerRemindTask {
                     }
                     Reservation r = reservationService.getLastReservation( member.getUserId(), svcIds );
                     if( r.getRegId() != reservation.getRegId()){
-                        log.info("{} user already has visited in {}",member.getUserName(), r.getStartDate());
+                        log.debug("{} user already has visited in {}",member.getUserName(), r.getStartDate());
                         continue;
                     }
 
                     userIds.add( member.getUserId());
 
-                    log.info("member: {} {}", member.getUserName(), member.getPhone());
+                    log.debug("member: {} {}", member.getUserName(), member.getPhone());
                     String customerMsg = String.format(msg, member.getUserName());
-                    log.info("message: {} days Before:{}", customerMsg, marketing.getDays() + i);
+                    log.debug("message: {} days Before:{}", customerMsg, marketing.getDays() + i);
                     notificationService.sendSMSAsync( member.getPhone(),"", customerMsg);
                 }
             }

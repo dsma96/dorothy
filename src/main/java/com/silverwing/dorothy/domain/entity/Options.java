@@ -1,10 +1,12 @@
 package com.silverwing.dorothy.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.type.YesNoConverter;
 
 @Entity
 @Table(name = "options")
+@Getter
 public class Options {
 
     @Id

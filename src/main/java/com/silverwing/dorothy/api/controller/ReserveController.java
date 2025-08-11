@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/api/reserve")
@@ -40,6 +41,8 @@ public class ReserveController {
                              ReservationRepository reservationRepository){
         this.reservationService = reservice;
         this.reservationRepository = reservationRepository;
+        sdf.setTimeZone(TimeZone.getDefault());
+        dateOnlySdf.setTimeZone(TimeZone.getDefault());
     }
 
     @GetMapping("/reservation/start")
@@ -212,6 +215,15 @@ public class ReserveController {
         List<HairSerivceDto> serviceDtos = reservationService.convertHairServices(services, date);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), serviceDtos), HttpStatus.OK);
     }
+
+    @GetMapping("/services")
+    public ResponseEntity<ResponseData<List<HairSerivceDto>>> getServices( ) {
+
+        List<HairServices> services = reservationService.getHairServices();
+        List<HairSerivceDto> serviceDtos = reservationService.convertHairServices(services);
+        return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), serviceDtos), HttpStatus.OK);
+    }
+
 
     @GetMapping("/history")
     public ResponseEntity<ResponseData<Page<ReservationDto>>> getHistory(

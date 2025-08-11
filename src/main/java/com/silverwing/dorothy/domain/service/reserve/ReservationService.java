@@ -9,6 +9,7 @@ import com.silverwing.dorothy.domain.Exception.ReserveException;
 import com.silverwing.dorothy.domain.dao.*;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
+import com.silverwing.dorothy.api.dto.OptionDto;
 import com.silverwing.dorothy.domain.entity.*;
 
 import com.silverwing.dorothy.domain.type.FileUploadStatus;
@@ -167,6 +168,10 @@ public class ReservationService {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }
 
+    public List<HairSerivceDto> convertHairServices(List<HairServices> services) {
+        return convertHairServices(services, null);
+    }
+
     public List<HairSerivceDto> convertHairServices(List<HairServices> services, Date regDate ) {
         if (services == null || services.isEmpty()) {
             return Collections.emptyList();
@@ -181,11 +186,17 @@ public class ReservationService {
                     .name(s.getName())
                     .idx(s.getIdx())
                     .serviceTime(s.getServiceTime())
-                     .price( s.getServicePrices().stream()
+                     .price( regDate == null ? 0 :
+                            s.getServicePrices().stream()
                              .filter( p -> regDate.after(p.getStartDate()) && regDate.before(p.getEndDate()))
                              .findFirst()
                              .orElseThrow(() -> new ReserveException("Can't find service price: " + s.getServiceId() + " at " + regDate))
                              .getPrice())
+//                     .options( s.getOptions() == null ? Collections.emptyList() :
+//                             s.getOptions().stream()
+//                                     .map(OptionDto::from)
+//                                     .filter(Objects::nonNull)
+//                                     .toList())
                     .build();
 
         }).toList();

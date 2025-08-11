@@ -213,7 +213,7 @@ const DateChoose: FC = () => {
     const handleSelectEvent = (evt )=> {
         setDate( evt.start );
         dispatch( setDate( evt.start))
-        navigate('/time');
+        navigate('/serviceSelect');
     }
 
     return (

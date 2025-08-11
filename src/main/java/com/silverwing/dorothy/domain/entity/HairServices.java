@@ -44,4 +44,12 @@ public class HairServices {
 
     @OneToMany(mappedBy = "serviceId", fetch = FetchType.EAGER)
     private List<ServicePrice> servicePrices;
+
+    @ManyToMany
+    @JoinTable(
+            name = "service_options",
+            joinColumns = @JoinColumn(name = "svc_id", referencedColumnName = "svc_id"),
+            inverseJoinColumns = @JoinColumn(name = "opt_id", referencedColumnName = "opt_id")
+    )
+    private List<Options> options;
 }

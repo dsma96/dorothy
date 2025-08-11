@@ -14,8 +14,8 @@ public class ReserveOptionMap {
     @Column(name="reg_id")
     int regId;
 
-    @Column(name="opt_id")
-    int optId;
+    @Column(name="svc_opt_id")
+    int serviceOptionId;
 
     @Column(name="price")
     int price;

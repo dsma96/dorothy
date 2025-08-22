@@ -35,6 +35,7 @@ export interface HairService {
     serviceTime: number,
     price: number,
     selected?:boolean
+    description: string
 }
 
 export interface UploadFile{

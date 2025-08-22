@@ -42,6 +42,9 @@ public class HairServices {
     @Column(name="price")
     int price;
 
+    @Column(name="description")
+    String description;
+
     @OneToMany(mappedBy = "serviceId", fetch = FetchType.EAGER)
     private List<ServicePrice> servicePrices;
 }

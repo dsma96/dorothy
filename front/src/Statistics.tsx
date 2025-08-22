@@ -10,16 +10,12 @@ interface StatData {
     period: string;
     totalCount: number;
     totalSale: number;
-    manCutCount: number;
-    manCutSale: number;
-    manRootCount: number;
-    manRootSale: number;
-    manPermCount: number;
-    manPermSale: number;
-    womanCutCount: number;
-    womanCutSale: number;
-    womanRootCount: number;
-    womanRootSale: number;
+    manCount: number;
+    manSale: number;
+
+    womanCount: number;
+    womanSale: number;
+
 }
 
 const Statistics: React.FC = () => {
@@ -55,14 +51,14 @@ const Statistics: React.FC = () => {
             },
             {
                 label: 'Man Sales',
-                data: stats.map((stat) => stat.manCutSale + stat.manPermSale + stat.manRootSale),
+                data: stats.map((stat) => stat.manSale ),
                 borderColor: 'rgba(153, 102, 255, 1)',
                 backgroundColor: 'rgba(153, 102, 255, 0.2)',
                 fill: true,
             },
             {
                 label: 'Woman Sales',
-                data: stats.map((stat) => stat.womanCutSale + stat.womanRootSale),
+                data: stats.map((stat) => stat.womanSale),
                 borderColor: 'rgba(255, 159, 64, 1)',
                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
                 fill: true,
@@ -123,10 +119,10 @@ const Statistics: React.FC = () => {
                                     <TableCell    style={{ padding:'4px' }}>{stat.period}</TableCell>
                                     <TableCell    style={{ padding:'4px' }}>{stat.totalCount}</TableCell>
                                     <TableCell   style={{ padding:'4px' }}>{stat.totalSale +'$'}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.manCutCount + stat.manPermCount + stat.manRootCount}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.manCutSale + stat.manPermSale + stat.manRootSale+'$'}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.womanCutCount + stat.womanRootCount}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.womanCutSale + stat.womanRootSale+'$'}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.manCount}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.manSale+'$'}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.womanCount}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.womanSale + '$'}</TableCell>
 
                                 </TableRow>
                             ))}
@@ -139,16 +135,16 @@ const Statistics: React.FC = () => {
                                     {stats.reduce((sum, stat) => sum + stat.totalSale, 0) + '$'}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.manCutCount + stat.manPermCount + stat.manRootCount, 0)}
+                                    {stats.reduce((sum, stat) => sum + stat.manCount, 0)}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.manCutSale + stat.manPermSale + stat.manRootSale, 0) + '$'}
+                                    {stats.reduce((sum, stat) => sum + stat.manSale, 0) + '$'}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.womanCutCount + stat.womanRootCount, 0)}
+                                    {stats.reduce((sum, stat) => sum + stat.womanCount,  0)}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.womanCutSale + stat.womanRootSale, 0) + '$'}
+                                    {stats.reduce((sum, stat) => sum + stat.womanSale, 0) + '$'}
                                 </TableCell>
                             </TableRow>
                         </TableBody>

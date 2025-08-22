@@ -13,4 +13,5 @@ public class HairSerivceDto {
     int idx;
     int serviceTime;
     int price;
+    String description;
 }

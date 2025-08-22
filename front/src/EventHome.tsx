@@ -60,7 +60,7 @@ export default function EventHome() {
             <HomeContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <CardMedia component={"img"}
-                    image={"./dorothy_home.jpeg"}
+                    image={"./dorothy_home.jpg"}
                    useMap="#image-map"
                     />
                     <map name="image-map">

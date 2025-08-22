@@ -131,9 +131,9 @@ public class ReservationService {
             hairService.setRegId( reservation.getRegId());
             hairService.setSvcId( hs.getServiceId());
             ServicePrice price = hs.getServicePrices().stream()
-                    .filter( p -> reservation.getStartDate().after( p.getStartDate() ) && reservation.getStartDate().before( p.getEndDate()))
+                    .filter( p -> reservation.getStartDate().compareTo( p.getStartDate() ) >= 0 && reservation.getStartDate().before( p.getEndDate()))
                     .findFirst()
-                    .orElseThrow(()-> new ReserveException("Can't find service price: " + hs.getServiceId()+" at " + reservation.getStartDate()));
+                    .orElse( new ServicePrice( hairService.getPrice() )  );
             hairService.setPrice(price.getPrice());
             hairServicesMap.add( hairService );
         }
@@ -162,7 +162,7 @@ public class ReservationService {
         return reservationRepository.save( r );
     }
 
-    @Cacheable(cacheNames = "hairservice")
+ //   @Cacheable(cacheNames = "hairservice")
     public List<HairServices> getHairServices() {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }
@@ -181,10 +181,11 @@ public class ReservationService {
                     .name(s.getName())
                     .idx(s.getIdx())
                     .serviceTime(s.getServiceTime())
+                     .description( s.getDescription() == null ? "" : s.getDescription())
                      .price( s.getServicePrices().stream()
-                             .filter( p -> regDate.after(p.getStartDate()) && regDate.before(p.getEndDate()))
+                             .filter( p ->    regDate.compareTo(p.getStartDate()) >=0   && regDate.before(p.getEndDate()))
                              .findFirst()
-                             .orElseThrow(() -> new ReserveException("Can't find service price: " + s.getServiceId() + " at " + regDate))
+                             .orElse( new ServicePrice(s.getPrice()))
                              .getPrice())
                     .build();
 

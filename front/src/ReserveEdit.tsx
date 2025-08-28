@@ -245,39 +245,124 @@ export default function ReserveEdit() {
         )
     }
 
-
-    const serviceCheckBoxes = services == null ? [] : services.map( (service: HairService, index) => {
-        return (
-            <FormControlLabel
-                key={service.serviceId}
-                control={
-                    <Checkbox
-                        id={`check_service_${service.serviceId}`}
-                        checked={ service.selected }
-                        disabled={!reservation.editable}
-                        onChange={e=>{
-                                service.selected = e.target.checked;
-                                let newServices = [
-                                    ...services
-                                ];
-                                setServices(newServices);
-                            }
+    //
+    // const serviceCheckBoxes = services == null ? [] : services.map( (service: HairService, index) => {
+    //     return (
+    //         <FormControlLabel
+    //             key={service.serviceId}
+    //             control={
+    //                 <Checkbox
+    //                     id={`check_service_${service.serviceId}`}
+    //                     checked={ service.selected }
+    //                     disabled={!reservation.editable}
+    //                     onChange={e=>{
+    //                             service.selected = e.target.checked;
+    //                             let newServices = [
+    //                                 ...services
+    //                             ];
+    //                             setServices(newServices);
+    //                         }
+    //                     }
+    //                     style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+    //                 />}
+    //             label={service.name+" $"+service.price}
+    //         />
+    //     )
+    // });
+    const serviceCheckBoxes = (
+        <>
+            {services.filter(service => service.idx < 1000).length > 0 && (
+                <Typography variant="h6" gutterBottom style={{textAlign:'left'}}>
+                    💇‍♂️ Men’s Services
+                </Typography>
+            )}
+            {services
+                .filter(service => service.idx < 1000)
+                .map((service: HairService) => (
+                    <FormControlLabel
+                        key={service.serviceId}
+                        control={
+                            <Checkbox
+                                id={`check_service_${service.serviceId}`}
+                                checked={service.selected}
+                                disabled={!reservation.editable}
+                                onChange={e => {
+                                    service.selected = e.target.checked;
+                                    setServices([...services]);
+                                }}
+                                style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                            />
                         }
-                        style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
-                    />}
-                label={service.name+" $"+service.price}
-            />
-        )
-    });
+                        label={
+                            <span>
+                            {service.name.split('\\n').map((line, index, arr) => (
+                                <React.Fragment key={index}>
+                                    {line}
+                                    {index < arr.length - 1&& <br />}
+                                </React.Fragment>
+                            ))}
+                                {' '} ${service.price}
+                                { service.description.length > 0 && <br/> }
+                                { service.description.length > 0 ? '('+service.description +')' : ''  }
+                            </span>
+                        }
+                        style={{ textAlign:'left'}}
+                    />
+                ))}
+            <Divider/>
 
+            {services.filter(service => service.idx >= 1000).length > 0 && (
+                <Typography variant="h6" gutterBottom style={{textAlign:'left'}}>
+                    💇‍♀️ Women’s Services
+                </Typography>
+            )}
+            {services
+                .filter(service => service.idx >= 1000)
+                .map((service: HairService) => (
+                    <FormControlLabel
+                        key={service.serviceId}
+                        control={
+                            <Checkbox
+                                id={`check_service_${service.serviceId}`}
+                                checked={service.selected}
+                                disabled={!reservation.editable}
+                                onChange={e => {
+                                    service.selected = e.target.checked;
+                                    setServices([...services]);
+                                }}
+                                style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                            />
+                        }
+                        label={
+                            <span>
+                            {service.name.split('\\n').map((line, index, arr) => (
+                                <React.Fragment key={index}>
+                                    {line}
+                                    {index < arr.length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                                {' '} ${service.price}
+                                { service.description.length > 0 && <br/> }
+                                { service.description.length > 0 ? '('+service.description +')' : ''  }
+                            </span>
+                        }
+                        style={{ textAlign:'left'}}
+                    />
+                ))}
+            <Divider/>
+            <Typography variant="subtitle1" gutterBottom style={{textAlign:'left'}}>
+                All services include a complimentary haircut.
+            </Typography>
+        </>
+    );
     const serverThumbs = reservation.files ? reservation.files.map(file => (
-        <Box style={{position: 'relative'}} key={file.id}>
-            <div style={thumb} key={file.id}>
-                <div style={thumbInner}>
-                    <img
-                        src={file.url}
-                        style={img}
-                        onClick={() => {
+            <Box style={{position: 'relative'}} key={file.id}>
+                <div style={thumb} key={file.id}>
+                    <div style={thumbInner}>
+                        <img
+                            src={file.url}
+                            style={img}
+                            onClick={() => {
                             setPreviewFile(file);
                             setOpenPreviewDialog(true);
                         }}
@@ -708,7 +793,6 @@ export default function ReserveEdit() {
             <ReserveEditContainer direction="column" justifyContent="space-between">
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
                     <Header/>
-                    <Divider/>
                     <Typography
                         component="h6"
                         variant="h6"

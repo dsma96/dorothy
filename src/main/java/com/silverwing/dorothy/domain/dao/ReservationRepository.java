@@ -81,16 +81,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             TO_CHAR(R.start_date, 'yy/mm') AS period,
             COUNT(*) AS totalCount,
             SUM(RS.price + R.TIP) AS totalSale,
-            COUNT(CASE WHEN S.svc_id = 1 THEN 1 ELSE NULL END) AS manCutCount,
-            SUM(CASE WHEN S.svc_id = 1 THEN RS.price + R.TIP ELSE 0 END) AS manCutSale,
-            COUNT(CASE WHEN S.svc_id = 2 THEN 1 ELSE NULL END) AS manRootCount,
-            SUM(CASE WHEN S.svc_id = 2 THEN RS.price + R.TIP  ELSE 0 END) AS manRootSale,
-            COUNT(CASE WHEN S.svc_id IN (3, 4) THEN 1 ELSE NULL END) AS manPermCount,
-            SUM(CASE WHEN S.svc_id IN (3, 4) THEN RS.price  + R.TIP ELSE 0 END) AS manPermSale,
-            COUNT(CASE WHEN S.svc_id = 7 THEN 1 ELSE NULL END) AS womanCutCount,
-            SUM(CASE WHEN S.svc_id = 7 THEN RS.price  + R.TIP ELSE 0 END) AS womanCutSale,
-            COUNT(CASE WHEN S.svc_id = 8 THEN 1 ELSE NULL END) AS womanRootCount,
-            SUM(CASE WHEN S.svc_id = 8 THEN RS.price  + R.TIP ELSE 0 END) AS womanRootSale
+            COUNT(CASE WHEN S.idx < 1000 THEN 1 ELSE NULL END) AS manCount,
+            SUM(CASE WHEN S.idx  < 1000 THEN RS.price + R.TIP ELSE 0 END) AS manSale,
+            COUNT(CASE WHEN S.idx >= 1000 THEN 1 ELSE NULL END) AS womanCount,
+            SUM(CASE WHEN S.idx >= 1000 THEN RS.price  + R.TIP ELSE 0 END) AS womanSale
         FROM 
             reservation R
         JOIN 

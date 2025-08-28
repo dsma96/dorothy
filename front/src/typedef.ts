@@ -28,21 +28,14 @@ export interface ReserveTimeEvent {
     end: Date
 }
 
-export interface ServiceOption{
-    optionId: number,
-    name: string;
-    idx: number,
-    price: number
-}
-
 export interface HairService {
     serviceId: number,
     name: string,
     idx: number,
     serviceTime: number,
     price: number,
-    selected?:boolean,
-    options?: ServiceOption[]
+    selected?:boolean
+    description: string
 }
 
 export interface UploadFile{

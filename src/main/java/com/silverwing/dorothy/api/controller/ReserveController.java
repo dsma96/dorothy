@@ -2,7 +2,7 @@ package com.silverwing.dorothy.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.silverwing.dorothy.api.dto.HairSerivceDto;
+import com.silverwing.dorothy.api.dto.hairServiceDto;
 import com.silverwing.dorothy.api.dto.ReservationDto;
 import com.silverwing.dorothy.api.dto.ReservationRequestDTO;
 import com.silverwing.dorothy.domain.Exception.ReserveException;
@@ -203,7 +203,7 @@ public class ReserveController {
     }
 
     @GetMapping("/services/{dateStr}")
-    public ResponseEntity<ResponseData<List<HairSerivceDto>>> getServices(@PathVariable String dateStr) {
+    public ResponseEntity<ResponseData<List<hairServiceDto>>> getServices(@PathVariable String dateStr) {
         Date date;
         try {
             date = dateOnlySdf.parse(dateStr);
@@ -212,15 +212,15 @@ public class ReserveController {
         }
 
         List<HairServices> services = reservationService.getHairServices();
-        List<HairSerivceDto> serviceDtos = reservationService.convertHairServices(services, date);
+        List<hairServiceDto> serviceDtos = reservationService.convertHairServices(services, date);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), serviceDtos), HttpStatus.OK);
     }
 
     @GetMapping("/services")
-    public ResponseEntity<ResponseData<List<HairSerivceDto>>> getServices( ) {
+    public ResponseEntity<ResponseData<List<hairServiceDto>>> getServices( ) {
 
         List<HairServices> services = reservationService.getHairServices();
-        List<HairSerivceDto> serviceDtos = reservationService.convertHairServices(services);
+        List<hairServiceDto> serviceDtos = reservationService.convertHairServices(services);
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(), serviceDtos), HttpStatus.OK);
     }
 

@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class HairSerivceDto {
+public class hairServiceDto {
 
     int serviceId;
     String name;

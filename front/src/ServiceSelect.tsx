@@ -1,7 +1,7 @@
 import {
     CardActions, CardHeader, FormGroup,
 } from "@mui/material";
-
+import { useLayoutEffect } from "react";
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { HairService, Reservation, UploadFile, Member } from "./typedef";
 import Header from "./components/Header";
@@ -12,7 +12,7 @@ import Stack from "@mui/material/Stack";
 import CssBaseline from "@mui/material/CssBaseline";
 import * as React from "react";
 import moment from "moment";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {useSelector} from "react-redux";
 import Divider from "@mui/material/Divider";
@@ -72,7 +72,10 @@ export default function ServiceSelect() {
     const [availableServices, setAvailableServices] = useState<HairService[]>([]);
     const selectedDate: Date  = useSelector( state => state.date).date;
     const [services, setServices] = useState <HairService[]>([]);
-//moment(today).format("YYYYMMDD")
+    const cardRef = useRef<HTMLDivElement>(null); // Add a ref for the Card
+    const footerRef = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const [cardMaxHeight, setCardMaxHeight] = useState<number>(0);
 
     const formatDate = (dateStr: string) =>{
         return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
@@ -93,36 +96,127 @@ export default function ServiceSelect() {
     },[selectedDate]);
 
 
+    useLayoutEffect(() => {
+        const updateCardHeight = () => {
+            const footerHeight = footerRef.current?.offsetHeight || 0;
+            const headerHeight = headerRef.current?.offsetHeight || 0;
+            const availableHeight = window.innerHeight - footerHeight - headerHeight;
+            setCardMaxHeight(availableHeight);
+        };
+
+        updateCardHeight();
+        window.addEventListener("resize", updateCardHeight);
+
+        return () => {
+            window.removeEventListener("resize", updateCardHeight);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (cardRef.current) {
+            cardRef.current.scrollTop = cardRef.current.scrollHeight; // Scroll to bottom
+        }
+    }, [availableServices]); // Trigger scrolling when availableServices changes
 
 
-    const serviceCheckBoxes =  availableServices.map( (service: HairService, index) => {
-        return (
-            <FormControlLabel
-                key={service.serviceId}
-                control={
-                    <Checkbox
-                        id={`check_service_${service.serviceId}`}
-                        checked={ service.selected }
-                        onChange={e=>{
-                            service.selected = e.target.checked;
-                            let newServices = [
-                                ...services
-                            ];
-                            setServices(newServices);
+
+    const serviceCheckBoxes = (
+        <>
+            {availableServices.filter(service => service.idx < 1000).length > 0 && (
+                <Typography variant="h6" gutterBottom style={{textAlign:'left'}}>
+                    💇‍♂️ Men’s Services
+                </Typography>
+            )}
+            {availableServices
+                .filter(service => service.idx < 1000)
+                .map((service: HairService) => (
+                    <FormControlLabel
+                        key={service.serviceId}
+                        control={
+                            <Checkbox
+                                id={`check_service_${service.serviceId}`}
+                                checked={service.selected}
+
+                                onChange={e => {
+                                    service.selected = e.target.checked;
+                                    setServices([...services]);
+                                }}
+                                style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                            />
                         }
+                        label={
+                            <span>
+                            {service.name.split('\\n').map((line, index, arr) => (
+                                <React.Fragment key={index}>
+                                    {line}
+                                    {index < arr.length - 1&& <br />}
+                                </React.Fragment>
+                            ))}
+                                {' '} ${service.price}
+                                { service.description.length > 0 && <br/> }
+                                { service.description.length > 0 ? '('+service.description +')' : ''  }
+                            </span>
                         }
-                        style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
-                    />}
-                label={service.name+" $"+service.price}
-            />
-        )
-    });
+                        style={{ textAlign:'left'}}
+                    />
+                ))}
+            <Divider/>
+
+            {availableServices.filter(service => service.idx >= 1000).length > 0 && (
+                <Typography variant="h6" gutterBottom style={{textAlign:'left'}}>
+                    💇‍♀️ Women’s Services
+                </Typography>
+            )}
+            {availableServices
+                .filter(service => service.idx >= 1000)
+                .map((service: HairService) => (
+                    <FormControlLabel
+                        key={service.serviceId}
+                        control={
+                            <Checkbox
+                                id={`check_service_${service.serviceId}`}
+                                checked={service.selected}
+                                onChange={e => {
+                                    service.selected = e.target.checked;
+                                    setServices([...services]);
+                                }}
+                                style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
+                            />
+                        }
+                        label={
+                            <span>
+                            {service.name.split('\\n').map((line, index, arr) => (
+                                <React.Fragment key={index}>
+                                    {line}
+                                    {index < arr.length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                                {' '} ${service.price}
+                                { service.description.length > 0 && <br/> }
+                                { service.description.length > 0 ? '('+service.description +')' : ''  }
+                            </span>
+                        }
+                        style={{ textAlign:'left'}}
+                    />
+                ))}
+            <Divider/>
+            <Typography variant="subtitle1" gutterBottom style={{textAlign:'left'}}>
+                All services include a complimentary haircut.
+            </Typography>
+        </>
+    );
+
+
     return(
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <ServiceSelectContainer direction="column" justifyContent="space-between">
-                <Header/>
-                <Card variant="outlined" style={{overflowY:'scroll'}}>
+                <Header
+                ref={headerRef}
+                />
+                <Card variant="outlined"
+                      ref={cardRef}
+                      style={{overflowY:'scroll',maxHeight: `${cardMaxHeight}px`}}>
                     <CardHeader
                         title={moment(selectedDate).format("YYYY/MM/DD")}
                     />
@@ -133,6 +227,7 @@ export default function ServiceSelect() {
                     </FormGroup>
                 </Card>
                 <Footer backUrl="BACK" showMyInfo={false}
+                        ref={footerRef}
                         style={{
                             position: 'fixed',
                             bottom: 0,

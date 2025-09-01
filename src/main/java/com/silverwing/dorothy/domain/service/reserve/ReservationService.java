@@ -1,6 +1,6 @@
 package com.silverwing.dorothy.domain.service.reserve;
 
-import com.silverwing.dorothy.api.dto.HairSerivceDto;
+import com.silverwing.dorothy.api.dto.hairServiceDto;
 import com.silverwing.dorothy.api.dto.UploadFileDto;
 import com.silverwing.dorothy.domain.Exception.FileUploadException;
 import com.silverwing.dorothy.domain.service.PhotoFileService;
@@ -79,7 +79,7 @@ public class ReservationService {
         int userId = caller.getUserId();
         Date now = new Date();
         List<HairServices> hairServices = reservation.getServices().stream().map(s-> s.getService()).toList();
-        List<HairSerivceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
+        List<hairServiceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
@@ -167,7 +167,12 @@ public class ReservationService {
         return hairServiceRepository.getAvailableServices().orElseThrow();
     }
 
-    public List<HairSerivceDto> convertHairServices(List<HairServices> services, Date regDate ) {
+    public List<hairServiceDto> convertHairServices(List<HairServices> services){
+
+        return convertHairServices( services, new Date());
+    }
+
+    public List<hairServiceDto> convertHairServices(List<HairServices> services, Date regDate ) {
         if (services == null || services.isEmpty()) {
             return Collections.emptyList();
         }
@@ -176,7 +181,7 @@ public class ReservationService {
             if( s == null )
                 return null;
 
-             return HairSerivceDto.builder()
+             return hairServiceDto.builder()
                     .serviceId(s.getServiceId())
                     .name(s.getName())
                     .idx(s.getIdx())

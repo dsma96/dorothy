@@ -278,4 +278,13 @@ public class UserController {
         return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), userPage), HttpStatus.OK);
     }
 
+    @GetMapping("/enc")
+    public ResponseEntity<ResponseData<String>> getEncryptedString(@RequestParam String str) {
+        if( str == null || str.length() == 0 ) {
+            throw new UserException("Invalid parameter");
+        }
+        String enc = userService.getEncryptedPassword(str);
+        return new ResponseEntity<>( new ResponseData<>(  "OK", HttpStatus.OK.value(),enc ),HttpStatus.OK);
+    }
+
 }

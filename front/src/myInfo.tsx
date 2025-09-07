@@ -111,9 +111,9 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
         }
 
         if( password.value.length > 0 || confirmPassword.value.length > 0 ) {
-            if ( !password.value || password.value.length < 5) {
+            if ( !password.value || password.value.length < 4) {
                 setPasswordError(true);
-                setPasswordErrorMessage('Password must be at least 6 characters long.');
+                setPasswordErrorMessage('Password must be at least 4 characters long.');
                 isValid = false;
             } else {
                 setPasswordError(false);

@@ -1,5 +1,5 @@
 import { configureStore, createSlice} from "@reduxjs/toolkit";
-import {HairService} from  "../types/Types";
+import {HairService, Reservation} from  "../types/Types";
 
 let user = createSlice({
         name:'user',
@@ -26,11 +26,11 @@ let user = createSlice({
 let date = createSlice({
         name:'date',
         initialState: {
-            date: new Date(),
+            dateStr: new Date().toISOString(),
         },
         reducers:{
-            setDate(state, action){
-                state.date = action.payload;
+            setDateStr(state, action){
+                state.dateStr = action.payload;
             },
         }
 });
@@ -39,24 +39,55 @@ let availableServices: any = createSlice(
     {
         name: 'availableServices',
         initialState: {
-            services:[]
+            services:[] as HairService[]
         },
         reducers:{
             setAvailableServices(state, action){
-                state.services = action.payload;
+                state.services = [...action.payload];
             },
         }
     }
 );
 
+let selectedServices: any = createSlice(
+    {
+        name: 'selectedServices',
+        initialState: {
+            services: [] as HairService[]
+        },
+        reducers:{
+            setSelectedServices(state, action){
+                state.services = [...action.payload];
+            },
+        }
+    }
+)
+
+let makingReservation = createSlice({
+    name:'makingReservation',
+    initialState: {
+            phone: user.getInitialState().loginUser.phone,
+    },
+    reducers:{
+        setMakingReservation(state, action){
+           Object.assign(state, action.payload);
+        },
+    }
+});
+
 export let {setUser} = user.actions;
-export let {setDate} = date.actions;
+export let {setDateStr} = date.actions;
 export let {setAvailableServices} = availableServices.actions;
+export let {setSelectedServices} = selectedServices.actions;
+export let {setMakingReservation} = makingReservation.actions;
 
 export default configureStore({
     reducer: {
         user: user.reducer,
         date: date.reducer,
-        service: availableServices.reducer
-    }
+        availableServices: availableServices.reducer,
+        selectedServices: selectedServices.reducer,
+        makingReservation: makingReservation.reducer,
+    },
+    devTools: process.env.NODE_ENV !== 'production'
 });

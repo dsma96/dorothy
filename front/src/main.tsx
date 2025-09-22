@@ -19,6 +19,7 @@ import MemberList from "./MemberList";
 import Statistics from "./Statistics";
 import PasswordReset from "./PasswordReset";
 import ServiceSelect  from "./ServiceSelect";
+import TimeSelect from "./TimeSelect";
 
 if (process.env.NODE_ENV === 'development' ) {
 //    worker.start()
@@ -54,6 +55,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/stat" element={<Statistics/>}></Route>
                     <Route path="/passwordReset" element={<PasswordReset/>} ></Route>
                     <Route path="/serviceSelect" element={<ServiceSelect/>} ></Route>
+                    <Route path="/timeSelect" element={<TimeSelect/>} ></Route>
                 </Routes>
                 </ThemeProvider>
             </StrictMode>

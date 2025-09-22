@@ -101,7 +101,7 @@ export default function MyInfo(props: { disableCustomTheme?: boolean }) {
         let isValid = true;
 
 
-        if( !currentPassword.value || currentPassword.value.length < 6 ){
+        if( !currentPassword.value || currentPassword.value.length < 4 ){
             setCurrentPasswordError(true);
             setCurrentPasswordErrorMessage("Please input your current password")
             isValid = false;

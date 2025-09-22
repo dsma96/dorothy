@@ -110,3 +110,46 @@ ul {
     color: black;
     border: none!important;
 }
+
+/* Custom styles for react-datepicker */
+.react-datepicker {
+    width: 100%; /* Full width for mobile */
+    max-width: 100%; /* Ensure it doesn't exceed the screen width */
+    font-size: 24px; /* Adjust font size */
+}
+
+.react-datepicker__header {
+    font-size: 18px; /* Header font size */
+}
+.react-datepicker__week{
+    line-height: 1rem;
+}
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+    font-size: 24px; /* Day and time font size */
+}
+.react-datepicker__day {
+    height: 2rem; /* Adjust the height of each day cell */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Example for a generic date picker component */
+/*@media (max-width: 768px) {*/
+/*    .date-picker-container {*/
+/*        width: 100%; !* Make the container full width on mobile *!*/
+/*    }*/
+
+/*    .calendar-panel {*/
+/*        flex-direction: column; !* Stack month views vertically *!*/
+/*    }*/
+
+/*    .day-cell {*/
+/*        font-size: 0.9em; !* Adjust font size for better readability *!*/
+/*    }*/
+/*}*/
+.react-datepicker__input-container input {
+    font-size: 20px; /* 텍스트 크기 */
+
+}

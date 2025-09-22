@@ -1,7 +1,8 @@
 import * as React from "react";
+import {forwardRef} from "react";
 
 
-export default function  Header() {
+const Header = forwardRef<HTMLDivElement, any>((props, ref) => {
     return (
         <a href="/"  rel="noopener noreferrer">
             <img
@@ -11,4 +12,6 @@ export default function  Header() {
             />
         </a>
     );
-}
+});
+
+export default Header;

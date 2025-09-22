@@ -10,7 +10,7 @@ import {AppProvider} from '@toolpad/core/AppProvider';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import 'moment-timezone';
-import {setDate} from './redux/store';
+import {setDateStr} from './redux/store';
 import {useDispatch, useSelector} from 'react-redux';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -97,7 +97,6 @@ const customMessages = {
 const DateChoose: FC = () => {
     let dispatch = useDispatch();
 
-    const selectedDate: Date  = useSelector( state => state.date);
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const theme = useTheme();
     const navigate = useNavigate();
@@ -106,6 +105,10 @@ const DateChoose: FC = () => {
 
     if( loginUser.id < 0){
         return <Navigate to ="/login?ret=dateChoose"/>
+    }
+
+    if( loginUser.rootUser == false){
+        return <Navigate to="/serviceSelect"/>
     }
 
     const { components, defaultDate,  views } = useMemo(
@@ -202,18 +205,16 @@ const DateChoose: FC = () => {
 
         for( const event of events){
             if( event.start.getTime() >= start.getTime() && event.end.getTime() <= end.getTime()){
-                setDate( start );
-                dispatch( setDate( start))
+                dispatch( setDateStr( start.toISOString()));
                 navigate('/time');
-
             }
         }
     }
 
     const handleSelectEvent = (evt )=> {
-        setDate( evt.start );
-        dispatch( setDate( evt.start))
-        navigate('/serviceSelect');
+
+        dispatch( setDateStr( evt.start.toISOString()));
+        navigate('/time');
     }
 
     return (

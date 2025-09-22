@@ -31,8 +31,6 @@ public class MarketingController {
     private final MarketingService marketingService;
     private final CustomerRemindTask customerRemindTask;
 
-    private SimpleDateFormat sdf= new SimpleDateFormat("yyyyMMdd");
-
     @GetMapping("/marketings")
     public ResponseEntity<ResponseData<List<Marketing>>> getMarketings(@AuthenticationPrincipal Member member) {
         if (member == null || !member.isRootUser()){

@@ -33,6 +33,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED'" )
     Optional<List<Reservation>> findAllWithStartDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
+
+    @Query("SELECT r FROM Reservation r WHERE r.designerId = :designerId AND r.startDate < :endDate and r.endDate > :startDate AND r.status != 'CANCELED' ")
+    List<Reservation> findAllWithStartDateAndDesigner(@Param("designerId") int designerId, @Param("startDate")Date startDate, @Param("endDate")Date endDate );
+
+
     @Query(nativeQuery = true,
             value="SELECT r.* "+
                     "FROM reservation r , reserve_services rs " +

@@ -10,7 +10,6 @@ import { Menu, MenuItem } from '@mui/material';
 import {Member} from "../typedef";
 import {useSelector} from "react-redux";
 import {Textsms} from "@mui/icons-material";
-import {useRef} from "react";
 
 
 interface FooterProps{

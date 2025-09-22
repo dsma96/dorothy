@@ -32,7 +32,7 @@ public class UserController {
 
     private final DorothyUserService userService;
     private final StatService statService;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    private static final ThreadLocal<SimpleDateFormat> sdf = ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd"));
 
     @PostMapping("/signup")
     public ResponseEntity<  ResponseData<MemberDto>> signup( @RequestBody MemberDto memberDto) {
@@ -184,7 +184,7 @@ public class UserController {
         Date startDate = null;
         Date endDate = null;
         try {
-            startDate = sdf.parse(year + month+"01");
+            startDate = sdf.get().parse(year + month+"01");
             int mm = startDate.getMonth();
             endDate = new Date( mm < 11 ? startDate.getYear() : startDate.getYear()+1, mm < 11 ?startDate.getMonth()+1 : 0,1);
         } catch (ParseException e){
@@ -210,7 +210,7 @@ public class UserController {
         Date startDate = null;
         Date endDate = null;
         try {
-            startDate = sdf.parse(year + month+"01");
+            startDate = sdf.get().parse(year + month+"01");
             int mm = startDate.getMonth();
             endDate = new Date( mm < 11 ? startDate.getYear() : startDate.getYear()+1, mm < 11 ?startDate.getMonth()+1 : 0,1);
         } catch (ParseException e){

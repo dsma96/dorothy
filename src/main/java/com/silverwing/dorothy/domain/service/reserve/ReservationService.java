@@ -13,6 +13,7 @@ import com.silverwing.dorothy.domain.entity.*;
 
 import com.silverwing.dorothy.domain.type.FileUploadStatus;
 import com.silverwing.dorothy.domain.type.ReservationStatus;
+import com.silverwing.dorothy.domain.util.DateUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -172,6 +174,7 @@ public class ReservationService {
         return convertHairServices( services, new Date());
     }
 
+    @Cacheable(cacheNames = "hairservice",key = "#services.hashCode() + ':' + #regDate.time")
     public List<hairServiceDto> convertHairServices(List<HairServices> services, Date regDate ) {
         if (services == null || services.isEmpty()) {
             return Collections.emptyList();
@@ -407,4 +410,91 @@ public class ReservationService {
         return reservationRepository.findLastReservation(userId, serviceIds).orElse(null);
     }
 
+    public List<Date> getAvailableTimeSlots(int designerId, Date date, List<Integer> serviceIds) {
+        // Calculate total service time
+        int totalServiceTime = hairServiceRepository.findAllById(serviceIds)
+                .stream()
+                .mapToInt(HairServices::getServiceTime)
+                .sum();
+
+        if( offDayRepository.findFirStByOffDayAndDesigner(date, designerId).isPresent())
+            return Collections.emptyList();
+
+        // Fetch existing reservations for the designer on the given date
+        List<Reservation> reservations = reservationRepository.findAllWithStartDateAndDesigner(designerId, DateUtils.getStartTime( date), DateUtils.getEndTime(date));
+
+        // Define the working hours (e.g., 9:00 AM to 6:00 PM)
+        ServiceConfig config = serviceConfigRepository.findAll().stream().findFirst().orElseThrow();
+
+        int MINIMUM_GAP = 15;
+        Date currentDate = new Date( (new Date()).getTime() + MINIMUM_GAP * 60 * 1000 );
+        if( date.getTime() < currentDate.getTime() ){
+            log.debug("Current Date: {}, Requested Date: {}", currentDate, date);
+            date = currentDate;
+        }
+
+
+        Date startOfDay = parseTime(config.getOpenTime(), date, true);
+        Date endOfDay = parseTime(config.getCloseTime(), date, false);
+
+        // Create a list of occupied time slots
+        List<TimeRange> occupiedSlots = reservations.stream()
+                .map(reservation -> new TimeRange(reservation.getStartDate(), reservation.getEndDate()))
+                .collect(Collectors.toList());
+
+        // Calculate available time slots
+        List<Date> availableSlots = new ArrayList<>();
+        Date currentTime = startOfDay;
+
+        while (currentTime.before(endOfDay)) {
+            Date potentialEndTime = new Date(currentTime.getTime() + totalServiceTime * 60 * 1000);
+
+            if (potentialEndTime.after(endOfDay)) {
+                break;
+            }
+
+            Date finalCurrentTime = currentTime;
+            boolean isAvailable = occupiedSlots.stream().noneMatch(slot -> slot.overlaps(finalCurrentTime, potentialEndTime));
+
+            if (isAvailable) {
+                availableSlots.add(currentTime);
+            }
+
+            // Use a new variable to calculate the next time slot
+            currentTime = new Date(currentTime.getTime() + 30 * 60 * 1000);
+        }
+
+        return availableSlots;
+    }
+
+    private Date parseTime(String time, Date date, boolean shouldBeEarlier) {
+        try {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String datePart = new SimpleDateFormat("yyyy-MM-dd").format(date);
+            Date parsedDate = dateTimeFormat.parse(datePart + " " + time);
+            if( shouldBeEarlier ){
+                if( date.getTime() > parsedDate.getTime() ){
+                    return date;
+                }
+            }
+            return parsedDate;
+        } catch (ParseException e) {
+            throw new ReserveException("Invalid time format");
+        }
+    }
+
+    private static class TimeRange {
+        private final Date start;
+        private final Date end;
+
+        public TimeRange(Date start, Date end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public boolean overlaps(Date otherStart, Date otherEnd) {
+            return !( otherEnd.getTime() <= start.getTime()  || otherStart.getTime() >= end.getTime());
+        }
+    }
 }

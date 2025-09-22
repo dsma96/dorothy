@@ -33,16 +33,16 @@ import java.util.TimeZone;
 public class ReserveController {
 
     private final ReservationService reservationService;
-    private SimpleDateFormat sdf= new SimpleDateFormat("yyyyMMdd'T'HH:mm");
-    private SimpleDateFormat dateOnlySdf = new SimpleDateFormat("yyyyMMdd");
+    private final static ThreadLocal<SimpleDateFormat> sdf= ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd'T'HH:mm"));
+    private final static ThreadLocal<SimpleDateFormat>  dateOnlySdf = ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd"));
     private final ReservationRepository reservationRepository;
 
     public ReserveController(ReservationService reservice,
                              ReservationRepository reservationRepository){
         this.reservationService = reservice;
         this.reservationRepository = reservationRepository;
-        sdf.setTimeZone(TimeZone.getDefault());
-        dateOnlySdf.setTimeZone(TimeZone.getDefault());
+        sdf.get().setTimeZone(TimeZone.getDefault());
+        dateOnlySdf.get().setTimeZone(TimeZone.getDefault());
     }
 
     @GetMapping("/reservation/start")
@@ -54,8 +54,8 @@ public class ReserveController {
         Date startDate = null;
         Date endDate = null;
         try {
-            startDate = sdf.parse(startDateStr);
-            endDate = sdf.parse(endDateStr);
+            startDate = sdf.get().parse(startDateStr);
+            endDate = sdf.get().parse(endDateStr);
         } catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }
@@ -76,8 +76,8 @@ public class ReserveController {
         Date endDate = null;
 
         try {
-            startDate = sdf.parse(startDateStr);
-            endDate = sdf.parse(endDateStr);
+            startDate = sdf.get().parse(startDateStr);
+            endDate = sdf.get().parse(endDateStr);
         } catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }
@@ -204,9 +204,10 @@ public class ReserveController {
 
     @GetMapping("/services/{dateStr}")
     public ResponseEntity<ResponseData<List<hairServiceDto>>> getServices(@PathVariable String dateStr) {
+        log.debug("DateStr: {}", dateStr);
         Date date;
         try {
-            date = dateOnlySdf.parse(dateStr);
+            date = dateOnlySdf.get().parse(dateStr);
         }catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }
@@ -284,6 +285,28 @@ public class ReserveController {
         Reservation r = reservationService.setReservationStatus( regId, reservationStatus, member.getUserId());
 
         return new ResponseEntity<>( new ResponseData<>("OK", HttpStatus.OK.value(),  reservationService.convertReservation(r, member)), HttpStatus.OK);
+    }
+
+    @GetMapping("/availableSlots/{designerId}")
+    public ResponseEntity<ResponseData<List<Date>>> getAvailableSlots(
+            @AuthenticationPrincipal Member member,
+            @PathVariable int designerId,
+            @RequestParam("date") String dateStr,
+            @RequestParam(value = "serviceIds", required = false) List<Integer> serviceIds) {
+        if (member == null) {
+            throw new AuthenticationCredentialsNotFoundException("you must login first");
+        }
+
+        Date date;
+        try {
+            date = dateOnlySdf.get().parse(dateStr);
+        } catch (ParseException e) {
+            return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
+        }
+
+
+        List<Date> availableSlots = reservationService.getAvailableTimeSlots(designerId, date, serviceIds);
+        return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), availableSlots), HttpStatus.OK);
     }
 }
 

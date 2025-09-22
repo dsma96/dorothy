@@ -21,4 +21,6 @@ public class ServiceConfig {
     private String closeTime;
     @Column(name="max_reservation_date")
     private long maxReservationDate;
+    @Column(name="open_time")
+    private String openTime;
 }

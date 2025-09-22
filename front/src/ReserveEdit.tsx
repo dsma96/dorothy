@@ -168,7 +168,7 @@ export default function ReserveEdit() {
         maxFiles:2
     });
 
-    const  [reservation, setReservation] = React.useState< Reservation> ( {
+    const  [reservation, setReservation] = React.useState<Reservation> ( {
         reservationId:-1,
         userName: loginUser.name,
         startDate:'',
@@ -791,8 +791,9 @@ export default function ReserveEdit() {
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <ReserveEditContainer direction="column" justifyContent="space-between">
+                <Header/>
                 <Card variant="outlined" style={{overflowY:'scroll'}}>
-                    <Header/>
+
                     <Typography
                         component="h6"
                         variant="h6"
@@ -927,21 +928,6 @@ export default function ReserveEdit() {
                                     <ArrowDropDownIcon />
                                 </Button>
                                 </Box>
-                                <Button
-                                    size="large"
-                                    variant="contained"
-                                    color="error"
-                                    disabled={stampCount < 10}
-                                    onClick={useCoupon}
-                                    style={{
-                                        marginLeft:'15px',
-                                        marginRight:'15px',
-                                        padding: '0px',
-                                        height:'100%'
-                                    }}
-                                >
-                                    쿠폰사용
-                                </Button>
                                 <TextField
                                     type="number"
                                     variant="outlined"

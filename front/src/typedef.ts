@@ -58,7 +58,7 @@ export interface Reservation{
     editable: boolean,
     files?: UploadFile[]
     userId: number,
-    tip:number
+    tip?:number
 }
 
 export interface Stamp{

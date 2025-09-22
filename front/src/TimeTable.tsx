@@ -1,26 +1,16 @@
-import { FC, useState, useCallback, useEffect  } from 'react'
+import { FC, useState, useEffect  } from 'react'
 import { Calendar, dateFnsLocalizer, Event,momentLocalizer , BigCalendar} from 'react-big-calendar'
-import {format} from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import enUS from 'date-fns/locale/en-US'
-import SavingsIcon from '@mui/icons-material/Savings';
-import HomeIcon from '@mui/icons-material/Home';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 import { AppProvider } from '@toolpad/core/AppProvider';
 import {styled, useTheme} from '@mui/material/styles';
 import * as React from 'react';
-import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 
 import type {Member} from 'src/typedef'
 import { useSelector, useDispatch } from 'react-redux';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import {Card, Snackbar} from "@mui/material";
+import {Card} from "@mui/material";
 import {useNavigate} from "react-router";
 import {Navigate} from 'react-router-dom';
 import Stack from "@mui/material/Stack";
@@ -28,7 +18,7 @@ import  './App.css'
 import Typography from "@mui/material/Typography";
 import moment from 'moment'
 import   'moment-timezone';
-import {setDate, setUser} from "./redux/store";
+import { setDateStr, setUser} from "./redux/store";
 import Footer from './components/Footer';
 const defaultTZ = moment.tz.guess();
 
@@ -101,12 +91,12 @@ const TimeTable: FC = () => {
     const navigate = useNavigate();
     let now  = new Date();
 
-    const selectedDate: Date  = useSelector( state => state.date);
+    const selectedDate: string  = useSelector( state => state.date.dateStr);
     const [events, setEvents] = useState();
     const [openPopup, setOpenPopup] = useState<boolean>();
     const loginUser: Member = useSelector( state => state.user.loginUser);
     const [popupMessage, setPopupMessage] = useState<string>();
-    const [today, setToday] = useState<Date>( selectedDate.date  );
+    const [today, setToday] = useState<Date>( new Date(selectedDate)  );
     const [isOffday, setIsOffday] = useState(false);
 
     if( loginUser.id < 0){
@@ -266,7 +256,7 @@ const TimeTable: FC = () => {
 
     const handleDayChange = ( newDate: Date ) =>{
         setToday(newDate);
-        dispatch( setDate( newDate ))
+        dispatch( setDateStr( newDate.toISOString() ))
     }
 
     const customMessages = {

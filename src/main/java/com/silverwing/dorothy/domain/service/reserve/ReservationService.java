@@ -45,9 +45,10 @@ public class ReservationService {
     private final ObjectProvider<ReservationService> selfProvider;
     private final UploadFileRepository uploadFileRepository;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm");
-    private SimpleDateFormat dayOnly = new SimpleDateFormat("yyyyMMdd");
-    private SimpleDateFormat hourOnly = new SimpleDateFormat("HH:mm");
+
+    private final static ThreadLocal<SimpleDateFormat> sdf= ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd'T'HH:mm"));
+    private final static ThreadLocal<SimpleDateFormat>  dayOnly = ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd"));
+    private final static ThreadLocal<SimpleDateFormat> hourOnly = ThreadLocal.withInitial(() ->new SimpleDateFormat("HH:mm"));
 
     public List<Reservation> getReservations(Date startDate, Date endDate ) {
         List<Reservation> reservations;
@@ -84,9 +85,9 @@ public class ReservationService {
                 .reservationId(reservation.getRegId())
                 .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
                 .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "000-000-0000" )
-                .startDate(sdf.format(reservation.getStartDate()))
-                .endDate(sdf.format(reservation.getEndDate()))
-                .createDate( reservation.getModifyDate().after( reservation.getStartDate()) ?  sdf.format(reservation.getModifyDate()) : sdf.format(reservation.getCreateDate()))
+                .startDate(sdf.get().format(reservation.getStartDate()))
+                .endDate(sdf.get().format(reservation.getEndDate()))
+                .createDate( reservation.getModifyDate().after( reservation.getStartDate()) ?  sdf.get().format(reservation.getModifyDate()) : sdf.get().format(reservation.getCreateDate()))
                 .services(caller.isRootUser() || userId == reservation.getUserId() ? hairServiceDtos : Collections.emptyList())
                 .status( reservation.getStatus())
                 .isEditable( reservation.getStartDate().after(now) && (caller.isRootUser() || userId == reservation.getUserId()))
@@ -266,7 +267,7 @@ public class ReservationService {
 
     private Date parseStartDate(String startTime) {
         try {
-            return sdf.parse(startTime);
+            return sdf.get().parse(startTime);
         } catch (ParseException e) {
             throw new ReserveException(e.getMessage());
         }
@@ -276,9 +277,9 @@ public class ReservationService {
 
         Date now = new Date();
 
-        String startDateDayOnly = dayOnly.format(startDate);
+        String startDateDayOnly = dayOnly.get().format(startDate);
         try {
-            OffDayId offId = new OffDayId(dayOnly.parse(startDateDayOnly), designerId);
+            OffDayId offId = new OffDayId(dayOnly.get().parse(startDateDayOnly), designerId);
             if (offDayRepository.findById(offId).isPresent()) {
                 throw new ReserveException("Designer is having an off day");
             }
@@ -300,7 +301,7 @@ public class ReservationService {
             throw new ReserveException("예약은 최대 " + config.getMaxReservationDate() + "일 전까지 가능합니다. \n You can only reserve up to " + config.getMaxReservationDate() + " days in advance.");
         }
 
-        String endTime = hourOnly.format(endDate);
+        String endTime = hourOnly.get().format(endDate);
         if( endTime.compareTo(config.getCloseTime()) > 0){
             throw new ReserveException("영업 종료시간과 겹칩니다.\n Please select more earlier time");
         }

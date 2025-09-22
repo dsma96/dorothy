@@ -32,9 +32,8 @@ import java.util.List;
 public class ReserveController {
 
     private final ReservationService reservationService;
-    private SimpleDateFormat sdf= new SimpleDateFormat("yyyyMMdd'T'HH:mm");
-    private SimpleDateFormat dateOnlySdf = new SimpleDateFormat("yyyyMMdd");
-    private final ReservationRepository reservationRepository;
+    private final static ThreadLocal<SimpleDateFormat> sdf= ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd'T'HH:mm"));
+    private final static ThreadLocal<SimpleDateFormat>  dateOnlySdf = ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd"));    private final ReservationRepository reservationRepository;
 
     public ReserveController(ReservationService reservice,
                              ReservationRepository reservationRepository){
@@ -51,8 +50,8 @@ public class ReserveController {
         Date startDate = null;
         Date endDate = null;
         try {
-            startDate = sdf.parse(startDateStr);
-            endDate = sdf.parse(endDateStr);
+            startDate = sdf.get().parse(startDateStr);
+            endDate = sdf.get().parse(endDateStr);
         } catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }
@@ -73,8 +72,8 @@ public class ReserveController {
         Date endDate = null;
 
         try {
-            startDate = sdf.parse(startDateStr);
-            endDate = sdf.parse(endDateStr);
+            startDate = sdf.get().parse(startDateStr);
+            endDate = sdf.get().parse(endDateStr);
         } catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }
@@ -203,7 +202,7 @@ public class ReserveController {
     public ResponseEntity<ResponseData<List<HairSerivceDto>>> getServices(@PathVariable String dateStr) {
         Date date;
         try {
-            date = dateOnlySdf.parse(dateStr);
+            date = dateOnlySdf.get().parse(dateStr);
         }catch (ParseException e) {
             return new ResponseEntity<>(new ResponseData<>("Invalid date format"), HttpStatus.BAD_REQUEST);
         }

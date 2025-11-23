@@ -245,30 +245,6 @@ export default function ReserveEdit() {
         )
     }
 
-    //
-    // const serviceCheckBoxes = services == null ? [] : services.map( (service: HairService, index) => {
-    //     return (
-    //         <FormControlLabel
-    //             key={service.serviceId}
-    //             control={
-    //                 <Checkbox
-    //                     id={`check_service_${service.serviceId}`}
-    //                     checked={ service.selected }
-    //                     disabled={!reservation.editable}
-    //                     onChange={e=>{
-    //                             service.selected = e.target.checked;
-    //                             let newServices = [
-    //                                 ...services
-    //                             ];
-    //                             setServices(newServices);
-    //                         }
-    //                     }
-    //                     style={{marginTop: 3, marginBottom:0, paddingTop:0,paddingBottom:0, gap:0, lineHeight:0}}
-    //                 />}
-    //             label={service.name+" $"+service.price}
-    //         />
-    //     )
-    // });
     const serviceCheckBoxes = (
         <>
             {services.filter(service => service.idx < 1000).length > 0 && (

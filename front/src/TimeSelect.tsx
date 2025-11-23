@@ -9,7 +9,7 @@ import Divider from "@mui/material/Divider";
 import {AppProvider} from "@toolpad/core/AppProvider";
 import CssBaseline from "@mui/material/CssBaseline";
 import Header from "./components/Header";
-import {CardActions, CardHeader, FormGroup, IconButton} from "@mui/material";
+import {Box, CardActions, CardHeader, Container, FormGroup, IconButton} from "@mui/material";
 import Button from "@mui/material/Button";
 import Footer from "./components/Footer";
 import {useNavigate} from "react-router";
@@ -18,18 +18,12 @@ import './style.css'
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
 import ko from "date-fns/locale/ko";
+import { addDays, startOfDay, subDays } from "date-fns";
 import {setDate, setDateStr} from "./redux/store";
 import {useEffect, useState} from "react";
 import Typography from "@mui/material/Typography";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import TextField from "@mui/material/TextField"; // Import Korean locale
-import {useDropzone} from 'react-dropzone';
-import Box from "@mui/material/Box";
-import CloseIcon from "@mui/icons-material/Close";
-import ReservationHistoryTable from "./components/ReservationHistoryTable";
-
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 const thumbsContainer = {
     display: 'flex',
     flexDirection: 'row',
@@ -75,7 +69,6 @@ const baseStyle = {
     transition: 'border .24s ease-in-out'
 };
 
-
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -95,7 +88,6 @@ const Card = styled(MuiCard)(({ theme }) => ({
             'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
     }),
 }));
-
 
 const TimeSelectContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
@@ -121,17 +113,16 @@ const TimeSelectContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
-
 export default function TimeSelect() {
     const theme = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const selectedDateStr: string  = useSelector( state => state.date).dateStr;
     const loginUser: Member = useSelector(state => state.user.loginUser);
-    const selectedService : HairService[] = useSelector(state => state.selectedServices.services);
+    const selectedService : HairService[] = useSelector(state => state.options.services);
     const [availableTimes, setAvailableTimes] = useState <Date[]>([]);
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
-
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date( selectedDateStr));
     const  [reservation, setReservation] = React.useState< Reservation> ( {
         reservationId:-1,
         userName: loginUser.name,
@@ -182,8 +173,26 @@ export default function TimeSelect() {
             dispatch(setDateStr(date.toISOString()));
             setAvailableTimes([])
         }
+        setSelectedDate(date);
         return;
     }
+
+    function incrementDate() {
+        if (selectedDate) {
+            setSelectedDate(addDays(selectedDate, 1));
+        }
+    }
+
+    function decrementDate() {
+        const calcDay = subDays(selectedDate, 1);
+
+        if( calcDay.getTime() < startOfDay(new Date()).getTime())
+            return;
+        if (selectedDate) {
+            setSelectedDate(calcDay);
+        }
+    }
+
 
 
     const timeSlots = (
@@ -220,42 +229,54 @@ export default function TimeSelect() {
 
 
 
-
     return(
         <AppProvider theme={theme}>
             <CssBaseline enableColorScheme />
             <TimeSelectContainer direction="column" justifyContent="space-between">
                 <Header
                 />
-                <DatePicker
-                    showIcon
-                    locale={ko}
-                    selected={selectedDateStr}
-                    onChange={dateChanged}
-                    dateFormat="MM월 dd일"
-                    minDate={new Date()}
-                    maxDate={moment().add(14, 'days').toDate()}
-                />
+
+                <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+                    <IconButton aria-label="back"  onClick={decrementDate}>
+                        <ArrowBackIcon />
+                    </IconButton>
+                    <Box sx={{ width: '150px' }}>
+                    <DatePicker
+                        sx={{ width: 150 }}
+                        showIcon
+                        locale={ko}
+                        selected={selectedDate}
+                        onChange={dateChanged}
+                        dateFormat="MM월 dd일"
+                        minDate={new Date()}
+                        maxDate={moment().add(14, 'days').toDate()}
+                        wrapperClassName="date-picker-wrapper"
+                    />
+                    </Box>
+                    <IconButton aria-label="back" onClick={incrementDate}>
+                        <ArrowForwardIcon />
+                    </IconButton>
+                </Stack>
                 <Card variant="outlined"    sx={{
                     marginTop: '20px', // Adjust this value to increase or decrease the gap
                 }}
                 >
 
-                    <Divider/>
+                <Divider/>
 
-                    <FormGroup>
-                        {timeSlots}
-                        { availableTimes.length == 0 &&
-                            <Typography
-                            component="h4"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(1.0rem, 7vw, 1.2rem)'}}
-                            >
-                            예약 가능한 시간이 없습니다.<br/>
-                            다른 날짜를 선택해주세요
-                            </Typography>
-                        }
-                    </FormGroup>
+                <FormGroup>
+                    {timeSlots}
+                    { availableTimes.length == 0 &&
+                        <Typography
+                        component="h4"
+                        variant="h4"
+                        sx={{width: '100%', fontSize: 'clamp(1.0rem, 7vw, 1.2rem)'}}
+                        >
+                        예약 가능한 시간이 없습니다.<br/>
+                        다른 날짜를 선택해주세요
+                        </Typography>
+                    }
+                </FormGroup>
                 <Divider/>
                     <CardActions
                         sx={{

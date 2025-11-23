@@ -135,21 +135,12 @@ ul {
     align-items: center;
     justify-content: center;
 }
-/* Example for a generic date picker component */
-/*@media (max-width: 768px) {*/
-/*    .date-picker-container {*/
-/*        width: 100%; !* Make the container full width on mobile *!*/
-/*    }*/
 
-/*    .calendar-panel {*/
-/*        flex-direction: column; !* Stack month views vertically *!*/
-/*    }*/
-
-/*    .day-cell {*/
-/*        font-size: 0.9em; !* Adjust font size for better readability *!*/
-/*    }*/
-/*}*/
 .react-datepicker__input-container input {
     font-size: 20px; /* 텍스트 크기 */
+    width: 100%;
+}
 
+.date-picker-wrapper {
+    width: 100%;
 }

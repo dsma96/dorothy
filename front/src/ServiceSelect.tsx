@@ -1,5 +1,13 @@
 import {
-    CardActions, CardHeader, FormGroup, IconButton,
+    CardActions,
+    CardHeader,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormGroup,
+    IconButton,
 } from "@mui/material";
 import { useLayoutEffect } from "react";
 import { AppProvider } from '@toolpad/core/AppProvider';
@@ -13,7 +21,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import * as React from "react";
 import moment from "moment";
 import {useEffect, useRef, useState} from "react";
-import {Navigate, useSearchParams} from "react-router-dom";
 import {useSelector} from "react-redux";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
@@ -21,7 +28,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import { useDispatch } from "react-redux";
-import {setSelectedServices, setMakingReservation} from './redux/store';
+import {setSelectedServices, setAttachments, setMemo, setRequireSilence} from './redux/store';
 import {useNavigate} from "react-router";
 import TextField from "@mui/material/TextField";
 import {useDropzone} from 'react-dropzone';
@@ -123,10 +130,14 @@ const ServiceSelectContainer = styled(Stack)(({ theme }) => ({
 
 export default function ServiceSelect() {
     const theme = useTheme();
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Dorothy");
+    const [ dialogMessage, setDialogMessage] = useState("");
+    const [openCancelDialog, setOpenCancelDialog] = useState(false);
+    const [openYesNoDialog, setOpenYesNoDialog] = useState(false);
+    const [hasError, setHasError] = useState(false);
     const loginUser: Member = useSelector(state => state.user.loginUser);
     const selectedDate: Date  = useSelector( state => state.date).date;
-    const savedReservation: Reservation = useSelector( state => state.makingReservation);
-
     const [availableServices, setAvailableServices] = useState<HairService[]>([]);
     const [services, setServices] = useState <HairService[]>([]);
     const [reservation, setReservation] = useState<Reservation>( {
@@ -149,10 +160,6 @@ export default function ServiceSelect() {
     const [cardMaxHeight, setCardMaxHeight] = useState<number>(0);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    const formatDate = (dateStr: string) =>{
-        return moment( dateStr,"YYYYMMDDTHH:mm").format('YYYY/MM/DD ddd HH:mm')
-    }
 
     useEffect(()=> {
         if( loginUser.id < 0 ){
@@ -181,7 +188,6 @@ export default function ServiceSelect() {
 
     },[selectedDate]);
 
-
     useLayoutEffect(() => {
         const updateCardHeight = () => {
             const footerHeight = footerRef.current?.offsetHeight || 120;
@@ -204,20 +210,53 @@ export default function ServiceSelect() {
         }
     }, [availableServices]); // Trigger scrolling when availableServices changes
 
-    function saveSelectedService(){
+
+    function showDialog(title: string, msg: string, goHome: boolean){
+        setDialogTitle(title);
+        setDialogMessage( msg);
+        setHasError(!goHome);
+        setOpenDialog(true);
+    }
+
+    function validateInput () : string{
+        let serviceSelected = false;
+        availableServices.forEach( (service: HairService) => {
+            if( service.selected ){
+                serviceSelected = true;
+            }
+        });
+
+        if( serviceSelected == false ){
+            return "예약할 서비스를 선택해주세요";
+        }
+        return "SUCCESS";
+    }
+
+    function saveSelectedService(event) {
         event.preventDefault();
+
 
         const selectedServices = availableServices.filter(service => service.selected);
         reservation.services = selectedServices;
 
-        const formData = new FormData();
-        localFiles.forEach(file => {
-            formData.append('files', file);
-        });
+        let msg = validateInput();
+        if( msg != "SUCCESS"){
+            showDialog('Error',msg, false);
+            return;
+        }
+
 
         dispatch( setSelectedServices( selectedServices )) ;
-        dispatch( setMakingReservation( reservation));
+        dispatch( setAttachments( localFiles));
+        dispatch( setMemo( reservation.memo));
+        dispatch( setRequireSilence( reservation.requireSilence));
         navigate("/timeSelect");
+    }
+
+    const handleCloseDialog=()=>{
+        setOpenDialog(false);
+        if( hasError != true )
+            navigate(-1);
     }
 
     const handleMemoInput = e=>{
@@ -245,8 +284,6 @@ export default function ServiceSelect() {
         },
         maxFiles:2
     });
-
-
 
     const localThumbs = localFiles.map(file => (
         <Box style={{position: 'relative'}} key={file.name}>
@@ -283,6 +320,9 @@ export default function ServiceSelect() {
     ));
 
 
+
+
+
     const serviceCheckBoxes = (
         <>
             {availableServices.filter(service => service.idx < 1000).length > 0 && (
@@ -299,7 +339,6 @@ export default function ServiceSelect() {
                             <Checkbox
                                 id={`check_service_${service.serviceId}`}
                                 checked={service.selected}
-
                                 onChange={e => {
                                     service.selected = e.target.checked;
                                     setServices([...services]);
@@ -431,10 +470,6 @@ export default function ServiceSelect() {
                         sx={{display: 'flex', flexDirection: 'column', gap: 1}}
                     >
 
-                    <CardHeader
-                        title={moment(selectedDate).format("YYYY/MM/DD")}
-                    />
-
                     <FormGroup>
                         {serviceCheckBoxes}
                     </FormGroup>
@@ -447,7 +482,7 @@ export default function ServiceSelect() {
                             type="submit"
                             size="large"
                             variant="contained"
-                            onClick={ () => saveSelectedService() }
+                            onClick={saveSelectedService }
                         >
                             시간선택
 
@@ -455,7 +490,7 @@ export default function ServiceSelect() {
                     </CardActions>
                     </Box>
                 </Card>
-                <Footer backUrl="BACK" showMyInfo={true}
+                <Footer backUrl={"/"} showMyInfo={true}
                         ref={footerRef}
                         style={{
                             position: 'fixed',
@@ -466,6 +501,26 @@ export default function ServiceSelect() {
                             zIndex: 1,
                         }}
                 />
+                <Dialog
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {dialogTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {dialogMessage}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} autoFocus>
+                            Confirm
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
             </ServiceSelectContainer>
         </AppProvider>

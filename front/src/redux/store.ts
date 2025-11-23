@@ -1,5 +1,5 @@
 import { configureStore, createSlice} from "@reduxjs/toolkit";
-import {HairService, Reservation} from  "../types/Types";
+import {HairService} from  "../types/Types";
 
 let user = createSlice({
         name:'user',
@@ -49,28 +49,26 @@ let availableServices: any = createSlice(
     }
 );
 
-let selectedServices: any = createSlice(
-    {
-        name: 'selectedServices',
-        initialState: {
-            services: [] as HairService[]
-        },
-        reducers:{
-            setSelectedServices(state, action){
-                state.services = [...action.payload];
-            },
-        }
-    }
-)
-
-let makingReservation = createSlice({
-    name:'makingReservation',
+let options = createSlice({
+    name:'options',
     initialState: {
-            phone: user.getInitialState().loginUser.phone,
+            services:[] as HairService[],
+            attachments: [] as Object[],
+            requireSilence: false,
+            memo:''
     },
     reducers:{
-        setMakingReservation(state, action){
-           Object.assign(state, action.payload);
+        setAttachments(state, action){
+          state.attachments = [...action.payload];
+        },
+        setRequireSilence(state, action){
+            state.requireSilence = action.payload;
+        },
+        setMemo(state, action){
+            state.memo = action.payload;
+        },
+        setSelectedServices(state, action){
+            state.services = [...action.payload];
         },
     }
 });
@@ -78,16 +76,14 @@ let makingReservation = createSlice({
 export let {setUser} = user.actions;
 export let {setDateStr} = date.actions;
 export let {setAvailableServices} = availableServices.actions;
-export let {setSelectedServices} = selectedServices.actions;
-export let {setMakingReservation} = makingReservation.actions;
+export let {setAttachments, setRequireSilence, setMemo, setSelectedServices} = options.actions;
 
 export default configureStore({
     reducer: {
         user: user.reducer,
         date: date.reducer,
         availableServices: availableServices.reducer,
-        selectedServices: selectedServices.reducer,
-        makingReservation: makingReservation.reducer,
+        options: options.reducer,
     },
     devTools: process.env.NODE_ENV !== 'production'
 });

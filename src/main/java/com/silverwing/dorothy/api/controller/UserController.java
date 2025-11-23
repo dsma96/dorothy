@@ -155,7 +155,7 @@ public class UserController {
 
     /**
      * return available designers on the date.
-     * @param dateStr
+     * @param dateStr ( yyyymmdd )
      * @return
      */
     @GetMapping("/{dateStr}/designers")
@@ -176,8 +176,13 @@ public class UserController {
                         .build()).toList() ),HttpStatus.OK);
     }
 
+    /**
+     * return return off days  in the month.
+     * @return
+     */
+
     @GetMapping("/offday/{year}/{month}")
-    public ResponseEntity<ResponseData<List<OffDayDto>>> getDesigners(@AuthenticationPrincipal Member member, @PathVariable String year, @PathVariable String month) {
+    public ResponseEntity<ResponseData<List<OffDayDto>>> getOffDays(@AuthenticationPrincipal Member member, @PathVariable String year, @PathVariable String month) {
         if( member == null ) {
             throw new AuthenticationCredentialsNotFoundException("you must login first");
         }
@@ -198,32 +203,6 @@ public class UserController {
                     .offDay(o.getOffDay())
                     .designer(o.getDesigner())
                     .build()
-        ).toList();
-        return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
-    }
-
-    @GetMapping("/openday/{year}/{month}")
-    public ResponseEntity<ResponseData<List<OffDayDto>>> getOpenDays(@AuthenticationPrincipal Member member, @PathVariable String year, @PathVariable String month) {
-        if( member == null ) {
-            throw new AuthenticationCredentialsNotFoundException("you must login first");
-        }
-        Date startDate = null;
-        Date endDate = null;
-        try {
-            startDate = sdf.get().parse(year + month+"01");
-            int mm = startDate.getMonth();
-            endDate = new Date( mm < 11 ? startDate.getYear() : startDate.getYear()+1, mm < 11 ?startDate.getMonth()+1 : 0,1);
-        } catch (ParseException e){
-            throw new UserException("Invalid date format "+year+month);
-        }
-
-        List<OffDay> offDays = userService.getOffDays(startDate, endDate);
-
-        List <OffDayDto> dtos =  offDays.stream().map( o ->
-                OffDayDto.builder()
-                        .offDay(o.getOffDay())
-                        .designer(o.getDesigner())
-                        .build()
         ).toList();
         return new ResponseEntity<>( new ResponseData<List<OffDayDto>>(  "OK", HttpStatus.OK.value(), dtos ),HttpStatus.OK);
     }
@@ -273,7 +252,6 @@ public class UserController {
 
         // Fetch paginated and sorted user list
         Page<MemberStatDto> userPage = statService.getMemberStat(pageable);
-
 
         return new ResponseEntity<>(new ResponseData<>("OK", HttpStatus.OK.value(), userPage), HttpStatus.OK);
     }

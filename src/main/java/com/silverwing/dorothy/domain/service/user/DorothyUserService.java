@@ -48,8 +48,8 @@ public class DorothyUserService  {
     private static int MAX_LOGIN_ATTEMPTS = 5;
     private static int BLOCK_TIME = 10 * 60 * 1000;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
+    private final static ThreadLocal<SimpleDateFormat>  sdf = ThreadLocal.withInitial(() ->new SimpleDateFormat("yyyyMMdd"));
     public boolean isMatchedPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
@@ -166,7 +166,7 @@ public class DorothyUserService  {
     public List<Member> getAvailableDesigners( String dateStr ) {
         Date offDay = null;
         try {
-            offDay = sdf.parse(dateStr);
+            offDay = sdf.get().parse(dateStr);
             return memberRepository.findAvailableDesigners( offDay ).orElseGet(Collections::emptyList);
         }catch (ParseException e) {
             throw new UserException("Invalid date format "+dateStr);

@@ -209,8 +209,9 @@ public class ReservationService {
         handleFileUploads(reservation, reqDto, files);
 
         reservation.setMemo(reqDto.getMemo());
-        reservation.setStatus(ReservationStatus.CREATED);
-        reservation.setUserId(customer.getUserId());
+      //  reservation.setStatus(ReservationStatus.CREATED);
+      //  reservation.setUserId(customer.getUserId());
+        reservation.setStartDate(startDate);
         reservation.setModifyDate(now);
         reservation.setDesignerId(reqDto.getDesigner());
         reservation.setModifier(customer.getUserId());

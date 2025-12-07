@@ -75,9 +75,9 @@ public class NotificationService {
             String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_create_customer),
                                                 fullSdf.format(reservation.getStartDate()));
             sendSMSAsync(customer.getPhone(), "", customerMsg);
-
+            String manOrWoman = service.orElse(new HairServices()).getIdx()  < 1000 ? "남자 " : "여자 " ;
             String designerMsg = String.format( messageResourceService.getMessage( MessageResourceId.reservation_create_designer),
-                                                serviceName, fullSdf.format(reservation.getStartDate()), customer.getUserName());
+                                                 manOrWoman + serviceName, fullSdf.format(reservation.getStartDate()), customer.getUserName());
 
             if( reservation.getUploadFiles() != null && reservation.getUploadFiles().size() > 0 ){
                 designerMsg = "사진)"+designerMsg;

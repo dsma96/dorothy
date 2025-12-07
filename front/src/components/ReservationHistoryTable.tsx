@@ -60,7 +60,8 @@ const ReservationHistoryTable: React.FC<ReservationHistoryTableProps> = ({userId
                     if (data.payload.content.length > 0) {
                         const newRow = data.payload.content.map((item: Reservation) => ({
                             startDate: item.startDate,
-                            services: item.services.map((service) => service.name).join(", "),
+                            services: item.services.map((service) => service.idx < 1000 ?
+                                            '남) ' + service.name : '여) ' + service.name).join(", "),
                             status: item.status,
                             tip: item.tip
                         }));
@@ -74,7 +75,7 @@ const ReservationHistoryTable: React.FC<ReservationHistoryTableProps> = ({userId
     };
 
     useEffect(() => {
-        fetchData(userId, 0);
+        return fetchData(userId!, 0);
     }, []);
 
     return (

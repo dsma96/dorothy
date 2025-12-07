@@ -2,6 +2,7 @@ package com.silverwing.dorothy.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import org.hibernate.type.YesNoConverter;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name="services")
 @Data
+@Getter
 public class HairServices {
     @Id
     @Column(name="svc_id")

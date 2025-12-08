@@ -67,7 +67,7 @@ const Statistics: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '10px' }}>
+        <div style={{ padding: '10px', overflowY:'scroll' }}>
             <Typography variant="h5" gutterBottom>
                 월별 통계
             </Typography>
@@ -95,9 +95,9 @@ const Statistics: React.FC = () => {
             </div>
 
             {/* Table */}
-            <Paper style={{ width: '100%', overflowX: 'auto', marginTop: '10px' }}>
-                <TableContainer>
-                    <Table>
+            <Paper style={{ width: '100%', overflowX: 'auto', marginTop: '10px', height:'50vh'  }}>
+                <TableContainer  style={{ overflowY:'auto', maxHeight:'85%'}}>
+                    <Table stickyHeader>
                         <TableHead>
                             <TableRow>
                                 <TableCell   style={{ padding:'4px' }}>Period</TableCell>
@@ -162,6 +162,7 @@ const Statistics: React.FC = () => {
             }
             }backUrl={"BACK"}/>
         </div>
+
     );
 };
 

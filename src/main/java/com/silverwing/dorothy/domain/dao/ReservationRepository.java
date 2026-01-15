@@ -92,10 +92,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             AND R.user_id > 9
             AND R.stamp_count > 0
             AND R.start_date <= now()
-            AND to_char(R.start_date,'yyyy') = :year
+            AND to_char(R.start_date,'yyyy') <= :year
+            AND R.start_date >= DATE_ADD(CURDATE(), INTERVAL -18 MONTH)
         GROUP BY 
             TO_CHAR(R.start_date, 'yy/mm')
         """, nativeQuery = true)
     List<SaleStatDto> getMonthlySaleStat(String year);
-
 }

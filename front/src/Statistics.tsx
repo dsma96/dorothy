@@ -110,41 +110,41 @@ const Statistics: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {stats.map((stat, index) => (
+                            {stats.sort((a,b)=>b.period.localeCompare(a.period)).map((stat, index) => (
                                 <TableRow key={index}
                                           style={{
                                               backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'inherit', // Light gray for even rows
                                           }}
                                 >
                                     <TableCell    style={{ padding:'4px' }}>{stat.period}</TableCell>
-                                    <TableCell    style={{ padding:'4px' }}>{stat.totalCount}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.totalSale +'$'}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.manCount}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.manSale+'$'}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.womanCount}</TableCell>
-                                    <TableCell   style={{ padding:'4px' }}>{stat.womanSale + '$'}</TableCell>
+                                    <TableCell    style={{ padding:'4px' }}>{stat.totalCount.toLocaleString()}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.totalSale.toLocaleString() +'$'}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.manCount.toLocaleString()}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.manSale.toLocaleString()+'$'}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.womanCount.toLocaleString()}</TableCell>
+                                    <TableCell   style={{ padding:'4px' }}>{stat.womanSale.toLocaleString() + '$'}</TableCell>
 
                                 </TableRow>
                             ))}
                             <TableRow style={{ backgroundColor: '#e0e0e0', fontWeight: 'bold' }}>
                                 <TableCell style={{ padding: '4px' }}>Total</TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.totalCount, 0)}
+                                    {stats.reduce((sum, stat) => sum + stat.totalCount, 0).toLocaleString()}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.totalSale, 0) + '$'}
+                                    {stats.reduce((sum, stat) => sum + stat.totalSale, 0).toLocaleString() + '$'}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.manCount, 0)}
+                                    {stats.reduce((sum, stat) => sum + stat.manCount, 0).toLocaleString()}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.manSale, 0) + '$'}
+                                    {stats.reduce((sum, stat) => sum + stat.manSale, 0).toLocaleString() + '$'}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.womanCount,  0)}
+                                    {stats.reduce((sum, stat) => sum + stat.womanCount,  0).toLocaleString()}
                                 </TableCell>
                                 <TableCell style={{ padding: '4px' }}>
-                                    {stats.reduce((sum, stat) => sum + stat.womanSale, 0) + '$'}
+                                    {stats.reduce((sum, stat) => sum + stat.womanSale, 0).toLocaleString() + '$'}
                                 </TableCell>
                             </TableRow>
                         </TableBody>
@@ -160,7 +160,7 @@ const Statistics: React.FC = () => {
                 backgroundColor: '#fff',
                 zIndex: 1,
             }
-            }backUrl={"BACK"}/>
+            } backUrl={"BACK"}/>
         </div>
 
     );

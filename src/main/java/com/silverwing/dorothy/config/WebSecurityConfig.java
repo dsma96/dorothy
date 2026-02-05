@@ -52,7 +52,9 @@ public class WebSecurityConfig {
                  .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/**","/static/**",
+                        .requestMatchers(
+
+                                "/static/**",
                                 "/api/login/login",
                                 "/api/user/signup",
                                 "/api/verify/request",

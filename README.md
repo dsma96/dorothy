@@ -142,10 +142,16 @@ com.silverwing.dorothy
 ```
 bash
 # Backend
-./gradlew bootRun
+mvn clean install
+java -jar target/dorothy-*.jar
 
 # Frontend
 npm install
 npm run dev
 ```
 
+## Deployment
+
+The backend service is containerized using Docker and deployed as a Spring Boot executable JAR.
+
+Sensitive configuration values (database credentials, JWT secrets, and third-party API keys) are injected at runtime via environment variables and are intentionally excluded from the public repository.

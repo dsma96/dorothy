@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,30 +44,32 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-             http
-                .csrf((csrfConfig) ->
-                        csrfConfig.disable()
-                )
-                 .cors(Customizer.withDefaults())
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
+                        // 1. Explicitly allow public API endpoints
                         .requestMatchers(
-
-                                "/static/**",
                                 "/api/login/login",
                                 "/api/user/signup",
                                 "/api/verify/request",
                                 "/api/verify/match",
                                 "/actuator/**"
-                        )
-                            .permitAll()
-                        .anyRequest().authenticated()
+                        ).permitAll()
+
+                        // 2. Require authentication for all other API endpoints
+                        .requestMatchers("/api/**").authenticated()
+
+                        // 3. Allow everything else (Frontend routes, static files, etc.)
+                        .anyRequest().permitAll()
                 )
-                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                 .addFilterBefore(new DorothyAuthFilter(jwtTokenManager, userDetailsService), BasicAuthenticationFilter.class)
-                ;
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new DorothyAuthFilter(jwtTokenManager, userDetailsService), BasicAuthenticationFilter.class);
+
         return http.build();
     }
 

@@ -56,6 +56,7 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/api/login/login",
                                 "/api/user/signup",
+                                "/api/user/resetPassword",
                                 "/api/verify/request",
                                 "/api/verify/match",
                                 "/actuator/**"

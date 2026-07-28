@@ -18,7 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
-
+*.p12
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -34,7 +34,10 @@ build/
 .vscode/
 /ssl/
 /src/main/resources/keystore.p12
+/src/main/resources/dorothy.p12
+/src/main/resources/dorothy_ktime.p12
 /script.txt
 docker-entrypoint.sh
 Dockerfile
 /Dockerfile
+job.md

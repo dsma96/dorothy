@@ -59,7 +59,8 @@ public class WebSecurityConfig {
                                 "/api/user/resetPassword",
                                 "/api/verify/request",
                                 "/api/verify/match",
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/api/antHill/resources"
                         ).permitAll()
 
                         // 2. Require authentication for all other API endpoints

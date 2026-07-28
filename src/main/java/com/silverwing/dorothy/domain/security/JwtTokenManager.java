@@ -69,7 +69,7 @@ public class JwtTokenManager {
     public void persistToken(String token, HttpServletResponse response){
         Cookie cookie = new Cookie(DorothyApplication.COOKIE_NAME,  token);
         cookie.setSecure(true);
-        cookie.setMaxAge(-1);
+        cookie.setMaxAge((int)(expiredTime / 1000) );
         cookie.setHttpOnly(true);
         cookie.setPath("/"); // global cookie accessible every where
         response.addCookie(cookie);

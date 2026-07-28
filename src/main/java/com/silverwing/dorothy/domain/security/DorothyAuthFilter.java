@@ -24,30 +24,29 @@ public class DorothyAuthFilter extends OncePerRequestFilter {
         this.userService = userService;
     }
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-        for( Cookie cookie : cookies ) {
-            if( cookie.getName().equals(DorothyApplication.COOKIE_NAME) ) {
-                String val = cookie.getValue();
-                try {
-                    String userPhone = jwtTokenManager.getPhone(val);
-                    Member member = userService.getMember(userPhone);
-                    if( member != null ) {
-                        SecurityContextHolder.getContext()
-                                .setAuthentication( new DorothyAuthToken(member));
-                        jwtTokenManager.persistToken(jwtTokenManager.generateToken(member.getPhone()), response);
-                    }
-                }catch(AuthenticationException e){
-                  log.error("can't parse token:{}", val);
-                }
-            }
-
+        if (cookies != null) {
+            java.util.Arrays.stream(cookies)
+                    .filter(c -> DorothyApplication.COOKIE_NAME.equals(c.getName()))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        try {
+                            String val = cookie.getValue();
+                            String userPhone = jwtTokenManager.getPhone(val);
+                            Member member = userService.getMember(userPhone);
+                            if (member != null) {
+                                SecurityContextHolder.getContext().setAuthentication(new DorothyAuthToken(member));
+                                // Refresh token on every valid request
+                                jwtTokenManager.persistToken(jwtTokenManager.generateToken(member.getPhone()), response);
+                            }
+                        } catch (Exception e) {
+                            log.error("Authentication failed: {}", e.getMessage());
+                        }
+                    });
         }
 
         filterChain.doFilter(request, response);

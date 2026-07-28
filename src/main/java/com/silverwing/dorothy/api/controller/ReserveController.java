@@ -139,7 +139,7 @@ public class ReserveController {
             throw new ReserveException("Not enough permission");
         }
 
-        if( tip < 0 || tip > 100 ){
+        if( tip < 0 || tip > 999 ){
             throw new ReserveException("Invalid tip");
         }
 

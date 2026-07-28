@@ -75,18 +75,5 @@ public class UploadFileController {
         return contentType;
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<ResponseData<List<String>>> getDesigners(@AuthenticationPrincipal Member member){
-        MessageResourceId[] ids = MessageResourceId.values();
-        ArrayList<String> ret= new ArrayList();
 
-
-        for( MessageResourceId id : ids ){
-            String msg = messageResourceService.getMessage(id);
-            ret.add(msg);
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ResponseData<>("OK", 200, ret));
-    }
 }

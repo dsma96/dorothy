@@ -75,7 +75,7 @@ public class CustomerRemindTask {
                     userIds.add( member.getUserId());
 
                     log.debug("member: {} {}", member.getUserName(), member.getPhone());
-                    String customerMsg = String.format(msg, member.getUserName());
+                    String customerMsg = msg; //String.format(msg, member.getUserName());
                     log.debug("message: {} days Before:{}", customerMsg, marketing.getDays() + i);
                     notificationService.sendSMSAsync( member.getPhone(),"", customerMsg);
                 }

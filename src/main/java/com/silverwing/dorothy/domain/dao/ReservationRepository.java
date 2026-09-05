@@ -98,4 +98,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             TO_CHAR(R.start_date, 'yy/mm')
         """, nativeQuery = true)
     List<SaleStatDto> getMonthlySaleStat(String year);
+
+    @Query(nativeQuery = true, value = """
+        SELECT CASE 
+            WHEN COUNT(*) > 0 
+                 AND SUM(CASE WHEN start_date <= NOW() THEN 1 ELSE 0 END) = 0 
+            THEN true 
+            ELSE false 
+        END
+        FROM reservation
+        WHERE user_id = :userId
+          AND status IN ('CREATED', 'ACCEPTED', 'COMPLETE')
+    """)
+    boolean isFirstVisitCustomer(@Param("userId") int userId);
+
 }

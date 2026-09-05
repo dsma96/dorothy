@@ -44,3 +44,22 @@
 .rbc-allday-cell {
   display: none !important;
 }
+
+/* 오늘 날짜 셀 전체 배경 강조 */
+.rbc-month-view .rbc-day-bg.rbc-today {
+  background-color: #ffeaa7 !important; /* 눈에 띄는 연노랑 (필요 시 원하는 색상으로 변경) */
+}
+
+/* 오늘 날짜 숫자 표기 부분 강조 */
+.rbc-month-view .rbc-date-cell.rbc-now {
+  font-weight: bold;
+  color: #d63031; /* 강렬한 빨간색 */
+}
+
+/* 오늘 날짜의 날짜 번호 배경에 포인트 강조(선택 사항) */
+.rbc-now a {
+  background-color: #ff7675;
+  color: white !important;
+  padding: 2px 6px;
+  border-radius: 50%;
+}

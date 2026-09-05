@@ -69,6 +69,7 @@ const CustomToolbar = (toolbarProps) => {
 };
 
 
+
 const TimeTableContainer = styled(Stack)(({ theme }) => ({
     height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
     minHeight: '100%',
@@ -114,6 +115,30 @@ const TimeTable: FC = () => {
     }
 
     let dispatch = useDispatch();
+
+
+    const eventPropGetter = (event: any) => {
+        // event.editable이 false이거나 Off day 이벤트인 경우
+        if (loginUser.rootUser === false && event.editable == false) {
+            return {
+                style: {
+                    backgroundColor: '#a4b0be', // 회색 배경
+                    borderColor: '#747d8c',     // 약간 더 어두운 회색 테두리
+                    color: '#ffffff',           // 텍스트 색상
+                    cursor: 'not-allowed',      // 마우스 커서를 '선택 불가' 모양으로 변경
+                    opacity: 0.8,
+                },
+            };
+        }
+
+        // 기본(수정 가능한) 이벤트 스타일
+        return {
+            style: {
+                backgroundColor: '#3174ad',
+                cursor: 'pointer',
+            },
+        };
+    };
 
     function refreshAvailableDesigner(dateStr){
         const url = `/api/user/${dateStr}/designers`;
@@ -314,6 +339,7 @@ const TimeTable: FC = () => {
                     onSelectSlot={handleSelectSlot}
                     onSelectEvent={handleSelectEvent}
                     onDoubleClickEvent={handleSelectEvent}
+                    eventPropGetter={eventPropGetter}
                     onDragStart={(e)=>{console.log('drag');e.preventDefault(); e.stopPropagation()}}
                     onDragOver={(e)=>{e.preventDefault(); e.stopPropagation()}}
                     onDragEnd={(e)=>{e.preventDefault(); e.stopPropagation()}}

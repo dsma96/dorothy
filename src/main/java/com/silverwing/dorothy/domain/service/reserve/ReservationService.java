@@ -83,7 +83,7 @@ public class ReservationService {
         List<HairSerivceDto> hairServiceDtos = convertHairServices(hairServices, reservation.getStartDate());
         ReservationDto dto = ReservationDto.builder()
                 .reservationId(reservation.getRegId())
-                .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "Occupied" )
+                .userName( caller.isRootUser() || userId == reservation.getUserId()? reservation.getUser().getUserName() : "N/A" )
                 .phone( caller.isRootUser()|| userId == reservation.getUserId() ? reservation.getUser().getPhone() : "000-000-0000" )
                 .startDate(sdf.get().format(reservation.getStartDate()))
                 .endDate(sdf.get().format(reservation.getEndDate()))

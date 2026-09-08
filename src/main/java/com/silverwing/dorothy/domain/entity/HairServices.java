@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.hibernate.type.YesNoConverter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name="services")
@@ -47,6 +48,22 @@ public class HairServices {
     @Column(name="description")
     String description;
 
+    @Column(name="guide")
+    String guide;
+
     @OneToMany(mappedBy = "serviceId", fetch = FetchType.EAGER)
     private List<ServicePrice> servicePrices;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HairServices svc = (HairServices) o;
+        return Objects.equals(serviceId, svc.serviceId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceId);
+    }
 }

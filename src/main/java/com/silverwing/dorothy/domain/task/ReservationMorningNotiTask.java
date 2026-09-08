@@ -1,4 +1,5 @@
 package com.silverwing.dorothy.domain.task;
+import com.silverwing.dorothy.domain.entity.Member;
 import com.silverwing.dorothy.domain.service.notification.NotificationService;
 import com.silverwing.dorothy.domain.service.reserve.ReservationService;
 import com.silverwing.dorothy.domain.entity.Reservation;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -42,9 +45,14 @@ public class ReservationMorningNotiTask {
                         59
                 )
         );
-        log.debug("total reservation: {}", reservations.size());
-        for( Reservation reservation : reservations ){
-            notificationService.sendReservationNotiInMorning(reservation);
+
+        Map<Member, List<Reservation>> reservationMap = reservations.stream().collect(
+                Collectors.groupingBy( Reservation::getUser)
+        );
+
+
+        for( Member m : reservationMap.keySet() ){
+            notificationService.sendReservationNotiInMorning(reservationMap.get(m));
         }
         log.debug("end sending morningNotification");
     }
@@ -52,7 +60,7 @@ public class ReservationMorningNotiTask {
     @Scheduled(cron="0 * 8-18 * * *")
     public void  beforeOneHourNotification(){
         Date now = new Date();
-
+        Date dayBegin = new Date(now.getYear(), now.getMonth(), now.getDate());
         Date from = new Date(now.getYear(),
                              now.getMonth(),
                              now.getDate(),
@@ -74,6 +82,14 @@ public class ReservationMorningNotiTask {
         log.debug("start sending beforeOneHourNotification {} {} ~ {} total Reservation:{} ", sdf.format(now), sdf.format(from), sdf.format(to),reservations.size());
 
         for( Reservation reservation : reservations ){
+            List<Reservation>  userRegs =  reservationService.getReservationWithStartDateAndUserId(dayBegin, to, reservation.getUserId());
+            if( userRegs.size() > 1 ){
+                if( !userRegs.get(0).equals(reservation)){
+                    log.info("{} already got  1 hour noti message for {} {}", reservation.getUserId(), userRegs.get(0).getRegId(), sdf.format( userRegs.get(0).getStartDate()));
+                    continue;
+                }
+            }
+
             notificationService.sendReservationNotiBefore1Hour(reservation);
         }
     }

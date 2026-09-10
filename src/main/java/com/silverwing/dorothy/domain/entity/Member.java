@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.type.YesNoConverter;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -70,4 +71,17 @@ public class Member {
 
     @Column(name="memo")
     String memo;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(userId, member.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId);
+    }
 }

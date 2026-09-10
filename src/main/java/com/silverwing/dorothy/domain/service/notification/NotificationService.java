@@ -1,13 +1,12 @@
 package com.silverwing.dorothy.domain.service.notification;
 
 import com.silverwing.dorothy.domain.dao.HairServiceRepository;
-import com.silverwing.dorothy.domain.entity.HairServices;
-import com.silverwing.dorothy.domain.entity.VerifyRequest;
+import com.silverwing.dorothy.domain.dao.ReservationRepository;
+import com.silverwing.dorothy.domain.entity.*;
 import com.silverwing.dorothy.domain.external.TwilioMessageSender;
-import com.silverwing.dorothy.domain.entity.Member;
-import com.silverwing.dorothy.domain.entity.Reservation;
 import com.silverwing.dorothy.domain.service.MessageResourceService;
 import com.silverwing.dorothy.domain.service.user.DorothyUserService;
+import com.silverwing.dorothy.domain.type.MessageReservedWord;
 import com.silverwing.dorothy.domain.type.MessageResourceId;
 import com.twilio.rest.api.v2010.account.Message;
 import jakarta.annotation.PostConstruct;
@@ -17,21 +16,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
 
+    static final String VERIFY_PHONE=" ktime.ca verification code: %s";
+
+
     private final TwilioMessageSender smsSender;
     private final DorothyUserService userService;
     private final MessageResourceService messageResourceService;
     private final HairServiceRepository hairServiceRepository;
-
-    static final String VERIFY_PHONE=" ktime.ca verification code: %s";
+    private final ReservationRepository reservationRepository;
 
     private SimpleDateFormat fullSdf = new SimpleDateFormat("MM월dd일 hh시mm분");
     private SimpleDateFormat shortSdf = new SimpleDateFormat("hh시 mm분");
@@ -41,9 +45,57 @@ public class NotificationService {
 
     private boolean isLocal = false;
 
+    private Map<MessageReservedWord, Function<Reservation, String>> handlerMap;
+
     @PostConstruct
     public void init() {
-        isLocal = activeProfile.equalsIgnoreCase("local");
+        isLocal = activeProfile != null && !activeProfile.equalsIgnoreCase("prd");
+        handlerMap = new EnumMap<>(MessageReservedWord.class);
+        handlerMap.put(MessageReservedWord.SHORT_TIME, (reservation) -> shortSdf.format( reservation.getStartDate()));
+        handlerMap.put(MessageReservedWord.FULL_TIME, (reservation) -> fullSdf.format( reservation.getStartDate()));
+//        handlerMap.put(MessageReservedWord.GUIDE, (reservation) ->
+//                        reservation.getServices().stream()
+//                                .map(ReserveServiceMap::getService)
+//                                .filter(Objects::nonNull)
+//                                .map(svc -> svc.getGuide() != null ? svc.getGuide() : "")
+//                                .collect(Collectors.joining("\n")));
+        handlerMap.put(MessageReservedWord.SERVICE, (reservation) ->
+                reservation.getServices().stream()
+                        .map(ReserveServiceMap::getService)
+                        .filter(Objects::nonNull)
+                        .map(HairServices::getName)
+                        .collect(Collectors.joining(", "))
+        );
+        handlerMap.put(MessageReservedWord.CUSTOMER_NAME, (reservation) -> reservation.getUser().getUserName());
+    }
+
+    private String formatGuideMessage(String template, Set<HairServices> services) {
+        String guides = services.stream().filter(Objects::nonNull).map( svc-> svc.getGuide() != null ? svc.getGuide() : "").
+        collect(Collectors.joining("\\n"));
+        return template.replace(MessageReservedWord.GUIDE.toString(), guides);
+    }
+
+    private String formatMessage(String template, Reservation r) {
+        if (template == null || template.isEmpty()) {
+            return template;
+        }
+
+        String result = template;
+
+        for (MessageReservedWord rw : MessageReservedWord.values()) {
+            String reservedTag = rw.toString();
+
+            if (result.contains(reservedTag)) {
+                Function<Reservation, String> handler = handlerMap.get(rw);
+
+                if (handler != null) {
+                    String replacement = handler.apply(r);
+                    result = result.replace(reservedTag, replacement != null ? replacement : "");
+                }
+            }
+        }
+
+        return result;
     }
 
     public void sendReservationChangedMessage( final Reservation reservation){
@@ -127,17 +179,69 @@ public class NotificationService {
         }
     }
 
-    public void sendReservationNotiBefore1Hour(Reservation reservation){
+    public String sendReservationNotiInMorning(List<Reservation> reservations){
+        try{
+            if( reservations == null || reservations.size() ==0 )
+                return "";
+            Member customer = reservations.get(0).getUser();
+            if( customer.isRootUser() ){
+                return "";
+            }
+
+            boolean isFirstUser = reservationRepository.isFirstVisitCustomer(customer.getUserId());
+            String template ;
+            if( isFirstUser ){
+                template = messageResourceService.getMessage( MessageResourceId.reservation_notification_morning_first);
+            }else{
+                template = messageResourceService.getMessage( MessageResourceId.reservation_notification_morning_exist );
+            }
+
+            String message = "";
+
+            message = formatMessage(template, reservations.get(0)); // only for first reservation
+
+            if( message.contains( MessageReservedWord.GUIDE.toString())){
+                Set<HairServices> svcs = new HashSet<>();
+
+                for( Reservation reservation : reservations ){
+                    reservation.getServices().forEach(s -> svcs.add(s.getService()));
+                }
+                message = formatGuideMessage( message, svcs);
+            }
+
+            log.info("user: {} Morning Noti : {}", customer.getUserName(), message);
+
+            sendSMSAsync(customer.getPhone(), "", message);
+            return message;
+        }catch(RuntimeException e){
+            log.error( e.getMessage());
+            return "";
+        }
+    }
+
+    public String sendReservationNotiBefore1Hour(Reservation reservation){
         try {
             Member customer = reservation.getUser();
             if( customer.isRootUser() ){
-                return;
+                return null;
             }
-            String customerMsg = String.format( messageResourceService.getMessage(MessageResourceId.reservation_notification_1hour),
-                    shortSdf.format(reservation.getStartDate()));
+
+            boolean isFirstUser = reservationRepository.isFirstVisitCustomer(customer.getUserId());
+            String template ;
+            if( isFirstUser ){
+                template = messageResourceService.getMessage( MessageResourceId.reservation_notification_1hour_first);
+            }else{
+                template = messageResourceService.getMessage( MessageResourceId.reservation_notification_1hour_exist );
+            }
+
+            String customerMsg = formatMessage(template, reservation);
+
             sendSMSAsync(customer.getPhone(), "", customerMsg);
+            log.info("user:{} 1 hour noti: {}", customer.getUserName(), customerMsg);
+            return customerMsg;
         }catch(RuntimeException e){
             log.error(e.getMessage());
+            return null;
         }
     }
 

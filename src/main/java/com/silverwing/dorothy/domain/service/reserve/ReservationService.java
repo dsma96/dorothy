@@ -68,6 +68,12 @@ public class ReservationService {
         return reservations;
     }
 
+    public List<Reservation> getReservationWithStartDateAndUserId( Date day1, Date day2, int userId ) {
+        List<Reservation> reservations;
+        reservations = reservationRepository.findAllWithStartDateAndUserId(day1,day2,userId).orElseGet(()-> Collections.emptyList());
+        return reservations;
+    }
+
     public Optional<Reservation> getReservation(int reservationId) {
         return reservationRepository.findById(reservationId);
     }

@@ -8,6 +8,7 @@ import org.hibernate.type.YesNoConverter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name="reservation")
@@ -78,5 +79,16 @@ public class Reservation {
     @Where(clause = "file_status != 'SHOULD_DELETE' and file_status != 'DELETED'")
     List<UploadFile> uploadFiles;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reservation reservation = (Reservation) o;
+        return Objects.equals(regId, reservation.regId);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(regId);
+    }
 }

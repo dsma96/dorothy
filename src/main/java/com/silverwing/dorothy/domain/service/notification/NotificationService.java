@@ -237,6 +237,7 @@ public class NotificationService {
             String customerMsg = formatMessage(template, reservation);
 
             sendSMSAsync(customer.getPhone(), "", customerMsg);
+            log.info("user:{} 1 hour noti: {}", customer.getUserName(), customerMsg);
             return customerMsg;
         }catch(RuntimeException e){
             log.error(e.getMessage());

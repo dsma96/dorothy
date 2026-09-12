@@ -57,7 +57,7 @@ public class ReservationMorningNotiTask {
         log.debug("end sending morningNotification");
     }
 
-    @Scheduled(cron="0 * 9-18 * * *")
+    @Scheduled(cron="0 * 10-18 * * *")
     public void  beforeOneHourNotification(){
         Date now = new Date();
         Date dayBegin = new Date(now.getYear(), now.getMonth(), now.getDate());

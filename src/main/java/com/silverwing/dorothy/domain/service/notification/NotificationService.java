@@ -49,16 +49,10 @@ public class NotificationService {
 
     @PostConstruct
     public void init() {
-        isLocal = activeProfile != null && !activeProfile.equalsIgnoreCase("prd");
+        isLocal = activeProfile != null && !activeProfile.equalsIgnoreCase("prod");
         handlerMap = new EnumMap<>(MessageReservedWord.class);
         handlerMap.put(MessageReservedWord.SHORT_TIME, (reservation) -> shortSdf.format( reservation.getStartDate()));
         handlerMap.put(MessageReservedWord.FULL_TIME, (reservation) -> fullSdf.format( reservation.getStartDate()));
-//        handlerMap.put(MessageReservedWord.GUIDE, (reservation) ->
-//                        reservation.getServices().stream()
-//                                .map(ReserveServiceMap::getService)
-//                                .filter(Objects::nonNull)
-//                                .map(svc -> svc.getGuide() != null ? svc.getGuide() : "")
-//                                .collect(Collectors.joining("\n")));
         handlerMap.put(MessageReservedWord.SERVICE, (reservation) ->
                 reservation.getServices().stream()
                         .map(ReserveServiceMap::getService)

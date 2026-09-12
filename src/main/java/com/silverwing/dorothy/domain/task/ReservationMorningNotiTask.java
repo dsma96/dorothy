@@ -26,7 +26,7 @@ public class ReservationMorningNotiTask {
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(cron="0 0 9 * * *")
+    @Scheduled(cron="0 30 9 * * *")
     public void morningNotification(){
         log.debug("start sending morningNotification");
         Date start = new Date();

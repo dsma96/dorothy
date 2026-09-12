@@ -22,15 +22,37 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     Optional<List<Reservation>> findAllWithStartDate(@Param("userId")int userId, @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
 
-    @Query("SELECT r From Reservation r WHERE r.startDate < :endDate and r.endDate > :startDate and r.status != 'CANCELED'" )
+//    @Query("SELECT r From Reservation r WHERE r.startDate < :endDate and r.endDate > :startDate and r.status != 'CANCELED'" )
+    @Query("SELECT DISTINCT r FROM Reservation r " +
+        "LEFT JOIN FETCH r.user " +
+        "LEFT JOIN FETCH r.services s " +
+        "LEFT JOIN FETCH s.service " +
+        "WHERE r.startDate < :endDate and r.endDate > :startDate and r.status != 'CANCELED'")
     Optional<List<Reservation>> findAllWithStartDateAndEndDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
 
-    @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED' order by r.startDate" )
+//    @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED' order by r.startDate" )
+@Query("SELECT DISTINCT r FROM Reservation r " +
+        "LEFT JOIN FETCH r.user " +
+        "LEFT JOIN FETCH r.services s " +
+        "LEFT JOIN FETCH s.service " +
+        "WHERE r.startDate >= :startDate " +
+        "  AND r.startDate < :endDate " +
+        "  AND r.status = 'CREATED' " +
+        "ORDER BY r.startDate")
     Optional<List<Reservation>> findAllWithStartDate( @Param("startDate")Date startDate, @Param("endDate")Date endDate );
 
 
-    @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED' and r.userId = :userId order by r.startDate" )
+//    @Query("SELECT r From Reservation r WHERE r.startDate >= :startDate and r.startDate < :endDate and r.status = 'CREATED' and r.userId = :userId order by r.startDate" )
+@Query("SELECT DISTINCT r FROM Reservation r " +
+        "LEFT JOIN FETCH r.user " +
+        "LEFT JOIN FETCH r.services s " +
+        "LEFT JOIN FETCH s.service " +
+        "WHERE r.startDate >= :startDate " +
+        "  AND r.startDate < :endDate " +
+        "  AND r.status = 'CREATED' " +
+        "  AND r.userId = :userId " +
+        "ORDER BY r.startDate")
     Optional<List<Reservation>> findAllWithStartDateAndUserId( @Param("startDate")Date startDate, @Param("endDate")Date endDate, @Param("userId") int userId );
 
 
@@ -104,17 +126,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
         """, nativeQuery = true)
     List<SaleStatDto> getMonthlySaleStat(String year);
 
-    @Query(nativeQuery = true, value = """
-        SELECT CASE 
-            WHEN COUNT(*) > 0 
-                 AND SUM(CASE WHEN start_date <= NOW() THEN 1 ELSE 0 END) = 0 
-            THEN true 
-            ELSE false 
-        END
-        FROM reservation
-        WHERE user_id = :userId
-          AND status IN ('CREATED', 'ACCEPTED', 'COMPLETE')
-    """)
-    boolean isFirstVisitCustomer(@Param("userId") int userId);
 
+    @Query("""
+    SELECT CASE 
+        WHEN COUNT(r) > 0 
+             AND SUM(CASE WHEN r.startDate <= CURRENT_TIMESTAMP THEN 1 ELSE 0 END) = 0 
+        THEN true 
+        ELSE false 
+    END
+    FROM Reservation r
+    WHERE r.userId = :userId
+      AND r.status IN ('CREATED', 'ACCEPTED', 'COMPLETE')
+""")
+    boolean isFirstVisitCustomer(@Param("userId") int userId);
 }
